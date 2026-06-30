@@ -1,0 +1,85 @@
+# OENGB.yaml — config for Open English Bible (New Testament)
+#
+# Invoke any tool with:  --config OENGB
+
+alignments_root: ~/git/Clear-Bible
+
+# ---------------------------------------------------------------------------
+# Identity
+# ---------------------------------------------------------------------------
+
+target_language: eng
+target_edition: OENGB
+target_edition_name: Open English Bible (New Testament)
+
+source_edition: LEB
+source_language: eng
+
+alignment_sources: [SIM-MIGRATED, DIFF-MIGRATED]
+alignment_suffix: LLM-REFINED
+from-scratch: true
+
+# smaller chunks?
+batch-size: 4
+max_output_tokens: 32000
+
+# OpenAI
+#llm_provider: openai
+#llm_model: gpt-5-mini
+#llm_model: gpt-4.1-mini
+#llm_model: gpt-5.4
+#llm_model: gpt-5.4-mini
+#reasoning_effort: high
+# Gloo
+llm_provider: gloo
+reasoning_effort: high
+llm_model: gloo-google-gemini-2.5-flash # decent?
+#llm_model: gloo-deepseek-v4-pro # decent (better than not bad)
+#reasoning_effort: high
+#llm_model: gloo-openai-gpt-5-mini
+#max_output_tokens: 32000
+
+# Ollama (local)
+#llm_provider: ollama
+#llm_model: qwen3.6:35b
+#llm_model: qwen2.5:32b
+#llm_model: deepseek-r1:32b
+#reasoning_effort: high
+
+# ---------------------------------------------------------------------------
+# retry-alignment settings
+# ---------------------------------------------------------------------------
+
+fallback_threshold: 0.30
+
+# LLM provider and model for retry-alignment (the second-pass / quality-repair step).
+# If absent, retry-alignment falls back to the llm_provider / llm_model /
+# reasoning_effort values above. Set these to use a different (typically better)
+# model for the retry pass than the initial refine pass.
+retry_reasoning_effort: high
+#retry_llm_provider: gloo
+#retry_llm_model: gloo-anthropic-claude-opus-4.7
+retry_max_output_tokens: 32000
+retry_llm_provider: gloo
+retry_llm_model: gloo-google-gemini-3.5-flash # decent?
+
+# Alignment quality scoring threshold for retry-alignment and score-alignment.
+# Verses with a composite penalty score above this value are flagged for retry.
+# Range 0–1; lower = more retries, higher = fewer. Default: 0.25.
+# semantic_threshold: 0.35
+
+# Legacy coverage threshold (deprecated; superseded by score_retry_threshold).
+# Flag verses with more than this many unaligned source tokens.
+min_unaligned_src: 2
+
+# ---------------------------------------------------------------------------
+# ACAI and trabina — paths derived automatically from git-root sibling layout
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# sim-migrate settings
+# ---------------------------------------------------------------------------
+
+model: sentence-transformers/LaBSE
+min_similarity: 0.7
+max_word_distance: 8

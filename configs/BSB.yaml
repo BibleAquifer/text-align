@@ -1,0 +1,135 @@
+# BSB.yaml — config for Berean Standard Bible
+#
+# Invoke any tool with:  --config BSB
+
+alignments_root: ~/git/Clear-Bible
+
+# ---------------------------------------------------------------------------
+# Identity
+# ---------------------------------------------------------------------------
+
+target_language: eng
+target_edition: BSB
+target_edition_name: Berean Standard Bible
+
+# for migrating alignments from a reference edition (e.g. for diff-migrate or sim-migrate)
+source_edition: LEB
+source_language: eng
+
+alignment_sources: [SIM-MIGRATED, DIFF-MIGRATED]
+alignment_suffix: LLM-REFINED
+from-scratch: true
+
+# smaller chunks?
+batch-size: 4
+max_output_tokens: 32000
+
+# Anthropic
+#llm_provider: anthropic
+#llm_model: claude-sonnet-4-6
+#llm_model: claude-opus-4-7
+#reasoning_effort: high
+# OpenAI
+#llm_provider: openai
+#llm_model: gpt-5-mini-2025-08-07
+#llm_model: gpt-4.1-mini
+#llm_model: gpt-5.4
+#llm_model: gpt-5.4-mini
+#reasoning_effort: low
+# Google
+#reasoning_effort: high
+#llm_provider: google
+#llm_model: gemini-3-flash-preview
+#llm_model: gemini-3.1-pro-preview
+# openrouter
+#llm_provider: openrouter
+#reasoning_effort: high
+#llm_model: google/gemma-4-26b-a4b-it:exacto
+#llm_model: moonshotai/kimi-k2.5:exacto
+#llm_model: moonshotai/kimi-k2.6:exacto
+#llm_model: qwen/qwen3.6-plus:exacto
+#llm_model: z-ai/glm-5.1:exacto
+#llm_model: deepseek/deepseek-v4-pro:exacto
+#llm_model: deepseek/deepseek-v4-flash:exacto
+#llm_model: mistralai/mistral-large-2512:exacto
+#llm_model: xiaomi/mimo-v2.5
+#llm_model: openai/gpt-oss-120b:free
+#llm_model: qwen/qwen3.6-35b-a3b:exacto
+# Gloo
+llm_provider: gloo
+reasoning_effort: high
+#llm_model: gloo-deepseek-v4-pro
+llm_model: gloo-openai-gpt-5-mini
+#llm_model: gloo-google-gemini-2.5-flash # not bad, but not great for Hebrew
+#llm_model: gloo-openai-gpt-oss-120b
+#llm_model: gloo-google-gemini-3.1-pro
+#llm_model: gloo-google-gemini-3.5-flash # decent (better than not bad)
+#llm_model: gloo-google-gemini-3-flash # bad
+#llm_model: gloo-google-gemma-4-31b
+#llm_model: gloo-google-gemma-4-26b # bad
+#llm_model: gloo-openai-gpt-5.1 # not bad
+#llm_model: gloo-qwen-3.5-plus #crash, sucketh mightily
+#llm_model: gloo-qwen-3.6-flash # crash, sucketh mightily
+#llm_model: gloo-qwen-3.6-35b-a3b # sucketh mightily
+#llm_model: gloo-qwen-3.6-plus # crash, sucketh mightily
+#llm_model: gloo-qwen-3.7-plus # sucketh mightily
+#llm_model: gloo-minimax-m3 # inaccessible
+#llm_model: gloo-xiaomi-mimo-v2.5 # intermittent response, but not good
+#llm_model: gloo-kimi-k2-thinking # sucketh mightily
+#llm_model: gloo-mistral-large-3 # useless
+#llm_model: gloo-mistral-ministral-14b # useless
+#llm_model: gloo-meta-llama-4-maverick # no tool support
+#llm_model: gloo-deepseek-r1-0528 # does not connect
+
+# Ollama (local)
+#llm_provider: ollama
+#llm_model: qwen3.6:35b
+
+# ---------------------------------------------------------------------------
+# retry-alignment settings
+# ---------------------------------------------------------------------------
+
+fallback_threshold: 0.30
+
+# LLM provider and model for retry-alignment (the second-pass / quality-repair step).
+# If absent, retry-alignment falls back to the llm_provider / llm_model /
+# reasoning_effort values above. Set these to use a different (typically better)
+# model for the retry pass than the initial refine pass.
+#retry_llm_provider: anthropic
+#retry_llm_model: claude-opus-4-7
+#retry_reasoning_effort: high
+# DeepSeek
+#retry_llm_provider: openrouter
+#retry_llm_model: deepseek/deepseek-v4-pro:exacto
+#retry_reasoning_effort: high
+# OpenAI
+#retry_llm_provider: openai
+#retry_llm_model: gpt-5.4-mini
+#retry_llm_model: gpt-5.5
+#retry_reasoning_effort: high
+retry_llm_provider: gloo
+retry_llm_model: gloo-google-gemini-3.1-pro
+#retry_llm_model: gloo-anthropic-claude-opus-4.7
+#retry_llm_model: gloo-google-gemini-3.5-flash # decent (better than not bad)
+retry_max_output_tokens: 32000
+# Alignment quality scoring threshold for retry-alignment and score-alignment.
+# Verses with a composite penalty score above this value are flagged for retry.
+# Range 0–1; lower = more retries, higher = fewer. Default: 0.25.
+# semantic_threshold: 0.35
+
+# Legacy coverage threshold (deprecated; superseded by score_retry_threshold).
+# Flag verses with more than this many unaligned source tokens.
+min_unaligned_src: 2
+
+
+# ---------------------------------------------------------------------------
+# ACAI and trabina — paths derived automatically from git-root sibling layout
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# sim-migrate settings
+# ---------------------------------------------------------------------------
+
+model: sentence-transformers/LaBSE
+min_similarity: 0.7
+max_word_distance: 8

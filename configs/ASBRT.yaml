@@ -1,0 +1,63 @@
+# ASBRT.yaml — config for Aquifer Spanish Reference Bible Text (APBRT)
+#
+# Invoke any tool with:  --config ASBRT
+
+alignments_root: ~/git/Clear-Bible
+
+# ---------------------------------------------------------------------------
+# Identity
+# ---------------------------------------------------------------------------
+
+target_language: spa
+target_edition: ASBRT
+target_edition_name: Aquifer Spanish Reference Bible Text
+
+source_edition: RV1909
+source_language: spa
+
+alignment_sources: []
+alignment_suffix: LLM-REFINED
+from-scratch: true
+
+# smaller chunks?
+batch-size: 4
+
+# Gloo
+llm_provider: gloo
+reasoning_effort: high
+llm_model: gloo-google-gemini-3.5-flash # decent (better than not bad)
+
+# ---------------------------------------------------------------------------
+# retry-alignment settings
+# ---------------------------------------------------------------------------
+
+fallback_threshold: 0.30
+
+# LLM provider and model for retry-alignment (the second-pass / quality-repair step).
+# If absent, retry-alignment falls back to the llm_provider / llm_model /
+# reasoning_effort values above. Set these to use a different (typically better)
+# model for the retry pass than the initial refine pass.
+retry_reasoning_effort: high
+retry_llm_provider: gloo
+retry_llm_model: gloo-anthropic-claude-opus-4.7
+
+# Alignment quality scoring threshold for retry-alignment and score-alignment.
+# Verses with a composite penalty score above this value are flagged for retry.
+# Range 0–1; lower = more retries, higher = fewer. Default: 0.25.
+# semantic_threshold: 0.35
+
+# Legacy coverage threshold (deprecated; superseded by score_retry_threshold).
+# Flag verses with more than this many unaligned source tokens.
+min_unaligned_src: 2
+
+# ---------------------------------------------------------------------------
+# ACAI and trabina — paths derived automatically from git-root sibling layout
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# sim-migrate settings
+# ---------------------------------------------------------------------------
+
+model: sentence-transformers/LaBSE
+min_similarity: 0.7
+max_word_distance: 8

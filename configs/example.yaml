@@ -1,0 +1,200 @@
+# example.yaml — annotated reference config for text-align tools.
+#
+# Copy this file and rename it for your project, e.g. mybible.yaml.
+# Invoke any tool with:  --config mybible   (extension is assumed)
+#
+# CLI args always override values set here.
+# Keys use underscores to match argparse dest names (hyphens are also accepted
+# and normalized automatically, so from_scratch and from-scratch both work).
+# Path values support ~ (home dir) and $ENV_VAR expansion.
+
+# ---------------------------------------------------------------------------
+# Root path — enables automatic path derivation
+# ---------------------------------------------------------------------------
+
+# Set alignments_root to the directory that contains your alignments-<lang>/
+# repos.  When set, the paths below are derived automatically and you only
+# need to provide the identity keys (language codes + edition IDs).
+#
+# Derived paths (only set these to override a derived value):
+#   source_tsv_dir       → <root>/alignments-<src_lang>/data/targets/<src_ed>
+#   source_alignment_dir → <root>/alignments-<src_lang>/data/alignments/<src_ed>
+#   target_tsv_dir       → <root>/alignments-<trg_lang>/data/targets/<trg_ed>
+#   targets_dir          → <root>/alignments-<trg_lang>/data/targets/<trg_ed>
+#   lang_data_path       → <root>/alignments-<trg_lang>/data
+#   output_dir           → <root>/alignments-<trg_lang>/exp/<trg_ed>/<TOOL-SUFFIX>
+#   alignment_dir        → <root>/alignments-<trg_lang>/exp/<trg_ed>/<alignment_suffix>
+#                          (only derived when alignment_suffix is set)
+
+alignments_root: ~/git/alignments
+
+# ---------------------------------------------------------------------------
+# Identity — used by all tools
+# ---------------------------------------------------------------------------
+
+# ISO 639-3 language code for the target translation
+target_language: eng
+
+# Edition identifier for the target translation
+target_edition: MYBIBLE
+
+# Full translation name shown in render-alignment HTML headers (optional)
+# target_edition_name: My Bible Translation
+
+# ---------------------------------------------------------------------------
+# Source (reference) translation — used by diff-migrate and sim-migrate
+# ---------------------------------------------------------------------------
+
+source_edition: NIV11
+source_language: eng
+
+# ---------------------------------------------------------------------------
+# ACAI and trabina — used by acai-align and render-alignment
+# ---------------------------------------------------------------------------
+#
+# Defaults are derived automatically from the repo's git-root sibling layout:
+#   acai_data_dir → <git-root>/BibleAquifer/ACAI
+#   trabina_dir   → <git-root>/BN-Content/trabina/data/weighted
+# Override here only if your layout differs from the standard.
+# Set to null to suppress ACAI annotation in render-alignment.
+# acai_data_dir: null
+
+# ---------------------------------------------------------------------------
+# Source/corpus settings
+# ---------------------------------------------------------------------------
+
+ot_corpus: WLCM
+nt_corpus: SBLGNT
+
+# Creator string written into alignment JSON meta
+creator: text-align
+
+# ---------------------------------------------------------------------------
+# refine-alignment settings
+# ---------------------------------------------------------------------------
+
+# Corpus to align: nt, ot, or both. Can also be passed as --corpus on the CLI.
+# corpora: [nt, ot]
+
+# Align without pre-existing candidates. Use true when you don't have migration
+# candidates (ACAI, SIM-MIGRATED, etc.) and want a clean LLM-only first pass.
+from_scratch: true
+
+# Alignment suffix used to locate existing chapter files for incremental runs
+# and by render-alignment and the copy-to/from-gha scripts.
+alignment_suffix: LLM-REFINED
+
+# Verses per LLM call. Smaller values reduce the chance of mid-stream timeouts
+# (especially on Gloo/DeepSeek), at the cost of more API calls.
+batch_size: 2
+
+# Maximum retry attempts on LLM validation failure (bad JSON, out-of-range tokens).
+max_retries: 2
+
+# Maximum retry attempts on transient API errors (429, 503, ChunkedEncodingError, etc.)
+# with exponential backoff. Increase for unreliable providers.
+max_api_retries: 4
+
+# Sampling temperature. Default 1; not applied to OpenAI reasoning models.
+temperature: 1
+
+# Token budget per LLM call. Default 4000 — sufficient for alignment output on any
+# single verse or small batch. For Anthropic extended thinking on the retry pass,
+# use retry_max_output_tokens to set a larger budget (see below).
+max_output_tokens: 4000
+
+# Sync (default) or async. Async submits to the provider's Batch API (~50% cost
+# reduction, up to 24h turnaround) and exits; use fetch-batch to retrieve results.
+# Async is supported for: openai, anthropic, google. Not supported for: openrouter, gloo.
+# batch_mode: sync
+
+# LLM provider and model for refine-alignment.
+# Provider must be set — there is no default. Choose one:
+#
+#   llm_provider: openai       llm_model: gpt-5.4-mini
+#   llm_provider: anthropic    llm_model: claude-sonnet-4-6
+#   llm_provider: google       llm_model: gemini-3-flash-preview
+#   llm_provider: openrouter   llm_model: deepseek/deepseek-v4-pro
+#   llm_provider: gloo         llm_model: gloo-deepseek-v4-pro
+#
+# Gloo model IDs follow the pattern gloo-{family}-{model}, e.g.:
+#   gloo-anthropic-claude-sonnet-4.5
+#   gloo-openai-gpt-4.1-mini
+#   gloo-google-gemini-2.5-flash
+#   gloo-deepseek-v4-pro
+#
+llm_provider: gloo
+llm_model: gloo-deepseek-v4-pro
+
+# Reasoning effort / thinking level (none/minimal/low/medium/high).
+# OpenAI gpt-5.x → reasoning_effort on the Responses API.
+# Google gemini-3+ → thinkingLevel on ThinkingConfig.
+# Ignored for openrouter and gloo (no thinking pass-through).
+# Omit or leave blank to use the model's default (no thinking config sent).
+# reasoning_effort: medium
+
+# ---------------------------------------------------------------------------
+# retry-alignment / score-alignment settings
+# ---------------------------------------------------------------------------
+
+# LLM provider and model for retry-alignment (the second-pass quality-repair step).
+# If absent, retry-alignment falls back to the llm_provider / llm_model /
+# reasoning_effort values above. Set these to use a higher-quality model for
+# retry than the initial cheap first pass.
+# retry_llm_provider: anthropic
+# retry_llm_model: claude-opus-4-7
+# retry_reasoning_effort: high
+
+# Token budget for the retry pass. Overrides max_output_tokens for retry-alignment only.
+# Important for Anthropic extended thinking: Anthropic's max_tokens covers both thinking
+# tokens and output tokens together, so the retry pass needs a larger budget even if the
+# first pass uses a lean value (4000).
+# retry_max_output_tokens: 32000
+
+# Composite penalty threshold for score-alignment and retry-alignment.
+# Verses with a composite score above this value are flagged needs_retry.
+# Range 0–1; lower = more retries, higher = fewer. Default: 0.25.
+# score_retry_threshold: 0.25
+
+# Also flag verses with N or more unaligned source tokens regardless of composite score.
+# Default: 2.
+# min_unaligned_src: 2
+
+# Semantic similarity model used by score-alignment and retry-alignment.
+# For each alignment record, embeds primary source gloss and target token text using
+# the model below; records below semantic_threshold force needs_retry=True on that verse.
+# Only content-bearing POS (noun/verb/adj) are scored; idiom records are excluded.
+# Requires target_tsv_dir. Pass empty string to disable the check entirely.
+# semantic_model: sentence-transformers/LaBSE
+# semantic_threshold: 0.35
+
+# Fallback threshold for retry-alignment: if flagged_verses / total_verses
+# meets or exceeds this value AND a separate retry model is configured,
+# retry-alignment uses the cheaper refine-phase model instead of the retry model.
+# Rationale: a high flagged rate indicates systemic quality issues better
+# addressed by a full re-pass than targeted expensive retries.
+# Range 0–1. Default: 0.25.
+# fallback_threshold: 0.25
+
+# ---------------------------------------------------------------------------
+# sim-migrate settings
+# ---------------------------------------------------------------------------
+
+# Similarity model for sim-migrate token matching.
+# Separate from semantic_model (alignment quality check above).
+# sentence-transformers/LaBSE  (default, broad coverage)
+# cointegrated/SONAR_200_text_encoder  (for languages LaBSE doesn't cover well)
+model: sentence-transformers/LaBSE
+
+min_similarity: 0.7
+max_word_distance: 8
+
+# Set to false to disable stopword filtering (equivalent to --no-stopword-filter)
+# remove_stopwords: true
+
+# ---------------------------------------------------------------------------
+# render-alignment settings
+# ---------------------------------------------------------------------------
+
+# Set to true for right-to-left languages (Arabic, Hebrew, etc.)
+# r2l: false

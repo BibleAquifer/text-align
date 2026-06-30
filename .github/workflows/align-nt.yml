@@ -1,0 +1,250 @@
+name: Align NT
+
+on:
+  workflow_dispatch:
+    inputs:
+      config:
+        description: Edition config name (e.g. BSB)
+        required: true
+        type: string
+      chapter:
+        description: Single chapter to (re-)run, e.g. 40013. Leave blank for full NT.
+        required: false
+        type: string
+      book:
+        description: Single book to run, e.g. 41 for Mark. Leave blank for full NT.
+        required: false
+        type: string
+      model:
+        description: Override the model from the config YAML
+        required: false
+        type: string
+      batch-mode:
+        description: Batch mode
+        required: false
+        default: sync
+        type: choice
+        options:
+          - sync
+          - async
+      max-retry-passes:
+        description: Max retry loop iterations per chapter
+        required: false
+        default: '2'
+        type: string
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      lang: ${{ steps.lang.outputs.lang }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install dependencies
+        run: poetry install --no-interaction
+      - name: Extract target language from config
+        id: lang
+        run: |
+          LANG=$(poetry run python -c "
+          from text_align.config import load_config
+          print(load_config('${{ inputs.config }}').get('target_language', 'eng'))
+          ")
+          echo "lang=$LANG" >> "$GITHUB_OUTPUT"
+      - name: Build chapter matrix
+        id: matrix
+        run: |
+          if [[ -n "${{ inputs.chapter }}" ]]; then
+            MATRIX=$(poetry run python scripts/nt_chapters.py --json --chapter "${{ inputs.chapter }}")
+          elif [[ -n "${{ inputs.book }}" ]]; then
+            MATRIX=$(poetry run python scripts/nt_chapters.py --json --book "${{ inputs.book }}")
+          else
+            MATRIX=$(poetry run python scripts/nt_chapters.py --json)
+          fi
+          echo "Matrix JSON: $MATRIX"
+          echo "matrix={\"include\": $MATRIX}" >> "$GITHUB_OUTPUT"
+
+  warmup:
+    needs: plan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install dependencies
+        run: poetry install --no-interaction
+      - name: Cache LaBSE model
+        id: hf-cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/huggingface/hub
+          key: hf-labse-v1
+      - name: Download LaBSE
+        if: steps.hf-cache.outputs.cache-hit != 'true'
+        run: |
+          poetry run python -c "
+          from sentence_transformers import SentenceTransformer
+          SentenceTransformer('sentence-transformers/LaBSE')
+          print('LaBSE ready')
+          "
+
+  refine-and-retry:
+    name: "${{ matrix.label }}"
+    needs: [plan, warmup]
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      GLOO_CLIENT_ID: ${{ secrets.GLOO_CLIENT_ID }}
+      GLOO_CLIENT_SECRET: ${{ secrets.GLOO_CLIENT_SECRET }}
+      HF_HUB_OFFLINE: "1"
+    steps:
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup
+          df -h
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install dependencies
+        run: poetry install --no-interaction
+      - name: Restore LaBSE cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ~/.cache/huggingface/hub
+          key: hf-labse-v1
+          fail-on-cache-miss: true
+      - name: Refine
+        run: |
+          EXTRA=""
+          [[ -n "${{ inputs.model }}" ]] && EXTRA="--llm-model ${{ inputs.model }}"
+          poetry run refine-alignment \
+            --config ${{ inputs.config }} \
+            --chapter-range ${{ matrix.start }} ${{ matrix.end }} \
+            --skip-existing \
+            --batch-mode ${{ inputs.batch-mode || 'sync' }} \
+            $EXTRA
+      - name: Retry loop
+        run: |
+          MAX_PASSES=${{ inputs.max-retry-passes || 2 }}
+          for i in $(seq 1 "$MAX_PASSES"); do
+            rc=0
+            poetry run retry-alignment \
+              --config ${{ inputs.config }} \
+              --corpus nt \
+              --chapter-range ${{ matrix.start }} ${{ matrix.end }} \
+              --batch-mode ${{ inputs.batch-mode || 'sync' }} || rc=$?
+            [ "$rc" -eq 0 ] && break
+            [ "$rc" -ne 2 ] && exit "$rc"
+            echo "Pass $i: fallback model triggered, looping..."
+          done
+      - name: Collect new output files
+        if: always()
+        run: |
+          mkdir -p /tmp/job-output
+          LANG="${{ needs.plan.outputs.lang }}"
+          SRC="data/alignments/alignments-${LANG}/exp/${{ inputs.config }}/LLM-REFINED"
+          START=${{ matrix.start }}
+          END=${{ matrix.end }}
+          for f in "$SRC"/*.json; do
+            [[ -f "$f" ]] || continue
+            base=$(basename "$f")
+            book=$(echo "$base" | cut -d- -f3)
+            chap=$(echo "$base" | cut -d- -f4)
+            chap_id="${book}${chap}"
+            [[ "$chap_id" -ge "$START" && "$chap_id" -le "$END" ]] && cp "$f" /tmp/job-output/
+          done
+          echo "Collected $(ls /tmp/job-output | wc -l) file(s)"
+      - name: Upload chapter artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: align-${{ matrix.id }}
+          path: /tmp/job-output/
+          if-no-files-found: warn
+
+  collect:
+    needs: [plan, refine-and-retry]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          ref: main
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install dependencies
+        run: poetry install --no-interaction
+      - name: Download all chapter artifacts
+        uses: actions/download-artifact@v7
+        with:
+          pattern: align-*
+          merge-multiple: true
+          path: staging/
+      - name: Copy artifacts into repo
+        run: |
+          DEST="data/alignments/alignments-${{ needs.plan.outputs.lang }}/exp/${{ inputs.config }}/LLM-REFINED"
+          mkdir -p "$DEST"
+          if ls staging/*.json 1>/dev/null 2>&1; then
+            cp -v staging/*.json "$DEST/"
+          else
+            echo "No JSON files found in staging/"
+          fi
+      - name: Commit results and open PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "data/alignments/alignments-${{ needs.plan.outputs.lang }}/exp/${{ inputs.config }}/LLM-REFINED/"
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            BRANCH="gha/align-${{ inputs.config }}-${{ github.run_id }}"
+            git checkout -b "$BRANCH"
+            git commit -m "chore: GHA alignment output — ${{ inputs.config }} NT run ${{ github.run_id }}"
+            git push --force origin "$BRANCH"
+            if ! gh pr view "$BRANCH" --json number -q .number 2>/dev/null; then
+              gh pr create \
+                --title "chore: GHA alignment output — ${{ inputs.config }} NT run ${{ github.run_id }}" \
+                --body "Automated alignment output from workflow run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})." \
+                --base main \
+                --head "$BRANCH"
+            fi
+          fi
+      - name: Summarise results
+        run: |
+          poetry run python scripts/alignment_summary.py \
+            --config ${{ inputs.config }} --corpus nt --markdown \
+            >> "$GITHUB_STEP_SUMMARY"
