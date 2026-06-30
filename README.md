@@ -10,7 +10,7 @@ Here is the end-to-end picture for aligning a new translation. Each step is desc
 
 ### Step 1 — Prepare your translation TSV
 
-The alignment tools work from word-level TSV files, not USFM directly. Use [kathairo](https://pypi.org/project/kathairo/) to convert your translation's USFM into two TSV files — one for OT, one for NT — and place them under `data/targets/<edition>/`:
+The alignment tools work from word-level TSV files, not USFM directly. Use [kathairo](https://pypi.org/project/kathairo/) to convert your translation's USFM into a word-level TSV, then split it into OT and NT portions named `ot_<edition>.tsv` and `nt_<edition>.tsv`, and place them under `data/targets/<edition>/`:
 
 ```
 data/targets/MYBIBLE/
@@ -20,16 +20,21 @@ data/targets/MYBIBLE/
 
 ### Step 2 — Create a config file
 
-Copy `configs/example.yaml` to `configs/MYBIBLE.yaml` and fill in your edition ID, paths, and model choices. Almost every CLI flag can be set in this file so you don't have to repeat it on every command. At minimum you need:
+Copy `configs/example.yaml` to `configs/MYBIBLE.yaml` and fill in your edition ID, paths, and model choices. Almost every CLI flag can be set in this file so you don't have to repeat it on every command.
+
+**Standalone setup** (all data lives inside this repo):
 
 ```yaml
-target_language: eng          # ISO 639-3 code
+target_language: eng                            # ISO 639-3 code
 target_edition: MYBIBLE
-alignments_root: /path/to/alignments-repo   # parent of alignments-eng/, alignments-spa/, etc.
-from_scratch: true            # align without pre-existing candidates
-llm_provider: gloo            # or openai / anthropic / google / openrouter / ollama
-llm_model: gloo-anthropic-claude-sonnet-4.5
+target_tsv_dir: ./data/targets/MYBIBLE          # where you placed your TSV files in Step 1
+output_dir: ./exp/MYBIBLE/LLM-REFINED           # where chapter JSON files will be written
+from_scratch: true                              # align without pre-existing candidates
+llm_provider: gloo                              # or openai / anthropic / google / openrouter / ollama
+llm_model: gloo-google-gemini-2.5-flash
 ```
+
+**Multi-repo setup** (Bible Aquifer internal layout): set `alignments_root` to the parent directory that contains your `alignments-<lang>/` repos and all paths are derived automatically — see `configs/example.yaml` for details.
 
 Put your API credentials in a `.env` file in the project root (copy `.env.example` as a starting point). Keys needed depend on which provider you use.
 
@@ -37,12 +42,20 @@ Put your API credentials in a `.env` file in the project root (copy `.env.exampl
 
 Run `refine-alignment` to align each chapter using an LLM. For cost reasons the first pass typically uses a fast, cheap model. Output is one JSON file per chapter in `exp/<edition>/LLM-REFINED/`.
 
+Before running a full corpus, verify your config and credentials with a single-verse smoke test (Mark 4:3 — short verse, one LLM call):
+
+```bash
+refine-alignment --config MYBIBLE --corpus nt --verse 41004003
+```
+
+If a chapter JSON file appears in your `output_dir` with records for that verse, the pipeline is working. Then run the full corpus:
+
 ```bash
 refine-alignment --config MYBIBLE --corpus nt   # New Testament
 refine-alignment --config MYBIBLE --corpus ot   # Old Testament
 ```
 
-You can limit scope during testing with `--chapter 41003` (Mark 3) or `--book 41` (all of Mark).
+You can also limit scope to one chapter (`--chapter 41003`) or one book (`--book 41`) during development.
 
 **Choosing a model for the first pass:** Any provider works. A cheap reasoning-capable model (e.g. DeepSeek V4 Pro via OpenRouter or Gloo, or Gemini 2.5 Flash via Google) gives good coverage at low cost. Frontier models (Claude Opus, GPT-4.1) are better saved for the retry pass.
 
@@ -81,6 +94,8 @@ Open the generated HTML files in any browser. Each verse is a row of cells showi
 | NT | MACULA Greek (SBLGNT) | `data/sources/SBLGNT.tsv` |
 | OT | MACULA Hebrew (WLCM) | `data/sources/WLCM.tsv` |
 
+Both files are **included in this repository** under `data/sources/`. You do not need to download or prepare them separately.
+
 **MACULA Greek (SBLGNT)** — The SBL Greek New Testament is copyright © 2010 Society of Biblical Literature and Logos Bible Software. Licensed under a [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/). The source data used here is the [MACULA Greek Linguistic Datasets](https://github.com/Clear-Bible/macula-greek) (copyright © Clear Bible, Inc.), which augment the SBLGNT with morphology, lemmas, and glosses.
 
 **MACULA Hebrew (WLCM)** — The MACULA Hebrew Linguistic Datasets are copyright © Clear Bible, Inc. Licensed under a [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/). Source: [github.com/Clear-Bible/macula-hebrew](https://github.com/Clear-Bible/macula-hebrew).
@@ -104,6 +119,21 @@ Requires Python ≥ 3.10. Dependencies are managed with [Poetry](https://python-
 ```bash
 poetry install
 ```
+
+The CLI tools (`refine-alignment`, `score-alignment`, `retry-alignment`, etc.) are registered as entry points in the Poetry virtual environment. To use them, either activate the environment once per session:
+
+```bash
+poetry shell          # activates the venv; all CLIs are then available directly
+refine-alignment --help
+```
+
+Or prefix each command with `poetry run` without activating:
+
+```bash
+poetry run refine-alignment --help
+```
+
+The examples throughout this README assume the environment is already active (no `poetry run` prefix).
 
 ## Testing
 
@@ -205,7 +235,7 @@ The primary workflow runs a cheap/fast model over the corpus first, cleans and a
 ```bash
 # 1. First pass — cheap/fast model
 refine-alignment --config OENGB --corpus nt \
-  --llm-provider openrouter --llm-model deepseek/deepseek-v4-pro
+  --llm-provider gloo --llm-model gloo-google-gemini-2.5-flash
 
 # 2. Clean alignment files in place (also runs automatically inside score/retry)
 clean-alignments --config OENGB --corpus nt
