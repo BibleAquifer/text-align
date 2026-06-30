@@ -37,7 +37,8 @@ TOOL_NAME = "submit_verse_alignments"
 # trying and catching the error.
 _TOOL_CHOICE_INCOMPATIBLE: frozenset[str] = frozenset({
     "deepseek/deepseek-v4-pro",   # openrouter
-    "gloo-deepseek-v4-pro",       # gloo
+    # "gloo-deepseek-v4-pro",     # gloo
+    "gloo/gloo-qwen-3.7-plus",    # gloo
 })
 
 # Neutral tool schema; translated to provider-specific format before each call.
@@ -225,8 +226,12 @@ class _GlooAuth:
                 detail = resp.json()
             except Exception:
                 detail = resp.text
+            trace_id = None
+            if isinstance(detail, dict):
+                trace_id = detail.get("trace_id") or (detail.get("error") or {}).get("trace_id")
+            trace_note = f" [trace_id={trace_id}]" if trace_id else ""
             raise requests.exceptions.HTTPError(
-                f"{exc} — {detail}", response=resp
+                f"{exc}{trace_note} — {detail}", response=resp
             ) from exc
         if stream:
             return resp
@@ -1305,7 +1310,10 @@ class LLMClient:
         ]
         _original_messages = list(messages)
         tool_schema = [_openai_tool_schema(_NEUTRAL_TOOL_SCHEMA)]
-        tool_choice = "required"
+        # "auto" rather than "required" — Gloo Studio has reported INTERNAL_ERROR on
+        # some underlying models when tool_choice is forced; the no-tool-call path
+        # below already nudges/retries if the model skips the tool call.
+        tool_choice = "auto"
 
         results: dict[str, list[dict]] = {}
         all_errors: list[str] = []
@@ -1363,15 +1371,17 @@ class LLMClient:
                 err = response.get("error") or {}
                 err_name = err.get("name") or err.get("code") or "unknown"
                 err_retryable = err.get("retryable")
-                print(f"  NOTE: Gloo error — name={err_name!r}, retryable={err_retryable!r}")
+                err_trace_id = err.get("trace_id")
+                trace_note = f", trace_id={err_trace_id}" if err_trace_id else ""
+                print(f"  NOTE: Gloo error — name={err_name!r}, retryable={err_retryable!r}{trace_note}")
                 if err_retryable is False:
-                    all_errors.append(f"Gloo non-retryable error: {err_name}")
+                    all_errors.append(f"Gloo non-retryable error: {err_name}{trace_note}")
                     break
                 if attempt < max_retries:
                     time.sleep(random.random() * min(30, 2 ** attempt))
                     continue
                 else:
-                    all_errors.append(f"Gloo error after all retries: {err_name}")
+                    all_errors.append(f"Gloo error after all retries: {err_name}{trace_note}")
                     break
             if _finish_reason == "length":
                 print(
