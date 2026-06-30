@@ -23,6 +23,7 @@ from text_align.config import load_config_from_args, require
 from text_align.migrate.alignment_io import load_alignment_json, write_alignment_json
 from text_align.migrate.tsv import process_usfm_tsv
 
+from .clean import run_clean_pass
 from .llm import LLMClient
 from .prompt import build_batch_message, build_system_prompt, detect_phenomena, infer_testament
 from .source import collect_source_verse_range, load_source_verses
@@ -354,6 +355,12 @@ def process_corpus(
             creator=creator,
             skip_existing=skip_existing,
         )
+
+    chapter_files = sorted(output_dir.glob(f"{corpus_id}-{target_edition}-??-???-manual.json"))
+    if chapter_files:
+        files_changed, dropped, repaired = run_clean_pass(chapter_files, source_verses, target_verses)
+        if files_changed:
+            print(f"  Clean pass: {files_changed} file(s) updated ({dropped} dropped, {repaired} repaired)")
 
 
 def _process_corpus_sync(
