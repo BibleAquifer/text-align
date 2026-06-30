@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "text-align"
 version = "0.1.0"
-description = "Tools to create and improve Bible text alignments."
-authors = ["Rick Brannan <rick.brannan@bibliaNexus.org>"]
-repository = "https://github.com/BN-Content/text-align"
+description = "Code to create and improve Bible text alignments for the Aquifer"
+authors = ["Rick Brannan <rbrannan@gloo.us>"]
+repository = "https://github.com/BibleAquifer/text-align"
 readme = "README.md"
 packages = [
   {include = "text_align", from = "src"}

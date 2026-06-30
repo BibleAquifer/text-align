@@ -127,7 +127,7 @@ With:
 alignments_root: ./data/alignments
 ```
 
-Running `refine-alignment` from the project root (`C:/git/BN-Content/text-align`
+Running `refine-alignment` from the project root (`C:/git/BibleAquifer/text-align`
 locally, or `$GITHUB_WORKSPACE` in GHA) resolves all derived paths correctly via the
 existing `load_config_from_args` path derivation logic.
 
@@ -444,7 +444,7 @@ same view.
 
 ```
 Local (single chapter, development/testing):
-  cd C:/git/BN-Content/text-align
+  cd C:/git/BibleAquifer/text-align
   poetry run refine-alignment --config BSB --corpus nt --chapter 40001
   poetry run retry-alignment  --config BSB --corpus nt --chapter 40001
 
