@@ -2,7 +2,7 @@
 #
 # Invoke any tool with:  --config LSG
 
-alignments_root: ~/git/Clear-Bible
+alignments_root: ./data/alignments
 
 # ---------------------------------------------------------------------------
 # Identity
