@@ -27,7 +27,9 @@ llm_provider: gloo
 reasoning_effort: high
 #llm_model: gloo-deepseek-v4-pro # decent
 #llm_model: gloo-openai-gpt-5-mini
-llm_model: gloo-google-gemini-2.5-flash # decent
+#llm_model: gloo-google-gemini-2.5-flash # decent
+#llm_model: gloo-z-ai-glm-5.2 # decent
+llm_model: gloo-deepseek-v4-pro # decent (better than not bad)
 max_output_tokens: 32000
 
 # ---------------------------------------------------------------------------
@@ -43,7 +45,7 @@ fallback_threshold: 0.30
 retry_reasoning_effort: high
 retry_llm_provider: gloo
 #retry_llm_model: gloo-anthropic-claude-opus-4.7
-retry_llm_model: gloo-google-gemini-3.5-flash
+retry_llm_model: gloo-google-gemini-3.1-pro
 retry_max_output_tokens: 32000
 
 # Alignment quality scoring threshold for retry-alignment and score-alignment.
