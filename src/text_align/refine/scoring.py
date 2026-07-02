@@ -9,6 +9,11 @@ Computes a per-verse penalty score (0–1, higher = worse) from five signals:
   5. Per-verse deviation from chapter mean  (second pass)
 
 Verses with composite > config.retry_threshold are flagged needs_retry=True.
+
+A separate, unconditional check (not part of the composite, like article_neq and
+the semantic-similarity check) flags any verse where a source token tagged with
+an ACAI entity (person/place/group/etc.) is neither aligned nor NEQ'd — see
+acai_unaligned_count on VerseScore.
 """
 
 from __future__ import annotations
@@ -125,6 +130,7 @@ class VerseScore:
     structural_errors: int = 0
     article_neq_count: int = 0
     semantic_low_sim_count: int = 0
+    acai_unaligned_count: int = 0
     needs_retry: bool = False
 
 
@@ -142,6 +148,7 @@ def score_verse(
     tgt_text_by_id: dict[str, str] | None,
     lang: str,
     config: ScoringConfig,
+    acai_src_ids: set[str] | None = None,
 ) -> VerseScore:
     """Compute signals 1–4 for a single verse.
 
@@ -158,6 +165,8 @@ def score_verse(
         tgt_text_by_id: token_id → lowercase word text; None skips signal 2.
         lang:          ISO 639-3 language code for stop-word lookup.
         config:        Scoring weights and thresholds.
+        acai_src_ids:  Corpus-wide set of source token IDs tagged with an ACAI
+                       entity (from build_word_entity_map()); None skips the check.
     """
     vs = VerseScore(verse_id=verse_id)
 
@@ -193,6 +202,15 @@ def score_verse(
     # Sets of aligned token IDs
     aligned_src = {sid for rec in valid_records for sid in (rec.get("source") or [])}
     aligned_tgt = {tid for rec in valid_records for tid in (rec.get("target") or [])}
+
+    # -----------------------------------------------------------------------
+    # ACAI entity coverage — unconditional check, not part of the composite.
+    # A source token tagged with an ACAI entity (person/place/group/etc.) that
+    # is neither aligned nor NEQ'd is always a mistake.
+    # -----------------------------------------------------------------------
+    if acai_src_ids:
+        verse_acai_ids = acai_src_ids & {t.id for t in src_tokens}
+        vs.acai_unaligned_count = len(verse_acai_ids - aligned_src - verse_neq_src)
 
     # -----------------------------------------------------------------------
     # Signal 1 — weighted source coverage
@@ -297,6 +315,7 @@ def score_chapter(verse_scores: list[VerseScore], config: ScoringConfig) -> list
             vs.composite > config.retry_threshold
             or vs.article_neq_count > 0
             or vs.signal_4 > config.smear_forced_retry_threshold
+            or vs.acai_unaligned_count > 0
         )
 
     return verse_scores
@@ -309,6 +328,7 @@ def score_chapter_file(
     config: ScoringConfig,
     target_verses: Any | None = None,
     record_details: list | None = None,
+    acai_src_ids: set[str] | None = None,
 ) -> list[VerseScore]:
     """Score all verses in a chapter JSON file.
 
@@ -319,6 +339,9 @@ def score_chapter_file(
         config:            Scoring configuration.
         target_verses:     BCV ID → MigrateVerse from process_usfm_tsv(), or None.
                            When None, signal 2 is skipped (scores 0.0).
+        acai_src_ids:      Corpus-wide set of source token IDs tagged with an
+                           ACAI entity (from build_word_entity_map()), or None
+                           to skip the ACAI-unaligned check.
     """
     data = load_alignment_json(chapter_json_path)
     groups = data.get("groups", [])
@@ -404,6 +427,7 @@ def score_chapter_file(
             tgt_text_by_id=tgt_text_by_id,
             lang=lang,
             config=config,
+            acai_src_ids=acai_src_ids,
         )
         verse_scores.append(vs)
 

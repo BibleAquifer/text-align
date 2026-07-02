@@ -303,6 +303,50 @@ class TestArticleNEQ:
 
 
 # ---------------------------------------------------------------------------
+# ACAI entity coverage — unaligned, non-NEQ'd ACAI-tagged source tokens
+# ---------------------------------------------------------------------------
+
+class TestAcaiUnaligned:
+    def test_unaligned_acai_token_counted(self):
+        src = [_src("40001001001", "noun")]
+        vs = score_verse(
+            VID, [], set(), set(), src, set(), None, "eng", CONFIG,
+            acai_src_ids={"40001001001"},
+        )
+        assert vs.acai_unaligned_count == 1
+
+    def test_aligned_acai_token_not_counted(self):
+        src = [_src("40001001001", "noun")]
+        records = [_rec(["40001001001"], ["40001001001"])]
+        vs = score_verse(
+            VID, records, set(), set(), src, set(), None, "eng", CONFIG,
+            acai_src_ids={"40001001001"},
+        )
+        assert vs.acai_unaligned_count == 0
+
+    def test_neqd_acai_token_not_counted(self):
+        src = [_src("40001001001", "noun")]
+        vs = score_verse(
+            VID, [], {"40001001001"}, set(), src, set(), None, "eng", CONFIG,
+            acai_src_ids={"40001001001"},
+        )
+        assert vs.acai_unaligned_count == 0
+
+    def test_non_acai_token_not_counted(self):
+        src = [_src("40001001001", "noun")]
+        vs = score_verse(VID, [], set(), set(), src, set(), None, "eng", CONFIG)
+        assert vs.acai_unaligned_count == 0
+
+    def test_acai_token_outside_verse_not_counted(self):
+        src = [_src("40001001001", "noun")]
+        vs = score_verse(
+            VID, [], set(), set(), src, set(), None, "eng", CONFIG,
+            acai_src_ids={"40001002001"},
+        )
+        assert vs.acai_unaligned_count == 0
+
+
+# ---------------------------------------------------------------------------
 # score_chapter — composite, signal 5, needs_retry
 # ---------------------------------------------------------------------------
 
@@ -335,6 +379,11 @@ class TestScoreChapter:
         vs = VerseScore(verse_id=VID)  # all signals 0.0
         score_chapter([vs], CONFIG)
         assert not vs.needs_retry
+
+    def test_acai_unaligned_forces_retry_regardless_of_score(self):
+        vs = VerseScore(verse_id=VID, acai_unaligned_count=1)  # composite = 0
+        score_chapter([vs], CONFIG)
+        assert vs.needs_retry
 
     def test_article_neq_forces_retry_regardless_of_score(self):
         vs = VerseScore(verse_id=VID, article_neq_count=1)  # composite = 0

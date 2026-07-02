@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 from text_align import ROOT
+from text_align.align.acai_common import ACAI_TYPES, build_word_entity_map, load_acai_entities
 from text_align.config import load_config_from_args, require
 
 from .clean import run_clean_pass
@@ -40,6 +41,7 @@ _TSV_FIELDS = [
     "structural_errors",
     "article_neq",
     "semantic_low_sim",
+    "acai_unaligned",
 ]
 
 
@@ -81,6 +83,12 @@ def parse_args() -> argparse.Namespace:
                         "(default: sentence-transformers/LaBSE). Pass empty string to disable.")
     p.add_argument("--semantic-threshold", type=float, default=0.35,
                    help="Cosine similarity below which a record is flagged (default: 0.35)")
+    p.add_argument("--acai-data-dir", default=None, type=Path,
+                   help="Path to ACAI root directory (omit to disable the ACAI-unaligned check)")
+    p.add_argument("--acai-types", nargs="+", default=ACAI_TYPES,
+                   help=f"ACAI entity types to load (default: {ACAI_TYPES})")
+    p.add_argument("--include-acai-pronominals", action="store_true",
+                   help="Include pronominal referents in ACAI entity data")
 
     range_group = p.add_mutually_exclusive_group()
     range_group.add_argument("--book", default=None, metavar="BB")
@@ -130,6 +138,16 @@ def main() -> None:
         print(f"  Loading target tokens ({args.target_edition}) ...", file=sys.stderr)
         target_verses = process_usfm_tsv(args.target_tsv_dir, args.target_edition)
 
+    acai_src_ids: set[str] | None = None
+    if args.acai_data_dir is not None:
+        print(f"  Loading ACAI entities ({args.acai_data_dir}) ...", file=sys.stderr)
+        acai_entities = load_acai_entities(
+            args.acai_data_dir, args.acai_types, args.corpus,
+            include_pronominals=args.include_acai_pronominals,
+        )
+        acai_src_ids = set(build_word_entity_map(acai_entities).keys())
+        print(f"  ACAI-tagged source tokens: {len(acai_src_ids)}", file=sys.stderr)
+
     print("  Cleaning alignment files ...", file=sys.stderr)
     files_changed, dropped, repaired = run_clean_pass(chapter_files, source_verses, target_verses)
     if files_changed:
@@ -154,6 +172,7 @@ def main() -> None:
             cf, source_verses, args.target_language, scoring_config,
             target_verses=target_verses,
             record_details=semantic_details,
+            acai_src_ids=acai_src_ids,
         )
         all_scores.extend(verse_scores)
         all_coverage_flagged.update(
@@ -198,6 +217,7 @@ def main() -> None:
                 "structural_errors": vs.structural_errors,
                 "article_neq":       vs.article_neq_count,
                 "semantic_low_sim":  vs.semantic_low_sim_count,
+                "acai_unaligned":    vs.acai_unaligned_count,
             })
     finally:
         if args.output:

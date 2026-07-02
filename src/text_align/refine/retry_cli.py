@@ -16,6 +16,7 @@ import time
 from pathlib import Path
 
 from text_align import ROOT
+from text_align.align.acai_common import ACAI_TYPES, build_word_entity_map, load_acai_entities
 from text_align.config import load_config_from_args, require
 from text_align.migrate.tsv import process_usfm_tsv
 
@@ -98,6 +99,12 @@ def parse_args() -> argparse.Namespace:
                         "(default: sentence-transformers/LaBSE). Pass empty string to disable.")
     p.add_argument("--semantic-threshold", type=float, default=0.35,
                    help="Cosine similarity below which a record is flagged (default: 0.35)")
+    p.add_argument("--acai-data-dir", default=None, type=Path,
+                   help="Path to ACAI root directory (omit to disable the ACAI-unaligned check)")
+    p.add_argument("--acai-types", nargs="+", default=ACAI_TYPES,
+                   help=f"ACAI entity types to load (default: {ACAI_TYPES})")
+    p.add_argument("--include-acai-pronominals", action="store_true",
+                   help="Include pronominal referents in ACAI entity data")
 
     range_group = p.add_mutually_exclusive_group()
     range_group.add_argument("--verse", default=None, metavar="BBCCCVVV",
@@ -275,6 +282,16 @@ def main() -> None:
     print(f"  Loading target tokens ({args.target_edition}) ...")
     target_verses = process_usfm_tsv(args.target_tsv_dir, args.target_edition)
 
+    acai_src_ids: set[str] | None = None
+    if args.acai_data_dir is not None:
+        print(f"  Loading ACAI entities ({args.acai_data_dir}) ...")
+        acai_entities = load_acai_entities(
+            args.acai_data_dir, args.acai_types, args.corpus,
+            include_pronominals=args.include_acai_pronominals,
+        )
+        acai_src_ids = set(build_word_entity_map(acai_entities).keys())
+        print(f"  ACAI-tagged source tokens: {len(acai_src_ids)}")
+
     print("  Cleaning alignment files ...")
     files_changed, dropped, repaired = run_clean_pass(chapter_files, source_verses, target_verses)
     if files_changed:
@@ -333,6 +350,7 @@ def main() -> None:
             verse_scores = score_chapter_file(
                 cf, source_verses, args.target_language, scoring_config,
                 target_verses=target_verses,
+                acai_src_ids=acai_src_ids,
             )
             total_verse_count += len(verse_scores)
             coverage_flagged = {

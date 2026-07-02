@@ -459,7 +459,8 @@ returns `(files_changed, total_dropped, total_repaired)`.
 
 Standalone audit tool. Reads chapter JSON files and writes a per-verse TSV report (columns:
 `verse_id`, `composite`, `signal_1`–`signal_5`, `needs_retry`, `coverage_flagged`,
-`structural_errors`, `article_neq`, `semantic_low_sim`) to stdout or `--output`. Does **not** call the LLM.
+`structural_errors`, `article_neq`, `semantic_low_sim`, `acai_unaligned`) to stdout or
+`--output`. Does **not** call the LLM.
 
 Uses the same dual flagging logic as `retry-alignment`: a verse is flagged when either
 (a) composite score > `--score-retry-threshold`, or (b) `find_low_coverage_verses()`
@@ -476,6 +477,9 @@ score-alignment \
   [--semantic-model sentence-transformers/LaBSE] \   # default; pass "" to disable
   [--semantic-threshold 0.35] \
   [--semantic-detail-output] \                        # write per-record similarity TSV to output/semantic_detail_YYYY-MM-DD.tsv
+  [--acai-data-dir path/to/BibleAquifer/ACAI] \        # enables the ACAI-unaligned check
+  [--acai-types people places groups ...] \            # default: all ACAI_TYPES
+  [--include-acai-pronominals] \
   [--flagged-only] \
   [--output scores.tsv]
 ```
@@ -488,6 +492,16 @@ proper noun, or secondary to their head noun/adjective/participle).
 TSV also includes a `semantic_low_sim` column (integer count of records below threshold).
 Any verse with `semantic_low_sim > 0` is unconditionally flagged `needs_retry=True`.
 Requires `--target-tsv-dir`; silently skips if target text is unavailable.
+
+TSV also includes an `acai_unaligned` column (integer count of ACAI-tagged source tokens
+that are neither aligned nor NEQ'd). Any verse with `acai_unaligned > 0` is unconditionally
+flagged `needs_retry=True` — a source word carrying an ACAI person/place/group/deity/
+keyterm/fauna/flora/realia tag should always end up aligned to something in the target,
+or explicitly NEQ'd. Requires `--acai-data-dir` (same loader as `render-alignment` and
+`acai-align`: `load_acai_entities()` + `build_word_entity_map()` from
+`align/acai_common.py`); silently skipped (column stays 0) when omitted. `retry-alignment`
+accepts the same `--acai-data-dir`/`--acai-types`/`--include-acai-pronominals` flags and
+applies the same forced-retry rule.
 
 `--semantic-detail-output` (boolean flag, no value) writes a per-record TSV to
 `output/semantic_detail_YYYY-MM-DD.tsv` (columns: `verse_id`, `src_ids`, `src_lemmas`,
