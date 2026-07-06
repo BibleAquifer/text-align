@@ -125,6 +125,12 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 1
+      - name: Checkout ACAI data
+        uses: actions/checkout@v5
+        with:
+          repository: BibleAquifer/ACAI
+          path: acai-data
+          fetch-depth: 1
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
@@ -157,7 +163,8 @@ jobs:
               --config ${{ inputs.config }} \
               --corpus nt \
               --chapter-range ${{ matrix.start }} ${{ matrix.end }} \
-              --batch-mode ${{ inputs.batch-mode || 'sync' }} || rc=$?
+              --batch-mode ${{ inputs.batch-mode || 'sync' }} \
+              --acai-data-dir acai-data || rc=$?
             [ "$rc" -eq 0 ] && break
             [ "$rc" -ne 2 ] && exit "$rc"
             echo "Pass $i: fallback model triggered, looping..."
