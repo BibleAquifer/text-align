@@ -12,6 +12,12 @@ Copies:
   ./data/alignments/alignments-<lang>/viz/<edition>/   (if present)
     -> <clear_root>/alignments-<lang>/viz/<edition>/
 
+  ./data/alignments/alignments-<lang>/data/targets/<edition>/*.tsv
+    -> <clear_root>/alignments-<lang>/data/targets/<edition>/
+
+  (the staged TSVs are copied back too, since they may have been edited
+  locally after copy-to-gha.py staged them and before the GHA run)
+
 Then patches the config YAML so alignments_root points back to <clear_root>,
 and removes the edition-specific staged data from ./data/alignments/:
   alignments-<lang>/data/targets/<edition>/
@@ -98,6 +104,12 @@ def main() -> None:
     )
     dest_viz_dir = clear_root / f"alignments-{lang}" / "viz" / edition
 
+    src_tsv_dir = (
+        _REPO_ROOT / "data" / "alignments"
+        / f"alignments-{lang}" / "data" / "targets" / edition
+    )
+    dest_tsv_dir = clear_root / f"alignments-{lang}" / "data" / "targets" / edition
+
     tag = "[dry-run] " if args.dry_run else ""
     print(f"copy-from-gha: {lang}/{edition}  suffix={suffix}")
     print()
@@ -147,6 +159,23 @@ def main() -> None:
 
     print()
 
+    # --- TSV target files (may have been edited locally after staging) ---
+    tsvs = sorted(src_tsv_dir.glob("*.tsv")) if src_tsv_dir.exists() else []
+    if tsvs:
+        print(f"  targets ({len(tsvs)} TSV files):")
+        print(f"    {src_tsv_dir}")
+        print(f"    -> {dest_tsv_dir}")
+        if not args.dry_run:
+            dest_tsv_dir.mkdir(parents=True, exist_ok=True)
+        for tsv in tsvs:
+            print(f"  {tag}copy  {tsv.name}")
+            if not args.dry_run:
+                shutil.copy2(tsv, dest_tsv_dir / tsv.name)
+        print(f"\n  {len(tsvs)} file(s) copied")
+    else:
+        print(f"  targets: {src_tsv_dir} not found or empty -- skipping")
+    print()
+
     # --- YAML patch ---
     config_path = CONFIGS_DIR / f"{args.config}.yaml"
     _patch_yaml(config_path, clear_root_str, args.dry_run)
@@ -179,6 +208,8 @@ def main() -> None:
         print(f"  git add exp/{edition}/{suffix}/")
         if has_viz:
             print(f"  git add viz/{edition}/")
+        if tsvs:
+            print(f"  git add data/targets/{edition}/")
         print(f"  git commit -m 'feat: GHA alignment results -- {lang}/{edition}'")
         print( "  git push")
         print()
