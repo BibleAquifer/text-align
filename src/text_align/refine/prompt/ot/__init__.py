@@ -1,3 +1,4 @@
-"""OT prompt package — registers English config on import."""
+"""OT prompt package — registers language configs on import."""
 
 from . import eng as _eng  # noqa: F401
+from . import por as _por  # noqa: F401
