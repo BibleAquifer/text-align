@@ -82,6 +82,7 @@ compressed. Approximate token budget (all blocks assembled):
 | NT spa | 3,599 |
 | NT fra | 4,488 |
 | OT eng | 2,560 |
+| OT ind | ~4,000 |
 
 Current languages: eng, por, spa, fra.
 Planned: Arabic, Chinese Simplified, Chinese Traditional, Hindi, Gujarati,

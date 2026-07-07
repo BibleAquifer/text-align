@@ -100,6 +100,20 @@ Both files are **included in this repository** under `data/sources/`. You do not
 
 **MACULA Hebrew (WLCM)** — The MACULA Hebrew Linguistic Datasets are copyright © Clear Bible, Inc. Licensed under a [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/). Source: [github.com/Clear-Bible/macula-hebrew](https://github.com/Clear-Bible/macula-hebrew).
 
+## Supported target languages
+
+Both testaments (NT/Greek and OT/Hebrew) support the same set of target-language prompt configs, selected by ISO 639-3 code (`target_language` in the config YAML):
+
+| Code | Language | NT (Greek) | OT (Hebrew) |
+|------|----------|:----------:|:------------:|
+| `eng` | English | ✅ | ✅ |
+| `por` | Portuguese | ✅ | ✅ |
+| `spa` | Spanish (Latin American) | ✅ | ✅ |
+| `fra` | French | ✅ | ✅ |
+| `ind` | Indonesian | ✅ | ✅ |
+
+An unrecognized `target_language` code falls back to the English (`eng`) prompt config automatically. See `src/text_align/refine/prompt/nt/` and `src/text_align/refine/prompt/ot/` to add a new language.
+
 ## Target translation TSVs
 
 Each target translation is represented as a pair of word-level TSV files (one for OT, one for NT) under `data/targets/<edition>/`. These files are produced by Biblica's [kathairo](https://pypi.org/project/kathairo/) library, which reads USFM or USX and produces the token-per-row TSV format the alignment tools expect.
@@ -206,10 +220,15 @@ src/text_align/
 │   │   │   ├── eng.py   #     English (auto-registered)
 │   │   │   ├── por.py   #     Portuguese (auto-registered)
 │   │   │   ├── spa.py   #     Latin American Spanish (auto-registered)
-│   │   │   └── fra.py   #     French (auto-registered)
+│   │   │   ├── fra.py   #     French (auto-registered)
+│   │   │   └── ind.py   #     Indonesian (auto-registered)
 │   │   ├── ot/          #   OT (Hebrew) language configs
 │   │   │   ├── core.py  #     Registry, phenomenon detection, OT prompt assembly
-│   │   │   └── eng.py   #     English (auto-registered)
+│   │   │   ├── eng.py   #     English (auto-registered)
+│   │   │   ├── por.py   #     Portuguese (auto-registered)
+│   │   │   ├── spa.py   #     Latin American Spanish (auto-registered)
+│   │   │   ├── fra.py   #     French (auto-registered)
+│   │   │   └── ind.py   #     Indonesian (auto-registered)
 │   │   └── __init__.py  #   Public API re-export
 │   ├── llm.py           # Provider-agnostic LLM call layer (OpenAI / Anthropic / Google / OpenRouter / Gloo / Ollama)
 │   ├── async_batch.py   # Provider batch-API helpers (Google, OpenAI, Anthropic)
