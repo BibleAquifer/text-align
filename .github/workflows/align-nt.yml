@@ -32,6 +32,11 @@ on:
         required: false
         default: '2'
         type: string
+      skip-existing:
+        description: Skip chapters whose output file already exists (uncheck to force re-run)
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   plan:
@@ -148,10 +153,12 @@ jobs:
         run: |
           EXTRA=""
           [[ -n "${{ inputs.model }}" ]] && EXTRA="--llm-model ${{ inputs.model }}"
+          SKIP_FLAG=""
+          [[ "${{ inputs.skip-existing }}" == "true" ]] && SKIP_FLAG="--skip-existing"
           poetry run refine-alignment \
             --config ${{ inputs.config }} \
             --chapter-range ${{ matrix.start }} ${{ matrix.end }} \
-            --skip-existing \
+            $SKIP_FLAG \
             --batch-mode ${{ inputs.batch-mode || 'sync' }} \
             $EXTRA
       - name: Retry loop
