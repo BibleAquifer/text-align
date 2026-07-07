@@ -19,12 +19,16 @@ from .source import collect_source_verse_range
 from .util import _chapter_id_from_path, _CORPUS_TESTAMENT
 
 
-_CHAPTER_GLOB = "*-*-??-???-manual.json"
+def discover_chapter_files(alignment_dir: Path, corpus_id: str) -> list[Path]:
+    """Return chapter JSON files for the given corpus in alignment_dir, sorted by path.
 
-
-def discover_chapter_files(alignment_dir: Path) -> list[Path]:
-    """Return all chapter JSON files in alignment_dir, sorted by path."""
-    return sorted(alignment_dir.glob(_CHAPTER_GLOB))
+    corpus_id is the source-document prefix ("SBLGNT" or "WLCM"). Required so a
+    directory holding both testaments' chapter files never mixes them — a
+    mis-specified --corpus previously caused every chapter file of the OTHER
+    testament to be scored/retried against the wrong source tokens, wiping
+    their records.
+    """
+    return sorted(alignment_dir.glob(f"{corpus_id}-*-??-???-manual.json"))
 
 
 def merge_verse_results(

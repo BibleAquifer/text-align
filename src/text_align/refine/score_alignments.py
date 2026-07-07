@@ -110,7 +110,7 @@ def main() -> None:
         args.semantic_detail_output = Path("output") / f"semantic_detail_{date.today()}.tsv"
     corpus_id = _CORPUS_ID[args.corpus]
 
-    chapter_files = discover_chapter_files(args.alignment_dir)
+    chapter_files = discover_chapter_files(args.alignment_dir, corpus_id)
     chapter_files = _filter_chapter_files(chapter_files, args)
     if not chapter_files:
         raise SystemExit("No chapter JSON files found in --alignment-dir.")

@@ -270,7 +270,7 @@ def main() -> None:
         print(f"  Force-retry list: {len(forced_verse_set)} verse(s) from {verse_list_file}")
 
     # Discover and filter chapter files
-    chapter_files = discover_chapter_files(args.alignment_dir)
+    chapter_files = discover_chapter_files(args.alignment_dir, corpus_id)
     chapter_files = _filter_chapter_files(chapter_files, args, forced_verse_set)
     if not chapter_files:
         raise SystemExit("No chapter JSON files found in --alignment-dir.")
