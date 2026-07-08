@@ -1,8 +1,14 @@
 """score-alignment: audit alignment quality without running the LLM.
 
 Reads chapter JSON files, scores each verse using the composite penalty scorer,
-and writes a TSV report to stdout (or --output). Useful for deciding which
-chapters need retry-alignment and for tuning the scoring thresholds.
+and writes a full per-verse TSV report to a file (never stdout — see below).
+A human-readable summary (needs_retry breakdown by named reason, plus a
+statistically "suspect" verse list) is printed to stdout by default. Useful
+for deciding which chapters need retry-alignment and for tuning thresholds.
+
+The full per-verse TSV is deliberately file-only: it is too much raw data to
+visually scan for offenders. The stdout summary is the primary interface;
+the TSV is there for tooling / spreadsheet review of everything at once.
 
 CLI entry point: score-alignment
 """
@@ -12,6 +18,7 @@ from __future__ import annotations
 import argparse
 import csv
 import sys
+from datetime import date
 from pathlib import Path
 
 from text_align import ROOT
@@ -21,7 +28,7 @@ from text_align.config import load_config_from_args, require
 from .clean import run_clean_pass
 from .coverage import find_low_coverage_verses
 from .retry import _filter_chapter_files, discover_chapter_files
-from .scoring import ScoringConfig, VerseScore, score_chapter_file
+from .scoring import ScoringConfig, VerseScore, find_suspect_verses, score_chapter_file
 from .source import load_source_verses
 from .util import _CORPUS_ID
 
@@ -42,7 +49,10 @@ _TSV_FIELDS = [
     "article_neq",
     "semantic_low_sim",
     "acai_unaligned",
+    "smear_1toN",
+    "smear_1toN_delta",
 ]
+
 
 
 def parse_args() -> argparse.Namespace:
@@ -72,12 +82,19 @@ def parse_args() -> argparse.Namespace:
                    help="Penalty threshold for needs_retry flag (default: 0.25)")
     p.add_argument("--min-unaligned-src", type=int, default=2,
                    help="Also flag verses with N or more unaligned source tokens (default: 2)")
+    p.add_argument("--suspect-stddev", type=float, default=1.5,
+                   help="Suspect-verse threshold: mean + N*stddev of composite scores "
+                        "across all verses scored in this run, computed corpus-wide "
+                        "(default: 1.5)")
     p.add_argument("--output", default=None, type=Path,
-                   help="Write TSV report to this file (default: stdout)")
+                   help="Write full per-verse TSV report to this file "
+                        "(default: output/score_YYYY-MM-DD.tsv). The TSV is always "
+                        "written to a file, never stdout.")
     p.add_argument("--semantic-detail-output", action="store_true", default=False,
                    help="Write per-record semantic similarity details to output/semantic_detail_YYYY-MM-DD.tsv")
     p.add_argument("--flagged-only", action="store_true", default=False,
-                   help="Only output verses where needs_retry is True")
+                   help="Only write verses where needs_retry is True to the TSV file "
+                        "(does not affect the stdout summary)")
     p.add_argument("--semantic-model", default="sentence-transformers/LaBSE",
                    help="sentence-transformers model for semantic similarity check "
                         "(default: sentence-transformers/LaBSE). Pass empty string to disable.")
@@ -103,10 +120,97 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
+def _verse_reasons(vs: VerseScore, config: ScoringConfig, coverage_flagged: bool) -> list[str]:
+    """Human-readable reasons a verse is flagged/suspect, most-significant weighted
+    signal first, then any unconditional (non-composite) checks that fired."""
+    contributions = {
+        "source coverage gaps": config.w1 * vs.signal_1,
+        "target coverage gaps": config.w2 * vs.signal_2,
+        "NEQ overuse":          config.w3 * vs.signal_3,
+        "token smearing":       config.w4 * vs.signal_4,
+    }
+    dominant, dominant_val = max(contributions.items(), key=lambda kv: kv[1])
+    reasons: list[str] = [dominant] if dominant_val > 0 else []
+    if vs.signal_4 > config.smear_forced_retry_threshold and "token smearing" not in reasons:
+        reasons.append("token smearing")
+    if coverage_flagged:
+        reasons.append("low source coverage")
+    if vs.article_neq_count:
+        reasons.append("NEQ'd article")
+    if vs.semantic_low_sim_count:
+        reasons.append("low semantic similarity")
+    if vs.acai_unaligned_count:
+        reasons.append("unaligned ACAI entity")
+    if vs.smear_1toN_count:
+        reasons.append("wide 1:N grouping")
+    return reasons or ["(unspecified)"]
+
+
+def _format_ids(ids: list[str], cap: int = 6) -> str:
+    shown = ids[:cap]
+    text = ", ".join(shown)
+    if len(ids) > cap:
+        text += f", +{len(ids) - cap} more"
+    return text
+
+
+def _print_summary(
+    all_scores: list[VerseScore],
+    all_coverage_flagged: set[str],
+    scoring_config: ScoringConfig,
+    suspect_k: float,
+    target_language: str,
+    corpus: str,
+    n_chapters: int,
+    tsv_path: Path,
+) -> None:
+    total = len(all_scores)
+    if total == 0:
+        print("No verses scored.")
+        return
+
+    def is_flagged(vs: VerseScore) -> bool:
+        return vs.needs_retry or vs.verse_id in all_coverage_flagged
+
+    flagged_scores = [vs for vs in all_scores if is_flagged(vs)]
+
+    print(f"score-alignment — {target_language} ({corpus}), {n_chapters} chapter(s), {total} verse(s)\n")
+
+    pct = 100 * len(flagged_scores) / total
+    print(f"needs_retry: {len(flagged_scores)} ({pct:.1f}%)")
+    if flagged_scores:
+        reason_ids: dict[str, list[str]] = {}
+        for vs in flagged_scores:
+            for reason in _verse_reasons(vs, scoring_config, vs.verse_id in all_coverage_flagged):
+                reason_ids.setdefault(reason, []).append(vs.verse_id)
+        for reason, ids in sorted(reason_ids.items(), key=lambda kv: -len(kv[1])):
+            print(f"  {reason}: {len(ids)}   [{_format_ids(ids)}]")
+    print()
+
+    # Suspect verses: corpus-wide mean + k*stddev of composite, computed across
+    # every verse scored in this run, excluding anything already flagged.
+    flagged_ids = {vs.verse_id for vs in flagged_scores}
+    suspects, bar = find_suspect_verses(all_scores, flagged_ids, suspect_k)
+
+    spct = 100 * len(suspects) / total
+    print(f"suspect (composite > mean+{suspect_k:g}σ={bar:.3f}, below retry threshold): "
+          f"{len(suspects)} ({spct:.1f}%)")
+    for vs in suspects:
+        reasons = ", ".join(_verse_reasons(vs, scoring_config, False))
+        print(f"  {vs.verse_id}  composite={vs.composite:.3f}  {reasons}")
+    if suspects:
+        verse_list = ",".join(vs.verse_id for vs in suspects)
+        print(f"\n  --verse-list for retry-alignment:\n  {verse_list}")
+    print()
+
+    print(f"Full per-verse detail: {tsv_path}")
+
+
 def main() -> None:
     args = parse_args()
+    if args.output is None:
+        args.output = Path("output") / f"score_{date.today()}.tsv"
     if args.semantic_detail_output:
-        from datetime import date
         args.semantic_detail_output = Path("output") / f"semantic_detail_{date.today()}.tsv"
     corpus_id = _CORPUS_ID[args.corpus]
 
@@ -181,28 +285,18 @@ def main() -> None:
                                                   target_verses=target_verses)
         )
 
+    tsv_scores = all_scores
     if args.flagged_only:
-        all_scores = [
+        tsv_scores = [
             vs for vs in all_scores
             if vs.needs_retry or vs.verse_id in all_coverage_flagged
         ]
 
-    total = len(all_scores)
-    flagged = sum(
-        1 for vs in all_scores
-        if vs.needs_retry or vs.verse_id in all_coverage_flagged
-    )
-    print(
-        f"  Scored {total} verse(s); {flagged} flagged for retry "
-        f"({100*flagged/total:.1f}%)" if total else "  No verses scored.",
-        file=sys.stderr,
-    )
-
-    out_stream = open(args.output, "w", newline="", encoding="utf-8") if args.output else sys.stdout
-    try:
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    with open(args.output, "w", newline="", encoding="utf-8") as out_stream:
         writer = csv.DictWriter(out_stream, fieldnames=_TSV_FIELDS, delimiter="\t")
         writer.writeheader()
-        for vs in all_scores:
+        for vs in tsv_scores:
             coverage_flagged = vs.verse_id in all_coverage_flagged
             writer.writerow({
                 "verse_id":          vs.verse_id,
@@ -218,16 +312,17 @@ def main() -> None:
                 "article_neq":       vs.article_neq_count,
                 "semantic_low_sim":  vs.semantic_low_sim_count,
                 "acai_unaligned":    vs.acai_unaligned_count,
+                "smear_1toN":        vs.smear_1toN_count,
+                "smear_1toN_delta":  (f"{vs.smear_1toN_max_delta:+.4f}"
+                                      if vs.smear_1toN_max_delta is not None else ""),
             })
-    finally:
-        if args.output:
-            out_stream.close()
 
     if semantic_details is not None and args.semantic_detail_output:
         _DETAIL_FIELDS = [
             "verse_id", "src_ids", "src_lemmas", "src_gloss", "src_gloss_alt",
             "tgt_ids", "tgt_text", "similarity", "below_threshold",
         ]
+        args.semantic_detail_output.parent.mkdir(parents=True, exist_ok=True)
         with open(args.semantic_detail_output, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=_DETAIL_FIELDS, delimiter="\t")
             writer.writeheader()
@@ -236,6 +331,11 @@ def main() -> None:
             f"  Semantic detail: {len(semantic_details)} record(s) → {args.semantic_detail_output}",
             file=sys.stderr,
         )
+
+    _print_summary(
+        all_scores, all_coverage_flagged, scoring_config, args.suspect_stddev,
+        args.target_language, args.corpus, len(chapter_files), args.output,
+    )
 
 
 if __name__ == "__main__":

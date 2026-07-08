@@ -252,3 +252,60 @@ def apply_semantic_scores(
             vs = verse_by_id[verse_id]
             vs.semantic_low_sim_count = count
             vs.needs_retry = True
+
+
+def apply_smear_delta_scores(
+    verse_scores: list,  # list[VerseScore]
+    src_by_id: dict[str, Source],
+    tgt_text_by_id: dict[str, str],
+    model_name: str,
+) -> None:
+    """Rank smear_1toN candidates (see scoring.find_smear_1toN_records) by a
+    semantic delta: similarity of the claimed target span to the unaligned
+    neighbor's gloss, minus similarity to the record's own source gloss.
+
+    This is a triage aid, not a confirmer: a delta near zero or positive is
+    weak evidence the span's meaning overlaps the neighbor's (candidate for
+    review first); a strongly negative delta means the span is dominated by
+    its own source's meaning and the flag is more likely a false positive
+    (e.g. a pro-drop subject pronoun absorbed into verb morphology). Does not
+    affect needs_retry — sets smear_1toN_max_delta on VerseScore only.
+    """
+    span_texts: list[str] = []
+    own_glosses: list[str] = []
+    nbr_glosses: list[str] = []
+    targets: list = []  # parallel list of VerseScore
+
+    for vs in verse_scores:
+        for item in vs.smear_1toN_flagged:
+            rec = item["record"]
+            own_tok = src_by_id.get(item["source_id"])
+            nbr_tok = src_by_id.get(item["neighbor_id"])
+            if own_tok is None or nbr_tok is None:
+                continue
+            sec_tgt = set(rec.get("meta", {}).get("secondary", {}).get("target", []))
+            span_ids = sorted(rec.get("target") or [], key=lambda t: int(t[-3:]))
+            span_text = _normalize_gloss_text(
+                " ".join(tgt_text_by_id.get(t, "") for t in span_ids if t not in sec_tgt)
+            )
+            if not span_text:
+                continue
+            span_texts.append(span_text)
+            own_glosses.append(_resolve_gloss(own_tok))
+            nbr_glosses.append(_resolve_gloss(nbr_tok))
+            targets.append(vs)
+
+    if not span_texts:
+        return
+
+    model = _load_model(model_name)
+    span_embs = model.encode(span_texts, convert_to_tensor=True, normalize_embeddings=True, show_progress_bar=False)
+    own_embs = model.encode(own_glosses, convert_to_tensor=True, normalize_embeddings=True, show_progress_bar=False)
+    nbr_embs = model.encode(nbr_glosses, convert_to_tensor=True, normalize_embeddings=True, show_progress_bar=False)
+
+    for i, vs in enumerate(targets):
+        sim_own = float((span_embs[i] * own_embs[i]).sum())
+        sim_nbr = float((span_embs[i] * nbr_embs[i]).sum())
+        delta = sim_nbr - sim_own
+        if vs.smear_1toN_max_delta is None or delta > vs.smear_1toN_max_delta:
+            vs.smear_1toN_max_delta = delta

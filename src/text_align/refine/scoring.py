@@ -14,11 +14,22 @@ A separate, unconditional check (not part of the composite, like article_neq and
 the semantic-similarity check) flags any verse where a source token tagged with
 an ACAI entity (person/place/group/etc.) is neither aligned nor NEQ'd — see
 acai_unaligned_count on VerseScore.
+
+A further unconditional, *informational-only* check (does NOT set needs_retry,
+unlike article_neq/semantic_low_sim/acai_unaligned) flags candidate 1:N
+over-grouping ("smearing"): a single content-bearing source token (noun/verb/
+adj) whose record claims 3+ primary target tokens, sitting next to a source
+token (word position ±1) that is itself content-bearing/referential and is
+genuinely unaligned (not NEQ'd, not covered by any record). This complements
+signal 4, which only catches smearing when *both* sides of a record have
+multiple independent primaries — a single wide-span record with one clean
+source token slips past it. See smear_1toN_count / find_smear_1toN_records.
 """
 
 from __future__ import annotations
 
 import math
+import statistics
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -65,6 +76,20 @@ _BOUND_SRC_POS: frozenset[str] = frozenset({
     "suffix",       # OT pronominal suffix (bound to host)
 })
 
+# Source-side POS codes treated as "content-bearing" for the smear_1toN check
+# (the record's own single source token must be one of these to be a candidate).
+_CONTENT_SRC_POS: frozenset[str] = frozenset({"noun", "verb", "adj", "adjective"})
+
+# Source-side POS codes for the *neighbor* token: referential/content-bearing
+# enough that its being left genuinely unaligned next to a wide-span record is
+# meaningful. Bound morphemes (articles, conjunctions, prepositions) are
+# routinely untranslated or absorbed and would make this check noisy if
+# included — see conversation history / calibration against French and
+# Portuguese reviewed corpora.
+_MEANINGFUL_NEIGHBOR_POS: frozenset[str] = frozenset({
+    "noun", "verb", "adj", "adjective", "pron", "num", "adv",
+})
+
 
 def _pos_weight(token: Source) -> float:
     return _POS_WEIGHTS.get(token.pos, _DEFAULT_WEIGHT)
@@ -89,6 +114,56 @@ def _is_adjacent(token_ids: list[str]) -> bool:
         return True
     positions = [_word_pos(tid) for tid in token_ids]
     return max(positions) - min(positions) == len(positions) - 1
+
+
+def _neighbor_id(token_id: str, delta: int) -> str:
+    """BCVWP ID for the source token one word-position before/after token_id.
+
+    Preserves any trailing sub-word suffix (OT morph IDs) after the 3-digit
+    word position at characters 8-10.
+    """
+    return f"{token_id[:8]}{_word_pos(token_id) + delta:03d}{token_id[11:]}"
+
+
+def find_smear_1toN_records(
+    records: list[dict],
+    src_by_id: dict[str, Source],
+    verse_neq_src: set[str],
+    aligned_src: set[str],
+) -> list[dict]:
+    """Find records where one content-POS source token claims a wide primary
+    target span next to a genuinely unaligned, meaningful-POS source neighbor.
+
+    Informational-only over-grouping candidate detector (see module docstring).
+    Returns a list of {"record": rec, "source_id": sid, "neighbor_id": nid}
+    dicts, one per flagged record (at most one neighbor recorded per record,
+    even if both sides qualify).
+    """
+    flagged: list[dict] = []
+    for rec in records:
+        src_ids = rec.get("source") or []
+        tgt_ids = rec.get("target") or []
+        sec = rec.get("meta", {}).get("secondary", {})
+        sec_src = set(sec.get("source", []))
+        sec_tgt = set(sec.get("target", []))
+        prim_src = [s for s in src_ids if s not in sec_src]
+        prim_tgt = [t for t in tgt_ids if t not in sec_tgt]
+        if len(prim_src) != 1 or len(prim_tgt) < 3:
+            continue
+        sid = prim_src[0]
+        src_tok = src_by_id.get(sid)
+        if src_tok is None or src_tok.pos not in _CONTENT_SRC_POS:
+            continue
+        for delta in (-1, 1):
+            nid = _neighbor_id(sid, delta)
+            nbr_tok = src_by_id.get(nid)
+            if nbr_tok is None or nbr_tok.pos not in _MEANINGFUL_NEIGHBOR_POS:
+                continue
+            if nid in verse_neq_src or nid in aligned_src:
+                continue
+            flagged.append({"record": rec, "source_id": sid, "neighbor_id": nid})
+            break
+    return flagged
 
 
 # ---------------------------------------------------------------------------
@@ -131,7 +206,13 @@ class VerseScore:
     article_neq_count: int = 0
     semantic_low_sim_count: int = 0
     acai_unaligned_count: int = 0
+    smear_1toN_count: int = 0
+    smear_1toN_max_delta: float | None = None
     needs_retry: bool = False
+    # Raw candidates from find_smear_1toN_records(), consumed by the optional
+    # semantic-delta ranking pass (apply_smear_delta_scores). Not written to
+    # the score-alignment TSV.
+    smear_1toN_flagged: list = field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -211,6 +292,13 @@ def score_verse(
     if acai_src_ids:
         verse_acai_ids = acai_src_ids & {t.id for t in src_tokens}
         vs.acai_unaligned_count = len(verse_acai_ids - aligned_src - verse_neq_src)
+
+    # -----------------------------------------------------------------------
+    # 1:N over-grouping candidates — unconditional, informational-only (does
+    # not affect needs_retry). See module docstring and find_smear_1toN_records.
+    # -----------------------------------------------------------------------
+    vs.smear_1toN_flagged = find_smear_1toN_records(valid_records, src_by_id, verse_neq_src, aligned_src)
+    vs.smear_1toN_count = len(vs.smear_1toN_flagged)
 
     # -----------------------------------------------------------------------
     # Signal 1 — weighted source coverage
@@ -319,6 +407,36 @@ def score_chapter(verse_scores: list[VerseScore], config: ScoringConfig) -> list
         )
 
     return verse_scores
+
+
+def find_suspect_verses(
+    verse_scores: list[VerseScore],
+    already_flagged: set[str],
+    k: float = 1.5,
+) -> tuple[list[VerseScore], float]:
+    """Verses whose composite exceeds a corpus-wide mean + k*stddev bar but are
+    not already flagged (needs_retry, coverage-flagged, or otherwise excluded
+    by the caller via already_flagged). Statistics are computed across all of
+    verse_scores, so callers should pass every verse scored in the run, not a
+    pre-filtered subset.
+
+    Returns (suspects sorted by verse_id, the computed bar) — the bar is
+    returned so callers can report it even when there are zero suspects.
+    """
+    if len(verse_scores) < 2:
+        return [], (verse_scores[0].composite if verse_scores else 0.0)
+
+    composites = [vs.composite for vs in verse_scores]
+    mean = statistics.mean(composites)
+    std = statistics.pstdev(composites)
+    bar = mean + k * std
+
+    suspects = [
+        vs for vs in verse_scores
+        if vs.verse_id not in already_flagged and vs.composite > bar
+    ]
+    suspects.sort(key=lambda vs: vs.verse_id)
+    return suspects, bar
 
 
 def score_chapter_file(
@@ -434,7 +552,7 @@ def score_chapter_file(
     verse_scores = score_chapter(verse_scores, config)
 
     if config.semantic_model:
-        from .semantic import apply_semantic_scores
+        from .semantic import apply_semantic_scores, apply_smear_delta_scores
         chapter_src_by_id = {
             t.id: t
             for vid, tokens in source_verses.items()
@@ -450,6 +568,12 @@ def score_chapter_file(
             config.semantic_threshold,
             chapter_id=chapter_id,
             record_details=record_details,
+        )
+        apply_smear_delta_scores(
+            verse_scores,
+            chapter_src_by_id,
+            chapter_tgt_text,
+            config.semantic_model,
         )
 
     return verse_scores

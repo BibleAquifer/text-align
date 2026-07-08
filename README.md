@@ -61,7 +61,7 @@ You can also limit scope to one chapter (`--chapter 41003`) or one book (`--book
 
 ### Step 4 — Score and retry
 
-Run `score-alignment` to audit quality without making any LLM calls. It produces a TSV report showing which verses scored poorly. Then run `retry-alignment` to re-align only the flagged verses from scratch using a higher-quality model.
+Run `score-alignment` to audit quality without making any LLM calls. It prints a summary of flagged and suspect verses to the terminal and writes the full per-verse detail to a TSV file. Then run `retry-alignment` to re-align only the flagged verses from scratch using a higher-quality model.
 
 ```bash
 # Inspect quality (no LLM cost)
@@ -510,16 +510,20 @@ Range filtering (`--book`, `--book-range`, `--chapter`, `--chapter-range`) works
 
 #### `score-alignment`
 
-Scores alignment quality for existing chapter JSON files and writes a per-verse TSV report. Does **not** call the LLM — use this between `refine-alignment` and `retry-alignment` to inspect quality and tune the retry threshold before committing to API spend.
+Scores alignment quality for existing chapter JSON files. Does **not** call the LLM — use this between `refine-alignment` and `retry-alignment` to inspect quality and tune the retry threshold before committing to API spend.
+
+The full per-verse report is **always written to a TSV file** (`--output`, default `output/score_YYYY-MM-DD.tsv`) and never printed to stdout — a whole corpus is too much raw data to visually scan for offenders. Instead, a human-readable **summary** prints to stdout by default: a `needs_retry` breakdown by named reason (with example verse IDs), and a "suspect" list of verses that don't cross the retry threshold but score well above the corpus average — good places to spot-check, or to reconsider the threshold itself.
 
 Each verse receives a composite penalty score (0–1, higher = worse) from five signals: weighted source-token coverage, translation content-word coverage, NEQ overuse, token smearing, and per-verse deviation from chapter mean.
 
 **Token smearing (signal 4):** flags N:M records where both sides have more than one *independent* primary token and no `is_idiom` marker. Articles, conjunctions, particles, and Hebrew pronominal suffixes are excluded from the independent-primary count — grouping a determiner with its noun is expected, but grouping a preposition with a noun (or two nouns together) is not. A `prep`+`det`+`noun` record still fires because the preposition and noun remain independent after the determiner is excluded.
 
-In addition to the composite score, three post-hoc checks flag verses unconditionally:
+In addition to the composite score, several post-hoc checks flag verses:
 - **`article_neq`** — articles (Greek definite article, Hebrew article) that appear in the NEQ list are always a mistake and force `needs_retry=True`.
-- **`smear_forced_retry`** — when signal 4 exceeds `--smear-forced-retry-threshold` (default 0.22), the verse is forced `needs_retry=True` regardless of composite score. This catches verses where smearing is the only quality problem and coverage is otherwise clean.
+- **`smear_forced_retry`** — when signal 4 exceeds the smearing forced-retry threshold (default 0.22), the verse is forced `needs_retry=True` regardless of composite score. This catches verses where smearing is the only quality problem and coverage is otherwise clean.
 - **`semantic_low_sim`** — for content-word (noun/verb/adjective) alignment records, embeds the source English gloss and target word text using LaBSE and flags records below `--semantic-threshold` (default 0.35). Any verse with at least one such record is forced `needs_retry=True`. Requires `--target-tsv-dir`.
+- **`acai_unaligned`** — a source token tagged with an ACAI entity (person/place/group/etc.) that is neither aligned nor NEQ'd is always a mistake and forces `needs_retry=True`. Requires `--acai-data-dir`.
+- **`smear_1toN`** — *informational only; does not force `needs_retry`.* Flags a single content-bearing source token (noun/verb/adj) whose record claims 3+ primary target tokens, sitting next to a source token (word position ±1) that is itself content-bearing/referential and genuinely unaligned (not NEQ'd, not covered elsewhere). Complements signal 4, which only fires when *both* sides of a record are multi-primary — a wide-span record built from a single, otherwise-clean source token slips past it. Precision varies by language (validated during development: zero false positives on a 20-chapter French sample vs. real over-grouping *and* real false positives — mostly pro-drop subject pronouns absorbed into verb morphology — in a 260-chapter Portuguese sample), so it is surfaced for human review rather than trusted to gate retries on its own. When `--semantic-model` is set, each flagged verse also gets a `smear_1toN_delta` value: similarity of the claimed target span to the unaligned neighbor's gloss, minus similarity to the record's own source gloss. A delta near zero or positive is weak evidence the span's meaning overlaps the neighbor's (worth reviewing first); a strongly negative delta usually means the flag is a false positive.
 
 Flagging uses the same dual logic as `retry-alignment`: a verse is marked `needs_retry=True` when either (a) composite score > `--score-retry-threshold`, or (b) the verse has ≥ `--min-unaligned-src` uncovered source tokens. The `coverage_flagged` column distinguishes which verses were caught by condition (b).
 
@@ -529,19 +533,21 @@ score-alignment \
   --corpus nt \
   --target-language eng \
   [--target-edition OENGB] \
-  [--target-tsv-dir path/to/alignments-eng/data/targets/OENGB]  # enables signal 2 + semantic
+  [--target-tsv-dir path/to/alignments-eng/data/targets/OENGB]  # enables signal 2 + semantic + smear_1toN_delta
   [--sources-dir data/sources/] \
   [--score-retry-threshold 0.25] \
   [--min-unaligned-src 2] \
+  [--suspect-stddev 1.5] \             # suspect-verse bar: corpus-wide mean + N*stddev of composite (default: 1.5)
   [--semantic-model sentence-transformers/LaBSE]  # default; pass "" to disable
   [--semantic-threshold 0.35] \
   [--semantic-detail-output] \                     # write per-record similarity TSV to output/semantic_detail_YYYY-MM-DD.tsv
-  [--flagged-only] \
-  [--output scores.tsv] \
+  [--acai-data-dir PATH] \             # enables acai_unaligned check
+  [--flagged-only] \                   # restrict the TSV *file* to needs_retry verses (stdout summary is unaffected)
+  [--output scores.tsv] \              # default: output/score_YYYY-MM-DD.tsv
   [--config OENGB]
 ```
 
-Output columns: `verse_id`, `composite`, `signal_1`–`signal_5`, `needs_retry`, `coverage_flagged`, `structural_errors`, `article_neq`, `semantic_low_sim`.
+Output columns: `verse_id`, `composite`, `signal_1`–`signal_5`, `needs_retry`, `coverage_flagged`, `structural_errors`, `article_neq`, `semantic_low_sim`, `acai_unaligned`, `smear_1toN`, `smear_1toN_delta`.
 
 `--semantic-detail-output` (boolean flag, no value) writes a separate per-record TSV to `output/semantic_detail_YYYY-MM-DD.tsv` with columns `verse_id`, `src_ids`, `src_lemmas`, `src_gloss`, `tgt_ids`, `tgt_text`, `similarity`, `below_threshold`. Use this to inspect the similarity distribution for specific lemmas (e.g. filter `src_lemmas` for εἰμί) and calibrate the threshold.
 
@@ -574,9 +580,23 @@ retry-alignment \
   [--max-output-tokens 4000] \        # overridden by retry_max_output_tokens if set in config
   [--batch-mode sync]                 # sync (default) | async
   [--jobs-dir jobs/] \
+  [--include-suspect] \                          # also retry statistically 'suspect' verses if affordable
+  [--suspect-stddev 1.5] \                       # suspect bar: corpus-wide mean + N*stddev
+  [--suspect-cost-per-verse-max 0.25] \          # $ per suspect verse you're willing to auto-spend
+  [--suspect-cost-max 5.00] \                    # $ cap on the whole suspect batch combined
   [--dry-run]                         # report flagged verses without calling the LLM
   [--config OENGB]
 ```
+
+**`--include-suspect`** additionally retries "suspect" verses — ones whose composite score is above the corpus-wide mean + `--suspect-stddev` standard deviations, but still below `--score-retry-threshold` (the same definition `score-alignment`'s summary uses; see `find_suspect_verses` in `scoring.py`). `needs_retry` verses are **never** gated by cost — they always run, with or without `--include-suspect`. Suspects are opt-in and additive on top of that.
+
+Before adding suspects, the estimated $ cost to retry them (at whichever model this run actually ends up using, after the fallback-model decision) is checked against two caps, both of which must be set explicitly — there is no default, so nothing gets auto-spent without an explicit budget:
+- `--suspect-cost-per-verse-max` — average $ per suspect verse
+- `--suspect-cost-max` — total $ for the whole suspect batch
+
+Suspects are only added if **both** caps are satisfied (a large suspect batch can blow the total cap even if the per-verse average looks cheap — e.g. $0.25/verse × 20 verses = $5). If either flag is omitted, the estimate is printed but suspects are skipped. Cost estimation is **Gloo-only**: rates are fetched live from Gloo's public model catalog (`https://platform.ai.gloo.com/platform/v2/models`, no auth required) and cached locally (`.cache/gloo_rates.json`, 24h TTL, falls back to a stale cache if the endpoint is unreachable). Token counts are approximated with `tiktoken` (`cl100k_base`) against the real prompt text for each verse (input) and the verse's existing alignment JSON size (output, as a proxy for expected retry output). For any other provider — or a Gloo model not in the live catalog — cost can't be estimated and suspects are skipped with a message; use `--verse-list-file` (see `score-alignment`'s printed suspect list) to retry them explicitly instead.
+
+`--include-suspect` cannot be combined with `--verse-list`, `--verse-list-file`, or `--retry-failed` (those skip scoring entirely, so there's no suspect list to compute). These flags are commonly set per-edition in `configs/<NAME>.yaml` (any YAML key matching a CLI flag's name is picked up automatically) rather than passed on the command line every time.
 
 The YAML config supports a separate `retry_max_output_tokens` key for the retry pass (mirrors `retry_llm_provider` / `retry_llm_model`). Use this when the retry model is an Anthropic thinking model that needs a larger token budget than the first-pass model:
 

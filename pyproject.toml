@@ -29,6 +29,7 @@ anthropic = ">=0.30.0"
 google-genai = ">=1.0.0"
 requests = "^2.34.2"
 python-dotenv = "^1.2.2"
+tiktoken = "^0.8.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.3.0"

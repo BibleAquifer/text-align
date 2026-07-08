@@ -21,6 +21,7 @@ from text_align.config import load_config_from_args, require
 from text_align.migrate.tsv import process_usfm_tsv
 
 from .clean import run_clean_pass
+from .cost_estimate import estimate_retry_cost, fetch_gloo_rates
 from .coverage import VerseRetrySpec, find_low_coverage_verses
 from .llm import LLMClient
 from .retry import (
@@ -29,13 +30,14 @@ from .retry import (
     discover_chapter_files,
     retry_chapter_sync,
 )
-from .scoring import ScoringConfig, score_chapter_file
+from .scoring import ScoringConfig, VerseScore, find_suspect_verses, score_chapter_file
 from .source import load_source_verses
 from .util import _CORPUS_ID, _chapter_id_from_path
 
 
 _SOURCES_DIR = ROOT / "data" / "sources"
 _JOBS_DIR = ROOT / "jobs"
+_GLOO_RATES_CACHE = ROOT / ".cache" / "gloo_rates.json"
 
 
 def parse_args() -> argparse.Namespace:
@@ -134,6 +136,25 @@ def parse_args() -> argparse.Namespace:
                    help="If flagged verses / total verses >= this value, use the refine model "
                         "instead of the retry model (default: 0.25)")
 
+    p.add_argument("--include-suspect", action="store_true", default=False,
+                   help="Also retry statistically 'suspect' verses (composite above the "
+                        "corpus-wide mean + N*stddev, but below the retry threshold) if "
+                        "estimated cost is within --suspect-cost-per-verse-max and "
+                        "--suspect-cost-max (both required; Gloo provider only — cost "
+                        "cannot be estimated for other providers). needs_retry verses "
+                        "always run regardless of this cost gate.")
+    p.add_argument("--suspect-stddev", type=float, default=1.5,
+                   help="Suspect-verse threshold: mean + N*stddev of composite scores, "
+                        "computed corpus-wide (default: 1.5)")
+    p.add_argument("--suspect-cost-per-verse-max", type=float, default=None,
+                   help="Max estimated $ per suspect verse to auto-include "
+                        "(must be set together with --suspect-cost-max)")
+    p.add_argument("--suspect-cost-max", type=float, default=None,
+                   help="Max total estimated $ for all suspect verses combined; if the "
+                        "estimate exceeds this, suspects are skipped even when the "
+                        "per-verse average is within budget "
+                        "(must be set together with --suspect-cost-per-verse-max)")
+
     p.set_defaults(**config_defaults)
     args = p.parse_args()
 
@@ -144,6 +165,14 @@ def parse_args() -> argparse.Namespace:
         getattr(args, "verse_list_file", None),
     ]):
         p.error("--retry-failed cannot be combined with --verse, --verse-range, --verse-list, or --verse-list-file")
+
+    if args.include_suspect and any([
+        getattr(args, "verse_list", None),
+        getattr(args, "verse_list_file", None),
+        getattr(args, "retry_failed", False),
+    ]):
+        p.error("--include-suspect requires normal scoring to run and cannot combine with "
+                 "--verse-list, --verse-list-file, or --retry-failed")
 
     # Save refine-phase model settings before retry overrides are applied.
     args._refine_llm_provider    = args.llm_provider
@@ -202,6 +231,90 @@ def _collect_failed_verses(
         aligned = _aligned_verse_ids(cf)
         failed.update(src_verse_ids - aligned)
     return frozenset(failed)
+
+
+def _include_suspect_verses(
+    args: argparse.Namespace,
+    all_verse_scores: list[VerseScore],
+    retry_specs_by_chapter: dict[str, list[VerseRetrySpec]],
+    chapter_paths: dict[str, Path],
+    all_chapter_paths: dict[str, Path],
+    source_verses: dict,
+    target_verses: dict,
+    corpus_id: str,
+) -> int:
+    """Add statistically 'suspect' verses to retry_specs_by_chapter (and their
+    chapter files to chapter_paths) if the estimated cost to retry them, at
+    whichever model this run is actually using, is within both
+    --suspect-cost-per-verse-max and --suspect-cost-max.
+
+    needs_retry verses are never affected by this — this only ever adds to
+    retry_specs_by_chapter, never removes from it. Returns the (possibly
+    updated) total_flagged count.
+
+    Mutates retry_specs_by_chapter and chapter_paths in place.
+    """
+    already_flagged = {
+        spec.verse_id
+        for specs in retry_specs_by_chapter.values()
+        for spec in specs
+    }
+    suspects, bar = find_suspect_verses(all_verse_scores, already_flagged, args.suspect_stddev)
+
+    total_flagged = sum(len(s) for s in retry_specs_by_chapter.values())
+
+    if not suspects:
+        print(f"\n  --include-suspect: no suspect verse(s) found "
+              f"(composite > mean+{args.suspect_stddev:g}σ={bar:.3f}).")
+        return total_flagged
+
+    gloo_rates = fetch_gloo_rates(_GLOO_RATES_CACHE)
+    estimate = estimate_retry_cost(
+        [vs.verse_id for vs in suspects], all_chapter_paths,
+        source_verses, target_verses, args.target_language, corpus_id,
+        args.llm_provider, args.llm_model, gloo_rates,
+    )
+
+    if estimate is None:
+        print(
+            f"\n  --include-suspect: {len(suspects)} suspect verse(s) found, but cost cannot be "
+            f"estimated for {args.llm_provider}/{args.llm_model} (Gloo-only; model missing from "
+            f"live catalog or a non-Gloo provider) — suspects NOT auto-included. "
+            f"Use --verse-list-file to retry them explicitly instead."
+        )
+        return total_flagged
+
+    per_verse = estimate.cost / len(suspects)
+
+    if args.suspect_cost_per_verse_max is None or args.suspect_cost_max is None:
+        print(
+            f"\n  --include-suspect: {len(suspects)} suspect verse(s) found "
+            f"(~${estimate.cost:.2f} estimated, ~${per_verse:.3f}/verse). "
+            f"Pass --suspect-cost-per-verse-max and --suspect-cost-max to auto-include them."
+        )
+        return total_flagged
+
+    if per_verse <= args.suspect_cost_per_verse_max and estimate.cost <= args.suspect_cost_max:
+        print(
+            f"\n  --include-suspect: including {len(suspects)} suspect verse(s) "
+            f"(~${estimate.cost:.2f}, ~${per_verse:.3f}/verse) — within budget "
+            f"(≤${args.suspect_cost_per_verse_max:.3f}/verse, ≤${args.suspect_cost_max:.2f} total)."
+        )
+        for vs in suspects:
+            chapter_id = vs.verse_id[:5]
+            retry_specs_by_chapter.setdefault(chapter_id, []).append(
+                VerseRetrySpec(verse_id=vs.verse_id, chapter_id=chapter_id,
+                                uncovered_src_ids=[], uncovered_count=0)
+            )
+            chapter_paths.setdefault(chapter_id, all_chapter_paths[chapter_id])
+        return sum(len(s) for s in retry_specs_by_chapter.values())
+
+    print(
+        f"\n  --include-suspect: skipping {len(suspects)} suspect verse(s) "
+        f"(~${estimate.cost:.2f}, ~${per_verse:.3f}/verse) — exceeds budget "
+        f"(≤${args.suspect_cost_per_verse_max:.3f}/verse, ≤${args.suspect_cost_max:.2f} total)."
+    )
+    return total_flagged
 
 
 def _write_retry_sidecars(
@@ -275,6 +388,7 @@ def main() -> None:
     if not chapter_files:
         raise SystemExit("No chapter JSON files found in --alignment-dir.")
     print(f"  Evaluating {len(chapter_files)} chapter file(s) ...")
+    all_chapter_paths: dict[str, Path] = {_chapter_id_from_path(cf): cf for cf in chapter_files}
 
     # Load source and target tokens (needed for clean pass and scoring)
     print(f"  Loading source tokens ({corpus_id}) ...")
@@ -344,6 +458,7 @@ def main() -> None:
             return False
 
         total_verse_count = 0
+        all_verse_scores: list[VerseScore] = []
 
         for cf in chapter_files:
             chapter_id = _chapter_id_from_path(cf)
@@ -352,6 +467,7 @@ def main() -> None:
                 target_verses=target_verses,
                 acai_src_ids=acai_src_ids,
             )
+            all_verse_scores.extend(verse_scores)
             total_verse_count += len(verse_scores)
             coverage_flagged = {
                 spec.verse_id
@@ -391,6 +507,12 @@ def main() -> None:
             print(
                 f"\n  Flagged rate {flagged_rate:.1%} >= {args.fallback_threshold:.0%} — "
                 f"falling back to refine model"
+            )
+
+        if args.include_suspect:
+            total_flagged = _include_suspect_verses(
+                args, all_verse_scores, retry_specs_by_chapter, chapter_paths, all_chapter_paths,
+                source_verses, target_verses, corpus_id,
             )
 
     if not retry_specs_by_chapter:
