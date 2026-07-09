@@ -46,7 +46,7 @@ retry_max_output_tokens: 32000
 
 # retry suspect verses?
 include_suspect: true
-suspect_cost_per_verse_max: .10
+suspect_cost_per_verse_max: .05
 suspect_cost_max: 5
 
 # Alignment quality scoring threshold for retry-alignment and score-alignment.

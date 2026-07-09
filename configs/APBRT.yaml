@@ -44,6 +44,11 @@ retry_llm_provider: gloo
 retry_llm_model: gloo-google-gemini-3.1-pro
 retry_max_output_tokens: 32000
 
+# retry suspect verses?
+include_suspect: true
+suspect_cost_per_verse_max: .05
+suspect_cost_max: 5
+
 # Alignment quality scoring threshold for retry-alignment and score-alignment.
 # Verses with a composite penalty score above this value are flagged for retry.
 # Range 0–1; lower = more retries, higher = fewer. Default: 0.25.
