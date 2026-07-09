@@ -1,8 +1,9 @@
 {
   "edition": "APBRT",
   "chapter_id": "01020",
-  "passes": 1,
+  "passes": 2,
   "retried_verses": [
+    "01020013",
     "01020018"
   ]
 }
