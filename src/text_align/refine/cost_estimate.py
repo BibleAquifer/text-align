@@ -42,6 +42,8 @@ from typing import Any
 from text_align.burrito.source import Source
 from text_align.migrate.alignment_io import load_alignment_json
 
+from text_align import ROOT
+
 from .prompt import build_batch_message, build_system_prompt, detect_phenomena, infer_testament
 from .source import collect_source_verse_range
 
@@ -49,6 +51,10 @@ from .source import collect_source_verse_range
 _ENCODING_NAME = "cl100k_base"
 _MIN_OUTPUT_TOKENS = 100
 _GLOO_MODELS_URL = "https://platform.ai.gloo.com/platform/v2/models"
+
+# Shared cache path — score-alignment and retry-alignment both read/write this
+# same file, so a rate fetch by either tool warms the cache for the other.
+DEFAULT_GLOO_RATES_CACHE = ROOT / ".cache" / "gloo_rates.json"
 
 _encoding_cache: dict[str, Any] = {}
 

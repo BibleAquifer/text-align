@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import csv
 import sys
+from collections.abc import Callable
 from datetime import date
 from pathlib import Path
 
@@ -26,11 +27,12 @@ from text_align.align.acai_common import ACAI_TYPES, build_word_entity_map, load
 from text_align.config import load_config_from_args, require
 
 from .clean import run_clean_pass
+from .cost_estimate import DEFAULT_GLOO_RATES_CACHE, CostEstimate, estimate_retry_cost, fetch_gloo_rates
 from .coverage import find_low_coverage_verses
 from .retry import _filter_chapter_files, discover_chapter_files
 from .scoring import ScoringConfig, VerseScore, find_suspect_verses, score_chapter_file
 from .source import load_source_verses
-from .util import _CORPUS_ID
+from .util import _CORPUS_ID, _chapter_id_from_path
 
 
 _SOURCES_DIR = ROOT / "data" / "sources"
@@ -106,6 +108,13 @@ def parse_args() -> argparse.Namespace:
                    help=f"ACAI entity types to load (default: {ACAI_TYPES})")
     p.add_argument("--include-acai-pronominals", action="store_true",
                    help="Include pronominal referents in ACAI entity data")
+    p.add_argument("--llm-provider", default=None,
+                   help="Provider to estimate retry cost for (Gloo-only; other providers "
+                        "report cost as unknown). Defaults to retry_llm_provider or "
+                        "llm_provider from --config if set.")
+    p.add_argument("--llm-model", default=None,
+                   help="Model to estimate retry cost for. Defaults to retry_llm_model or "
+                        "llm_model from --config if set.")
 
     range_group = p.add_mutually_exclusive_group()
     range_group.add_argument("--book", default=None, metavar="BB")
@@ -117,6 +126,12 @@ def parse_args() -> argparse.Namespace:
     p.set_defaults(**config_defaults)
     args = p.parse_args()
     require(args, "alignment_dir", "target_language", "corpus")
+
+    # Cost estimation targets whichever model retry-alignment would actually
+    # use — mirror its retry_llm_* > llm_* precedence (retry_cli.py).
+    args.llm_provider = getattr(args, "retry_llm_provider", None) or args.llm_provider
+    args.llm_model    = getattr(args, "retry_llm_model",    None) or args.llm_model
+
     return args
 
 
@@ -154,6 +169,49 @@ def _format_ids(ids: list[str], cap: int = 6) -> str:
     return text
 
 
+def _cost_suffix(cost: CostEstimate | None, n: int) -> str:
+    if cost is None or n == 0:
+        return ""
+    return f"  [~${cost.cost:.2f} est. retry cost, ~${cost.cost / n:.3f}/verse]"
+
+
+def _resolve_cost_estimator(
+    llm_provider: str | None,
+    llm_model: str | None,
+    target_verses: dict | None,
+    chapter_paths: dict[str, Path],
+    source_verses: dict,
+    target_language: str,
+    corpus_id: str,
+) -> tuple[Callable[[list[str]], "CostEstimate | None"], str | None]:
+    """Returns (estimator_fn(verse_ids) -> CostEstimate | None, unavailable_reason).
+
+    unavailable_reason is None when estimation is possible; otherwise it's a
+    short human-readable explanation (or "" when no model was configured at
+    all, in which case callers should stay silent rather than warn).
+    """
+    if not (llm_provider and llm_model):
+        return (lambda _ids: None), ""
+    if target_verses is None:
+        return (lambda _ids: None), "requires --target-tsv-dir"
+    if llm_provider != "gloo":
+        return (lambda _ids: None), "cost estimation is Gloo-only"
+
+    gloo_rates = fetch_gloo_rates(DEFAULT_GLOO_RATES_CACHE)
+    if llm_model not in gloo_rates:
+        return (lambda _ids: None), f"model {llm_model!r} not found in the live Gloo catalog"
+
+    def estimator(verse_ids: list[str]) -> CostEstimate | None:
+        if not verse_ids:
+            return None
+        return estimate_retry_cost(
+            verse_ids, chapter_paths, source_verses, target_verses,
+            target_language, corpus_id, llm_provider, llm_model, gloo_rates,
+        )
+
+    return estimator, None
+
+
 def _print_summary(
     all_scores: list[VerseScore],
     all_coverage_flagged: set[str],
@@ -161,8 +219,14 @@ def _print_summary(
     suspect_k: float,
     target_language: str,
     corpus: str,
+    corpus_id: str,
     n_chapters: int,
     tsv_path: Path,
+    chapter_paths: dict[str, Path],
+    source_verses: dict,
+    target_verses: dict | None,
+    llm_provider: str | None,
+    llm_model: str | None,
 ) -> None:
     total = len(all_scores)
     if total == 0:
@@ -176,8 +240,23 @@ def _print_summary(
 
     print(f"score-alignment — {target_language} ({corpus}), {n_chapters} chapter(s), {total} verse(s)\n")
 
+    # Retry cost estimate — see cost_estimate.py. Gloo-only; requires a
+    # resolved provider/model (CLI --llm-provider/--llm-model, or
+    # retry_llm_*/llm_* from --config) and --target-tsv-dir. Silent when no
+    # model is configured at all (cost estimation wasn't asked for); a short
+    # reason is printed once when a model IS configured but estimation still
+    # isn't possible (missing target text, non-Gloo provider, unknown model).
+    estimator, unavailable_reason = _resolve_cost_estimator(
+        llm_provider, llm_model, target_verses, chapter_paths,
+        source_verses, target_language, corpus_id,
+    )
+    if unavailable_reason:
+        print(f"  (retry cost estimate unavailable for {llm_provider}/{llm_model}: "
+              f"{unavailable_reason})\n")
+
+    bad_cost = estimator([vs.verse_id for vs in flagged_scores])
     pct = 100 * len(flagged_scores) / total
-    print(f"needs_retry: {len(flagged_scores)} ({pct:.1f}%)")
+    print(f"needs_retry: {len(flagged_scores)} ({pct:.1f}%){_cost_suffix(bad_cost, len(flagged_scores))}")
     if flagged_scores:
         reason_ids: dict[str, list[str]] = {}
         for vs in flagged_scores:
@@ -191,10 +270,11 @@ def _print_summary(
     # every verse scored in this run, excluding anything already flagged.
     flagged_ids = {vs.verse_id for vs in flagged_scores}
     suspects, bar = find_suspect_verses(all_scores, flagged_ids, suspect_k)
+    suspect_cost = estimator([vs.verse_id for vs in suspects])
 
     spct = 100 * len(suspects) / total
     print(f"suspect (composite > mean+{suspect_k:g}σ={bar:.3f}, below retry threshold): "
-          f"{len(suspects)} ({spct:.1f}%)")
+          f"{len(suspects)} ({spct:.1f}%){_cost_suffix(suspect_cost, len(suspects))}")
     for vs in suspects:
         reasons = ", ".join(_verse_reasons(vs, scoring_config, False))
         print(f"  {vs.verse_id}  composite={vs.composite:.3f}  {reasons}")
@@ -218,6 +298,7 @@ def main() -> None:
     chapter_files = _filter_chapter_files(chapter_files, args)
     if not chapter_files:
         raise SystemExit("No chapter JSON files found in --alignment-dir.")
+    chapter_paths: dict[str, Path] = {_chapter_id_from_path(cf): cf for cf in chapter_files}
 
     print(f"score-alignment: {args.target_language}", file=sys.stderr)
     print(f"  Alignment dir:   {args.alignment_dir}", file=sys.stderr)
@@ -334,7 +415,8 @@ def main() -> None:
 
     _print_summary(
         all_scores, all_coverage_flagged, scoring_config, args.suspect_stddev,
-        args.target_language, args.corpus, len(chapter_files), args.output,
+        args.target_language, args.corpus, corpus_id, len(chapter_files), args.output,
+        chapter_paths, source_verses, target_verses, args.llm_provider, args.llm_model,
     )
 
 

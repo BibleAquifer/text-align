@@ -140,7 +140,6 @@ def load_acai_entities(
                                 explicit_instances[loc_corpus] = instances
 
             if not explicit_instances and not references:
-                print(f"No references or explicit instances for {entity_id} ({label})")
                 continue
 
             if is_primary and include_secondaries and "referred_to_as" in acai_data:

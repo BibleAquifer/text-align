@@ -21,7 +21,7 @@ from text_align.config import load_config_from_args, require
 from text_align.migrate.tsv import process_usfm_tsv
 
 from .clean import run_clean_pass
-from .cost_estimate import estimate_retry_cost, fetch_gloo_rates
+from .cost_estimate import DEFAULT_GLOO_RATES_CACHE, estimate_retry_cost, fetch_gloo_rates
 from .coverage import VerseRetrySpec, find_low_coverage_verses
 from .llm import LLMClient
 from .retry import (
@@ -37,7 +37,6 @@ from .util import _CORPUS_ID, _chapter_id_from_path
 
 _SOURCES_DIR = ROOT / "data" / "sources"
 _JOBS_DIR = ROOT / "jobs"
-_GLOO_RATES_CACHE = ROOT / ".cache" / "gloo_rates.json"
 
 
 def parse_args() -> argparse.Namespace:
@@ -268,7 +267,7 @@ def _include_suspect_verses(
               f"(composite > mean+{args.suspect_stddev:g}σ={bar:.3f}).")
         return total_flagged
 
-    gloo_rates = fetch_gloo_rates(_GLOO_RATES_CACHE)
+    gloo_rates = fetch_gloo_rates(DEFAULT_GLOO_RATES_CACHE)
     estimate = estimate_retry_cost(
         [vs.verse_id for vs in suspects], all_chapter_paths,
         source_verses, target_verses, args.target_language, corpus_id,

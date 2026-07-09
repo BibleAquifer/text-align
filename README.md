@@ -514,6 +514,8 @@ Scores alignment quality for existing chapter JSON files. Does **not** call the 
 
 The full per-verse report is **always written to a TSV file** (`--output`, default `output/score_YYYY-MM-DD.tsv`) and never printed to stdout — a whole corpus is too much raw data to visually scan for offenders. Instead, a human-readable **summary** prints to stdout by default: a `needs_retry` breakdown by named reason (with example verse IDs), and a "suspect" list of verses that don't cross the retry threshold but score well above the corpus average — good places to spot-check, or to reconsider the threshold itself.
 
+If `--llm-provider`/`--llm-model` are given (or resolved from `retry_llm_provider`/`retry_llm_model`, falling back to `llm_provider`/`llm_model`, in `--config`) and `--target-tsv-dir` is set, both the `needs_retry` and `suspect` lines also show an estimated retry $ cost — the same estimator `retry-alignment --include-suspect` uses (see below), Gloo-only. Useful for judging spend before running `retry-alignment` at all, not just for the suspect-only decision.
+
 Each verse receives a composite penalty score (0–1, higher = worse) from five signals: weighted source-token coverage, translation content-word coverage, NEQ overuse, token smearing, and per-verse deviation from chapter mean.
 
 **Token smearing (signal 4):** flags N:M records where both sides have more than one *independent* primary token and no `is_idiom` marker. Articles, conjunctions, particles, and Hebrew pronominal suffixes are excluded from the independent-primary count — grouping a determiner with its noun is expected, but grouping a preposition with a noun (or two nouns together) is not. A `prep`+`det`+`noun` record still fires because the preposition and noun remain independent after the determiner is excluded.
@@ -542,6 +544,7 @@ score-alignment \
   [--semantic-threshold 0.35] \
   [--semantic-detail-output] \                     # write per-record similarity TSV to output/semantic_detail_YYYY-MM-DD.tsv
   [--acai-data-dir PATH] \             # enables acai_unaligned check
+  [--llm-provider gloo] [--llm-model gloo-deepseek-v4-pro] \  # enables retry cost estimate; Gloo-only
   [--flagged-only] \                   # restrict the TSV *file* to needs_retry verses (stdout summary is unaffected)
   [--output scores.tsv] \              # default: output/score_YYYY-MM-DD.tsv
   [--config OENGB]
