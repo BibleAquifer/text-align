@@ -337,6 +337,11 @@ def validate_records(
             bad_src = [s for s in src if s not in source_ids]
             bad_tgt = [t for t in tgt if t not in target_ids]
             secondary = meta.get("secondary") or {}
+            if secondary and not isinstance(secondary, dict):
+                san_details.append(
+                    f"{label}: meta.secondary is {type(secondary).__name__!r}, expected object; ignoring"
+                )
+                secondary = {}
             bad_sec_src = [s for s in (secondary.get("source") or []) if s not in set(src)]
             bad_sec_tgt = [t for t in (secondary.get("target") or []) if t not in set(tgt)]
 

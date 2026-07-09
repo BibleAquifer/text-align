@@ -16,6 +16,8 @@ Three-pass algorithm per chapter file:
                                another; the secondary reference is dropped.
                                If removing it empties the source array the
                                record is dropped (SECONDARYCONFLICT_DROP).
+    SECONDARYMALFORMED         meta.secondary is present but not an object
+                               (e.g. malformed LLM output); it is stripped.
 
   Pass 3 — cross-record duplicate detection
     DUPLICATESOURCE            same source token in ≥2 records after repair
@@ -102,7 +104,10 @@ def clean_chapter_file(
     # ------------------------------------------------------------------
     primary_src: set[str] = set()
     for rec in pass1:
-        sec_src: set[str] = set((rec.get("meta") or {}).get("secondary", {}).get("source") or [])
+        raw_sec = (rec.get("meta") or {}).get("secondary") or {}
+        if not isinstance(raw_sec, dict):
+            raw_sec = {}
+        sec_src: set[str] = set(raw_sec.get("source") or [])
         for sid in (rec.get("source") or []):
             if sid not in sec_src:
                 primary_src.add(sid)
@@ -111,6 +116,15 @@ def clean_chapter_file(
     for rec in pass1:
         meta = rec.get("meta") or {}
         sec = meta.get("secondary") or {}
+        malformed = bool(sec) and not isinstance(sec, dict)
+        if malformed:
+            new_meta = {k: v for k, v in meta.items() if k != "secondary"}
+            new_rec = {k: v for k, v in rec.items() if k != "meta"}
+            if new_meta:
+                new_rec["meta"] = new_meta
+            pass2.append(new_rec)
+            result._tally("SECONDARYMALFORMED"); result.repaired += 1
+            continue
         sec_src_list: list[str] = list(sec.get("source") or [])
         conflicts = [s for s in sec_src_list if s in primary_src]
         if not conflicts:

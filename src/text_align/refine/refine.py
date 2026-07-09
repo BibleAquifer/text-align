@@ -108,6 +108,8 @@ def build_output_alignment(
         else:
             clean_meta: dict = {}
             secondary = meta.get("secondary") or {}
+            if not isinstance(secondary, dict):
+                secondary = {}
             sec_src = secondary.get("source") or []
             sec_tgt = secondary.get("target") or []
             if sec_src or sec_tgt:

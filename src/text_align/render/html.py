@@ -942,7 +942,10 @@ def main() -> None:
                 if not al_targets:
                     continue
 
-                sec_tgts = frozenset(alignment.meta.secondary.get("target", []))
+                _secondary = alignment.meta.secondary
+                if not isinstance(_secondary, dict):
+                    _secondary = {}
+                sec_tgts = frozenset(_secondary.get("target", []))
                 pri_tgts = frozenset(al_targets.keys()) - sec_tgts
                 token = AlignmentToken(
                     targets=al_targets,
