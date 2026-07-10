@@ -275,16 +275,22 @@ The YAML config supports separate model keys for the retry pass (`retry_llm_prov
 
 Use `--dry-run` with `retry-alignment` to inspect which verses would be flagged before committing to any LLM spend. Use `--batch-mode async` with any of the three frontier providers (Anthropic, OpenAI, Google) for ~50% cost reduction on `refine-alignment` and `retry-alignment`.
 
-Two GitHub Actions workflows run the alignment pipeline in parallel — one job per chapter — with automatic LaBSE cache warm-up and result collection back to the repository:
+Four GitHub Actions workflows run the alignment pipeline in parallel — one job per chapter — with automatic LaBSE cache warm-up and result collection back to the repository:
 
-- **`.github/workflows/align-nt.yml`** — full NT pipeline (27 books, ~260 chapters). Inputs: `config`, `model`, `batch-mode`, `max-retry-passes`. Chapter matrix is built by `scripts/nt_chapters.py`.
+- **`.github/workflows/align-nt.yml`** — full NT pipeline (27 books, ~260 chapters): `refine-alignment` then a `retry-alignment` loop, per chapter batch. Inputs: `config`, `model`, `batch-mode`, `max-retry-passes`, `skip-existing`. Chapter matrix is built by `scripts/nt_chapters.py`.
 - **`.github/workflows/align-ot.yml`** — OT pipeline, split into four canonical sections to stay under the 256-job matrix limit. Required inputs: `config`, `section` (`law` / `history` / `poetry` / `prophets`). Chapter matrix is built by `scripts/ot_chapters.py --section <section>`. Section sizes: law 187ch, history 249ch, poetry 243ch, prophets 250ch.
+- **`.github/workflows/retry-nt.yml`** — retry-only NT pass: runs `retry-alignment` (no `refine-alignment`) over the chapter JSON already committed to `main` from a prior `align-nt` run. Inputs: `config` (required), `chapter`/`book` (optional scoping), `model` (retry model override), `batch-mode`, `max-retry-passes`, `include-suspect` (boolean, default `true` — see `--include-suspect` under `retry-alignment` below).
+- **`.github/workflows/retry-ot.yml`** — retry-only OT pass, same shape as `retry-nt.yml` but scoped by `section` (required) like `align-ot.yml`.
+
+All four workflows end by opening a PR against `main` with any changed/new chapter JSON files (branch `gha/align-<config>-<run-id>` or `gha/retry-<config>-<run-id>`, `-ot-<section>` suffix for OT) and posting a summary via `scripts/alignment_summary.py`.
 
 Workflows can be triggered from the command line without going to github.com:
 
 ```bash
 gh workflow run align-nt.yml --field config=BSB
 gh workflow run align-ot.yml --field config=BSB --field section=law
+gh workflow run retry-nt.yml --field config=BSB
+gh workflow run retry-ot.yml --field config=BSB --field section=law
 ```
 
 Two helper scripts support a transitory data strategy for GHA runs, where only the minimum data needed for a given config is staged into this repo, the GHA run executes, and results are copied back out to the source alignments repo:
@@ -599,7 +605,14 @@ Before adding suspects, the estimated $ cost to retry them (at whichever model t
 
 Suspects are only added if **both** caps are satisfied (a large suspect batch can blow the total cap even if the per-verse average looks cheap — e.g. $0.25/verse × 20 verses = $5). If either flag is omitted, the estimate is printed but suspects are skipped. Cost estimation is **Gloo-only**: rates are fetched live from Gloo's public model catalog (`https://platform.ai.gloo.com/platform/v2/models`, no auth required) and cached locally (`.cache/gloo_rates.json`, 24h TTL, falls back to a stale cache if the endpoint is unreachable). Token counts are approximated with `tiktoken` (`cl100k_base`) against the real prompt text for each verse (input) and the verse's existing alignment JSON size (output, as a proxy for expected retry output). For any other provider — or a Gloo model not in the live catalog — cost can't be estimated and suspects are skipped with a message; use `--verse-list-file` (see `score-alignment`'s printed suspect list) to retry them explicitly instead.
 
-`--include-suspect` cannot be combined with `--verse-list`, `--verse-list-file`, or `--retry-failed` (those skip scoring entirely, so there's no suspect list to compute). These flags are commonly set per-edition in `configs/<NAME>.yaml` (any YAML key matching a CLI flag's name is picked up automatically) rather than passed on the command line every time.
+`--include-suspect` cannot be combined with `--verse-list`, `--verse-list-file`, or `--retry-failed` (those skip scoring entirely, so there's no suspect list to compute). These flags are commonly set per-edition in `configs/<NAME>.yaml` (any YAML key matching a CLI flag's name is picked up automatically) rather than passed on the command line every time, e.g.:
+
+```yaml
+# retry suspect verses?
+include_suspect: true
+suspect_cost_per_verse_max: .05
+suspect_cost_max: 5
+```
 
 The YAML config supports a separate `retry_max_output_tokens` key for the retry pass (mirrors `retry_llm_provider` / `retry_llm_model`). Use this when the retry model is an Anthropic thinking model that needs a larger token budget than the first-pass model:
 
