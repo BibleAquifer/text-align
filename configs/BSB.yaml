@@ -117,6 +117,11 @@ retry_max_output_tokens: 32000
 # Range 0–1; lower = more retries, higher = fewer. Default: 0.25.
 # semantic_threshold: 0.35
 
+# retry suspect verses?
+include_suspect: true
+suspect_cost_per_verse_max: .05
+suspect_cost_max: 5
+
 # Legacy coverage threshold (deprecated; superseded by score_retry_threshold).
 # Flag verses with more than this many unaligned source tokens.
 min_unaligned_src: 2
