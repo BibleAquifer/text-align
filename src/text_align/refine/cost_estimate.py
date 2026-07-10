@@ -20,10 +20,16 @@ tokenizer's absolute count would differ from Gemini's/Claude's own.
   path) — slightly overestimates vs. real multi-verse batching, which shares
   system-prompt overhead across verses in a batch. That's the safe direction
   for a spend gate.
-- Output tokens: counted against the verse's *existing* alignment record
-  JSON, since real output size can't be known without calling the LLM and a
-  retry produces a similarly-shaped result. Floored at a minimum so a verse
-  with sparse/no prior records doesn't estimate near-zero.
+- Output tokens: when real usage history exists for the model (see
+  `gloo_usage_log.py`), estimated as input_tokens × the model's empirical
+  completion/prompt ratio — this captures reasoning/thinking tokens that
+  Gemini/Claude models routed through Gloo generate by default (billed as
+  completion tokens) and that no static heuristic can predict without real
+  data. Falls back to a same-family ratio, then finally to counting the
+  verse's *existing* alignment record JSON (floored at a minimum) if there's
+  no usage history at all yet for the model or its family — that proxy is
+  then scaled by `_NO_DATA_OUTPUT_MULTIPLIER` (default 6x) since the raw
+  proxy is known to undercount reasoning/thinking-heavy models badly.
 
 Rates: fetched live from Gloo's public, unauthenticated model catalog
 (https://platform.ai.gloo.com/platform/v2/models), cached locally with a TTL
@@ -44,6 +50,7 @@ from text_align.migrate.alignment_io import load_alignment_json
 
 from text_align import ROOT
 
+from .gloo_usage_log import load_usage_ratio
 from .prompt import build_batch_message, build_system_prompt, detect_phenomena, infer_testament
 from .source import collect_source_verse_range
 
@@ -51,6 +58,18 @@ from .source import collect_source_verse_range
 _ENCODING_NAME = "cl100k_base"
 _MIN_OUTPUT_TOKENS = 100
 _GLOO_MODELS_URL = "https://platform.ai.gloo.com/platform/v2/models"
+
+# Applied to the existing-JSON-size fallback proxy when a model (and its
+# family) has no logged usage history yet (see gloo_usage_log.py). The
+# unmultiplied proxy measures the *shape* of a prior alignment result, not
+# real generation size, and undercounts for any model that does
+# reasoning/thinking by default. Calibrated against real completion/prompt
+# ratios observed for gloo-deepseek-v4-pro (~2.27) and
+# gloo-google-gemini-3.1-pro (~1.20, 13 samples) — this is a placeholder
+# margin for models with no history at all, not a calibrated value for any
+# specific model; it stops applying the moment real usage data exists for
+# the model or its family.
+_NO_DATA_OUTPUT_MULTIPLIER = 2.0
 
 # Shared cache path — score-alignment and retry-alignment both read/write this
 # same file, so a rate fetch by either tool warms the cache for the other.
@@ -147,6 +166,7 @@ def _estimate_tokens_for_verse(
     target_language: str,
     corpus_id: str,
     existing_records: list[dict],
+    model: str,
 ) -> tuple[int, int]:
     tgt_verse = target_verses.get(verse_id)
     tgt_tokens = list(tgt_verse.words.values()) if tgt_verse else []
@@ -167,7 +187,12 @@ def _estimate_tokens_for_verse(
     user_msg, _ = build_batch_message(verse_batch, target_language, source_corpus=corpus_id)
     input_tokens = _count_tokens(system_msg) + _count_tokens(user_msg)
 
-    output_tokens = max(_MIN_OUTPUT_TOKENS, _count_tokens(json.dumps(existing_records)))
+    ratio = load_usage_ratio(model)
+    if ratio is not None:
+        output_tokens = max(_MIN_OUTPUT_TOKENS, round(input_tokens * ratio))
+    else:
+        proxy_tokens = _count_tokens(json.dumps(existing_records))
+        output_tokens = max(_MIN_OUTPUT_TOKENS, round(proxy_tokens * _NO_DATA_OUTPUT_MULTIPLIER))
 
     return input_tokens, output_tokens
 
@@ -201,7 +226,7 @@ def estimate_retry_cost(
             records_cache[chapter_id] = _load_records_by_verse(path) if path else {}
         existing = records_cache[chapter_id].get(vid, [])
         i, o = _estimate_tokens_for_verse(
-            vid, source_verses, target_verses, target_language, corpus_id, existing,
+            vid, source_verses, target_verses, target_language, corpus_id, existing, model,
         )
         total_in += i
         total_out += o

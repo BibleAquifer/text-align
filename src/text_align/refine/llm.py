@@ -23,6 +23,7 @@ import time
 import requests
 from dotenv import load_dotenv
 
+from .gloo_usage_log import append_usage
 from .prompt import reverse_map_records
 
 load_dotenv()
@@ -1345,6 +1346,7 @@ class LLMClient:
                 payload["max_tokens"] = self.max_output_tokens
             if "deepseek" in self.model.lower():
                 payload["enable_thinking"] = False
+            payload["stream_options"] = {"include_usage": True}
 
             try:
                 response = _api_call_with_backoff(
@@ -1365,6 +1367,7 @@ class LLMClient:
             if response.get("usage"):
                 u = response["usage"]
                 print(f"  tokens: in={u.get('prompt_tokens')}, out={u.get('completion_tokens')}")
+                append_usage(self.model, u.get("prompt_tokens"), u.get("completion_tokens"))
 
             choice = response["choices"][0]
             _finish_reason = choice.get("finish_reason")
