@@ -182,6 +182,7 @@ cython_debug/
 # data/
 jobs/
 /test_*.py
+/output/
 
 # Abstra
 # Abstra is an AI-powered process automation framework.
