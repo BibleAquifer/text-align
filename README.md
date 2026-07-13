@@ -526,6 +526,18 @@ Each verse receives a composite penalty score (0–1, higher = worse) from five 
 
 **Token smearing (signal 4):** flags N:M records where both sides have more than one *independent* primary token and no `is_idiom` marker. Articles, conjunctions, particles, and Hebrew pronominal suffixes are excluded from the independent-primary count — grouping a determiner with its noun is expected, but grouping a preposition with a noun (or two nouns together) is not. A `prep`+`det`+`noun` record still fires because the preposition and noun remain independent after the determiner is excluded.
 
+**NEQ overuse (signal 3) and `--neq-baseline`:** this signal penalizes a verse whose NEQ rate (fraction of source tokens marked non-equivalent) exceeds an *expected* baseline rate — NEQ is a positive claim of non-equivalence, not a fallback for uncertainty, so a verse that leans on it far more than normal is suspect. What counts as "normal" varies a lot by testament and by translation style, so this baseline is configurable, and the way it resolves is easy to get wrong at a glance:
+
+- There is **no single global baseline**. The effective value is resolved per run by `resolve_neq_baseline()` in `scoring.py`, in this order:
+  1. `--neq-baseline-nt` or `--neq-baseline-ot` — whichever matches the `--corpus` value of *this* run
+  2. `--neq-baseline` — a plain, corpus-agnostic override
+  3. a built-in testament default: **0.07 for `nt`, 0.16 for `ot`**
+- **`--neq-baseline` is one value, applied to whatever `--corpus` you passed.** It is *not* a way to set both NT and OT at once — if you pass `--neq-baseline 0.09` on an `--corpus nt` run and again on an `--corpus ot` run of the same edition, both runs get 0.09. Since one edition's YAML config is normally used for both `--corpus nt` and `--corpus ot` invocations, a flat `neq_baseline:` key in that file silently applies the same number to both testaments — usually not what you want, since OT (Hebrew) alignments carry a substantially higher natural NEQ rate than NT (Greek).
+- **`--neq-baseline-nt` / `--neq-baseline-ot`** (or the matching YAML keys `neq_baseline_nt` / `neq_baseline_ot`) are the two independent values — set one, both, or neither in the same config file, and each only takes effect on the run whose `--corpus` matches it.
+- The resolved value is always printed at the start of the run (`NEQ baseline: 0.XXX`) so you can confirm which one took effect.
+
+The testament-default split (NT 0.07 / OT 0.16) and the per-edition overrides already in `configs/APBRT.yaml` (`neq_baseline_ot: 0.20`) and `configs/RV09.yaml` (`neq_baseline_nt: 0.02`) come from measuring actual NEQ rates across existing eng/fra/por/spa output: OT alignments run ~2.2–2.6× the NT rate for the same language (construct chains, the accusative particle, pronominal suffixes, and waw-consecutive constructions genuinely lack Greek-style one-to-one counterparts), and translation style adds a large secondary effect on top — RV09 (Reina-Valera 1909, old and tightly formal-equivalence) measured at 1.5% NT NEQ, versus 5.8–8.6% for eng/fra/por NT editions.
+
 In addition to the composite score, several post-hoc checks flag verses:
 - **`article_neq`** — articles (Greek definite article, Hebrew article) that appear in the NEQ list are always a mistake and force `needs_retry=True`.
 - **`smear_forced_retry`** — when signal 4 exceeds the smearing forced-retry threshold (default 0.22), the verse is forced `needs_retry=True` regardless of composite score. This catches verses where smearing is the only quality problem and coverage is otherwise clean.
@@ -545,7 +557,9 @@ score-alignment \
   [--sources-dir data/sources/] \
   [--score-retry-threshold 0.25] \
   [--min-unaligned-src 2] \
-  [--suspect-stddev 1.5] \             # suspect-verse bar: corpus-wide mean + N*stddev of composite (default: 1.5)
+  [--neq-baseline 0.10] \              # generic signal-3 baseline override, applies to whichever --corpus this run uses
+  [--neq-baseline-nt 0.07] [--neq-baseline-ot 0.16] \  # corpus-specific overrides (see NEQ overuse discussion above); default testament values shown
+  [--suspect-stddev 2.5] \             # suspect-verse bar: corpus-wide mean + N*stddev of composite (default: 2.5)
   [--semantic-model sentence-transformers/LaBSE]  # default; pass "" to disable
   [--semantic-threshold 0.35] \
   [--semantic-detail-output] \                     # write per-record similarity TSV to output/semantic_detail_YYYY-MM-DD.tsv
@@ -579,6 +593,7 @@ retry-alignment \
   [--reasoning-effort high] \
   [--score-retry-threshold 0.25] \    # composite penalty threshold (default: 0.25)
   [--min-unaligned-src 2] \          # retry if N or more source tokens are unaligned (default: 2)
+  [--neq-baseline-nt 0.07] [--neq-baseline-ot 0.16] \  # signal-3 baseline, per corpus (see score-alignment above)
   [--semantic-model sentence-transformers/LaBSE]  # default; pass "" to disable
   [--semantic-threshold 0.35] \
   [--fallback-threshold 0.25] \       # if flagged% >= this, use refine model instead of retry model
@@ -590,7 +605,7 @@ retry-alignment \
   [--batch-mode sync]                 # sync (default) | async
   [--jobs-dir jobs/] \
   [--include-suspect] \                          # also retry statistically 'suspect' verses if affordable
-  [--suspect-stddev 1.5] \                       # suspect bar: corpus-wide mean + N*stddev
+  [--suspect-stddev 2.5] \                       # suspect bar: corpus-wide mean + N*stddev
   [--suspect-cost-per-verse-max 0.25] \          # $ per suspect verse you're willing to auto-spend
   [--suspect-cost-max 5.00] \                    # $ cap on the whole suspect batch combined
   [--dry-run]                         # report flagged verses without calling the LLM

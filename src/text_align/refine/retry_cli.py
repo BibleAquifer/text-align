@@ -30,7 +30,7 @@ from .retry import (
     discover_chapter_files,
     retry_chapter_sync,
 )
-from .scoring import ScoringConfig, VerseScore, find_suspect_verses, score_chapter_file
+from .scoring import ScoringConfig, VerseScore, find_suspect_verses, resolve_neq_baseline, score_chapter_file
 from .source import load_source_verses
 from .util import _CORPUS_ID, _chapter_id_from_path
 
@@ -85,6 +85,18 @@ def parse_args() -> argparse.Namespace:
                    help="Creator string for alignment meta (default: text-align)")
     p.add_argument("--score-retry-threshold", type=float, default=0.25,
                    help="Composite penalty threshold above which a verse is retried (default: 0.25)")
+    p.add_argument("--neq-baseline", type=float, default=None,
+                   help="Expected natural NEQ rate for signal 3 (NEQ overuse), for "
+                        "either corpus. Defaults to a testament-aware value "
+                        "(nt: 0.07, ot: 0.16) when omitted. Since one edition's config "
+                        "covers both --corpus nt and --corpus ot runs, prefer "
+                        "--neq-baseline-nt / --neq-baseline-ot (or the matching YAML "
+                        "keys) to set them independently — actual rates vary "
+                        "several-fold with translation style.")
+    p.add_argument("--neq-baseline-nt", type=float, default=None,
+                   help="Override --neq-baseline for --corpus nt only.")
+    p.add_argument("--neq-baseline-ot", type=float, default=None,
+                   help="Override --neq-baseline for --corpus ot only.")
     p.add_argument("--min-unaligned-src", type=int, default=2,
                    help="Also retry verses with N or more unaligned source tokens (default: 2)")
     p.add_argument("--batch-mode", choices=["sync", "async"], default="sync",
@@ -142,9 +154,9 @@ def parse_args() -> argparse.Namespace:
                         "--suspect-cost-max (both required; Gloo provider only — cost "
                         "cannot be estimated for other providers). needs_retry verses "
                         "always run regardless of this cost gate.")
-    p.add_argument("--suspect-stddev", type=float, default=1.5,
+    p.add_argument("--suspect-stddev", type=float, default=2.5,
                    help="Suspect-verse threshold: mean + N*stddev of composite scores, "
-                        "computed corpus-wide (default: 1.5)")
+                        "computed corpus-wide (default: 2.5)")
     p.add_argument("--suspect-cost-per-verse-max", type=float, default=None,
                    help="Max estimated $ per suspect verse to auto-include "
                         "(must be set together with --suspect-cost-max)")
@@ -439,8 +451,11 @@ def main() -> None:
         print(f"  Exclusive verse-list mode: {total_flagged} verse(s) — skipping scoring")
         used_fallback = False
     else:
+        neq_baseline = resolve_neq_baseline(args)
+        print(f"  NEQ baseline: {neq_baseline:.3f}")
         scoring_config = ScoringConfig(
             retry_threshold=args.score_retry_threshold,
+            neq_baseline=neq_baseline,
             semantic_model=args.semantic_model,
             semantic_threshold=args.semantic_threshold,
         )

@@ -48,11 +48,19 @@ retry_max_output_tokens: 32000
 include_suspect: true
 suspect_cost_per_verse_max: .05
 suspect_cost_max: 5
+#suspect_stddev: 2.5
 
 # Alignment quality scoring threshold for retry-alignment and score-alignment.
 # Verses with a composite penalty score above this value are flagged for retry.
 # Range 0–1; lower = more retries, higher = fewer. Default: 0.25.
 # semantic_threshold: 0.35
+
+# Expected natural NEQ rate (signal 3 baseline), measured from existing APBRT
+# output: NT ~8.6% (close to the 0.07 code default, no override needed), OT
+# (law) ~22.8% (well above the 0.16 testament default — Portuguese OT runs
+# NEQ-heavier than eng/fra OT samples, plausibly a translation-style effect
+# layered on the general Hebrew testament effect).
+neq_baseline_ot: 0.20
 
 # Legacy coverage threshold (deprecated; superseded by score_retry_threshold).
 # Flag verses with more than this many unaligned source tokens.

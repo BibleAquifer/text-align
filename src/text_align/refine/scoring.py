@@ -170,6 +170,45 @@ def find_smear_1toN_records(
 # Configuration and result types
 # ---------------------------------------------------------------------------
 
+# Testament-aware fallback defaults for signal 3 (NEQ overuse), used when no
+# explicit --neq-baseline / neq_baseline override is given. Measured empirically
+# across eng/fra/por/spa editions: OT (Hebrew) alignments carry a genuinely higher
+# natural NEQ rate than NT (Greek), roughly 2.2-2.6x, driven by construct chains,
+# the accusative particle, pronominal suffixes, and waw-consecutive constructions
+# with no target counterpart. Actual per-edition rates vary several-fold beyond
+# this split based on translation style (e.g. RV09's literalism vs. a dynamic
+# translation), so these are starting points, not a substitute for per-edition
+# tuning via --neq-baseline / neq_baseline in the edition's YAML config.
+NEQ_BASELINE_DEFAULTS: dict[str, float] = {"nt": 0.07, "ot": 0.16}
+
+
+def default_neq_baseline(corpus: str | None) -> float:
+    """Testament-aware fallback for ScoringConfig.neq_baseline.
+
+    Falls back to the NT default when corpus is None/unrecognized.
+    """
+    return NEQ_BASELINE_DEFAULTS.get(corpus or "nt", NEQ_BASELINE_DEFAULTS["nt"])
+
+
+def resolve_neq_baseline(args: Any) -> float:
+    """Resolve the effective neq_baseline from CLI/YAML args for this run.
+
+    Precedence: --neq-baseline-{nt,ot} (corpus-specific) > --neq-baseline
+    (generic, same value for either testament) > testament-aware default.
+    A single edition YAML config covers both --corpus nt and --corpus ot
+    invocations, so the corpus-specific keys let one config file supply
+    different values per testament.
+    """
+    corpus = getattr(args, "corpus", None)
+    specific = getattr(args, f"neq_baseline_{corpus}", None) if corpus else None
+    if specific is not None:
+        return specific
+    generic = getattr(args, "neq_baseline", None)
+    if generic is not None:
+        return generic
+    return default_neq_baseline(corpus)
+
+
 @dataclass
 class ScoringConfig:
     # Signal weights (must sum to 1.0)
@@ -412,7 +451,7 @@ def score_chapter(verse_scores: list[VerseScore], config: ScoringConfig) -> list
 def find_suspect_verses(
     verse_scores: list[VerseScore],
     already_flagged: set[str],
-    k: float = 1.5,
+    k: float,
 ) -> tuple[list[VerseScore], float]:
     """Verses whose composite exceeds a corpus-wide mean + k*stddev bar but are
     not already flagged (needs_retry, coverage-flagged, or otherwise excluded

@@ -46,6 +46,13 @@ retry_llm_model: gloo-anthropic-claude-opus-4.7
 # Range 0–1; lower = more retries, higher = fewer. Default: 0.25.
 # semantic_threshold: 0.35
 
+# Expected natural NEQ rate (signal 3 baseline). RV09 (1909, very literal/
+# formal-equivalence) measured at just 1.5% NT NEQ rate — far below the 0.07
+# testament default and every other measured edition (eng/fra/por NT: 5.8-8.6%).
+# Old, tightly formal-correspondence translations mirror source structure
+# closely and need far less "no target counterpart" flagging.
+neq_baseline_nt: 0.02
+
 # Legacy coverage threshold (deprecated; superseded by score_retry_threshold).
 # Flag verses with more than this many unaligned source tokens.
 min_unaligned_src: 2
