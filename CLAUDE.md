@@ -61,6 +61,27 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   stay two words). Double-article attributive handled (first → Branch A, second → Branch B).
   Partitive du/de la/des secondary for anarthrous mass nouns. Reflexive passive (se + verb)
   and impersonal "on" as passive equivalent. Discontinuous ne…X negation; restrictive ne…que.
+- `nt/ind.py` — Indonesian. No articles (Branch B is the default, not the exception); "itu"/
+  "ini" only for anaphoric/demonstrative mentions. Fused possessive/object clitics (-ku/-mu/
+  -nya) for singular pronouns only. "yang" is the universal relativizer. Two passive
+  strategies: di- prefix (direct, one fused word, no auxiliary) vs. ter- + "ada" (resultative,
+  for γέγραπται-type perfects). No infinitive form; articular/temporal infinitive renders as
+  a finite clause with "ketika"/"saat". Simple contiguous negation (tidak + verb).
+- `nt/hin.py` — Hindi. No articles; split-ergative ने and DOM/dative को have partial or no
+  Greek trigger; genitive का/की/के agrees with the possessed noun, not the possessor. Finite
+  verbs are almost always periphrastic (participle + copula) by default, not stylistic
+  choice. Light verbs (noun + करना/होना) vs. vector verbs (V1 + bleached V2) are easily
+  confused — N:1 both primary vs. V1 primary/V2 secondary respectively. At least six
+  coexisting passive-voice strategies (true periphrastic passive with जाना is the actual
+  default). Substantive participles: जो is the majority default regardless of genericity;
+  वाला is reserved for lexicalized role-labels, not generic vs. specific referents. कि/ताकि/
+  जिससे are free variants for ἵνα, not distinct constructions. नहीं/न are free variants for
+  ordinary negation; न is also the dedicated correlative form for "neither...nor" (aligns
+  1:1 to each οὐδέ/οὔτε); मत is the true prohibitive; emphatic negation (οὐ μή) has no single
+  construction, just an optional reinforcing intensifier. Distilled from
+  `docs/alignment-principles-nt.hin.md`, which was cross-checked against two further Hindi
+  NT translations (HSB, OHCV) to separate general Hindi grammar from one translation's
+  stylistic choices — see that document's "Cross-translation methodology note".
 - `ot/eng.py` — OT English config.
 - `__init__.py` — re-exports the public API and imports all language modules to trigger
   registration.
@@ -81,11 +102,17 @@ compressed. Approximate token budget (all blocks assembled):
 | NT por | 3,614 |
 | NT spa | 3,599 |
 | NT fra | 4,488 |
+| NT ind | ~5,641 |
+| NT hin | ~7,100 |
 | OT eng | 2,560 |
 | OT ind | ~4,000 |
 
-Current languages: eng, por, spa, fra.
-Planned: Arabic, Chinese Simplified, Chinese Traditional, Hindi, Gujarati,
+NT ind/hin figures use `tiktoken` (cl100k_base) on the fully-assembled prompt (all
+conditional blocks included), matching `cost_estimate.py`'s counting method — the eng/
+por/spa/fra figures predate that measurement approach and have not been recomputed.
+
+Current languages: eng, por, spa, fra, ind, hin.
+Planned: Arabic, Chinese Simplified, Chinese Traditional, Gujarati,
 Nepali, Tok Pisin, Bislama, Lingala, Swahili.
 
 ## LLM providers (`refine/llm.py`)
