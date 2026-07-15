@@ -8,8 +8,11 @@ sections are shared with the English guidelines (`alignment-principles-nt.md` an
 `prompt/nt/eng.py`).
 
 Examples are grounded in Alkitab Terjemahan Baru (TBI) and checked against the actual
-target TSV (Mark 1:2-9, John 1:1, John 3:16, Matthew 1:21) rather than constructed from
-general knowledge alone.
+target TSV. Initial examples were spot-checked against a handful of verses (Mark 1:2-9,
+John 1:1, John 3:16, Matthew 1:21); ARTICLES, NEGATION, and PARTICIPIAL CONSTRUCTIONS were
+subsequently re-verified at full-corpus scale and cross-checked against KKHv0 (a second
+complete Indonesian NT) — see the Cross-translation methodology note near the end of this
+document for what that check changed.
 
 Source files: `src/text_align/refine/prompt/nt/ind.py`, `src/text_align/refine/prompt/nt/eng.py`
 
@@ -336,19 +339,40 @@ Example: ἵνα σῴζῃ → "untuk menyelamatkan": source=[ἵνα], target=
 
 ## NEGATION **[ind]**
 
-Indonesian negation is simple and contiguous (tidak + verb) — unlike French's
-discontinuous ne…pas structure, and there is usually no separate auxiliary to
-secondary-mark.
+Ordinary clausal negation is contiguous (tidak/jangan immediately before the verb) —
+checked against all 2,642 SBLGNT οὐ/μή instances vs. 2,647 total tidak+jangan
+occurrences in TBI (near-exact match). But οὐκέτι/μηκέτι compound negation is a real
+exception — see below.
 
 - οὐ/οὐκ/οὐχ/μή → "tidak" (indicative) / "jangan" (prohibitive/imperative): primary 1:1.
   Verb gets its own record.
   Example: οὐκ ἔρχεται → "tidak datang": source=[οὐκ], target=["tidak"] — primary 1:1;
   source=[ἔρχεται], target=["datang"] — primary 1:1.
 
+- **"bukan" for nominal/copular negation:** when the negated predicate is a noun phrase
+  rather than a verb, Indonesian uses "bukan" instead of "tidak" — a lexical choice
+  driven by predicate type, not a distinct Greek construction. Still primary 1:1 to the
+  same οὐ/μή token.
+  Example: οὐκέτι εἰσὶν δύο → "mereka bukan lagi dua" (they are no longer two):
+  source=[οὐκέτι], target=["bukan", "lagi"] — see Compound negation below for the
+  discontinuity; "bukan" is chosen over "tidak" because the predicate ("dua", two) is
+  nominal. Cross-checked against KKHv0, which independently renders the same verse
+  (Matt 19:6) as "mereka bukan lagi dua" — identical choice.
+
 ### Compound negation
 
-- οὐκέτι/μηκέτι ("no longer") → "tidak lagi": both words primary — Indonesian expresses
-  this with two words, unlike English's fused "no longer".
+- **οὐκέτι/μηκέτι ("no longer") is discontinuous, not "tidak lagi" as one contiguous
+  unit.** Checked against all 69 SBLGNT οὐκέτι/μηκέτι instances in TBI and
+  cross-checked against KKHv0: the verb/predicate regularly intervenes between "tidak"
+  (or "bukan") and "lagi" — "tidak dapat lagi terang-terangan masuk," "tidak pernah akan
+  berbuah lagi," "tidak berani lagi menanyakan." Both words are still primary to the
+  single Greek token, but they are NOT adjacent target tokens the way the old "tidak
+  lagi" framing implied — do not assume contiguity when locating "lagi" in the verse.
+  This is a genuine exception to the general negation contiguity rule above (Indonesian
+  is not uniformly non-discontinuous the way the old blanket claim suggested).
+  Example: οὐκέτι δύναται...παρρησίᾳ εἰσελθεῖν → "Yesus tidak dapat lagi
+  terang-terangan masuk": source=[οὐκέτι], target=["tidak", "lagi"] — both primary,
+  target tokens non-adjacent (separated by "dapat...terang-terangan masuk").
 - οὔπω/μήπω ("not yet") → "belum": primary 1:1 — a single dedicated lexeme, no
   periphrasis needed.
 - οὐδέ/μηδέ ("and not"/"neither"/"nor") → "dan tidak"/"pun tidak": primary.
@@ -382,6 +406,13 @@ secondary: "ketika", "sedang".
 
 ### Substantive — "yang" pattern
 
+Checked against all 1,339 SBLGNT articular participles (det immediately preceding a
+participle) in TBI: 68.6% render as bare "yang", 22.2% as "orang"/"orang-orang" + "yang",
+3.1% as "barangsiapa"/"siapa" (see below — a genuine third strategy, not counted in the
+original spot-check), and 6.2% show free restructuring with no "yang" at all (proper-name
+substitution, anaphoric "itu" replacing the participle clause, or other loose rendering —
+ordinary translation variance, not a distinct grammatical rule).
+
 Article → generic head noun "orang"/"orang-orang" (person/people) primary 1:1 WHEN the
 translation supplies an explicit head noun; "yang" secondary to the participle. When the
 translation uses bare "yang" with no separate head noun, the article has no target
@@ -393,6 +424,29 @@ source=[πιστεύουσιν], target=["yang", "percaya"] — primary: "percay
 Example (bare form, no head noun): ὁ πιστεύων → "yang percaya": source=[ὁ] — no target
 correspondent (Branch B); source=[πιστεύων], target=["yang", "percaya"] — primary:
 "percaya"; secondary: "yang".
+
+### Substantive, generic/gnomic — "barangsiapa"/"siapa" pattern
+
+When the articular participle is generic or gnomic ("the one who does X" functioning as
+"whoever does X," not referring to a specific known individual — typically in proverbial
+or conditional statements), TBI frequently supplies "barangsiapa" (formal "whosoever") or
+bare "siapa"/"siapa pun" (whoever) instead of "yang." The article has no separate target
+correspondent (Branch B, absorbed into the pronoun); "barangsiapa"/"siapa" is primary to
+the participle, same role "yang" plays elsewhere — this is a lexical variant of the same
+structural slot, not a different construction.
+Example: ὁ φιλῶν πατέρα ἢ μητέρα → "Barangsiapa mengasihi bapa atau ibunya": source=[ὁ] —
+no target correspondent (Branch B); source=[φιλῶν], target=["Barangsiapa", "mengasihi"] —
+primary: "mengasihi"; secondary: "Barangsiapa" (same treatment as "yang").
+Example: ὁ ἔχων ὦτα → "Siapa bertelinga": source=[ὁ] — no target correspondent;
+source=[ἔχων], target=["Siapa", "bertelinga"] — primary: "bertelinga"; secondary: "Siapa".
+
+**Cross-translation note:** checked against KKHv0 on the same verses (Matt 10:37, 39, 41;
+11:15; 13:9, 43) — KKHv0 independently avoids bare "yang" for these same generic
+participles too, but prefers different lexemes ("Orang yang...", "Siapa pun yang...")
+rather than TBI's "barangsiapa"/"siapa" alone. The *lexeme* is translation-specific; the
+*strategy* — supplying an explicit head-word for generic/gnomic reference rather than bare
+"yang" — held up across both translations and should be treated as general Indonesian
+grammar, not a TBI-specific stylistic choice.
 
 ### Discourse particle adjacent to participle
 
@@ -411,3 +465,48 @@ from `prompt/nt/eng.py`. See `alignment-principles-nt.md` for full detail:
 - **ὅτι (HOTI)** — conjunction vs. quotation-marker (recitativum) uses.
 - **IMPERSONAL VERBS**
 - **VERBAL ASPECT**
+
+---
+
+## Cross-translation methodology note
+
+ARTICLES, NEGATION, and PARTICIPIAL CONSTRUCTIONS were re-checked at full-corpus scale
+(SBLGNT.tsv joined to TBI's target TSV by verse, all 19,796 articles / 2,642 negation
+particles / 1,339 articular participles) rather than the handful of verses the original
+draft was built from, and the two findings that changed real conclusions were
+cross-checked against KKHv0 (a second complete Indonesian NT) to separate general
+Indonesian grammar from TBI's individual stylistic choices. ID_GLT was considered but
+excluded from this check — it covers only a subset of the epistles (books 51–57, 61, 64),
+not a complete NT, so it could not reach the verses in question.
+
+What held up unchanged: the article Branch A/B split (itu/ini appear on at most ~22% of
+article tokens corpus-wide, confirming Branch B — no correspondent — as the true
+majority), and the γέγραπται-type perfect-passive → "ada tertulis" rendering (14/15
+sampled instances matched exactly).
+
+What changed: (1) οὐκέτι/μηκέτι was reclassified from a contiguous two-word "tidak lagi"
+unit to a discontinuous pattern where the verb/predicate regularly separates "tidak" (or
+"bukan") from "lagi" — the general negation-contiguity claim now carries an explicit
+exception rather than implying Indonesian never does this. (2) "bukan" vs. "tidak" for
+nominal/copular vs. verbal predicate negation was added — previously undocumented. (3) A
+third substantive-participle strategy — "barangsiapa"/"siapa" for generic/gnomic reference
+— was added alongside the existing bare-"yang" and "orang"+"yang" patterns; KKHv0 uses
+different lexemes ("Orang yang...", "Siapa pun yang...") for the same verses, confirming
+the *strategy* (explicit head-word for generic reference) as general grammar even though
+the specific lexeme is translation-dependent.
+
+## Open questions for native-speaker review
+
+- The 6.2% "no yang, no head-word" residual in the substantive-participle check is
+  attributed to ordinary free-translation restructuring (proper-name substitution,
+  anaphoric "itu" replacing the clause). Confirm there isn't a further systematic pattern
+  hiding in that bucket.
+- The fused-clitic claim (-ku/-mu/-nya) could not be verified by frequency counting alone:
+  -nya is heavily overloaded as an object clitic, nominalizer, and possessive suffix well
+  beyond the genitive-pronoun cases this document describes, so corpus counts don't
+  cleanly isolate the relevant cases. Needs token-level (not just text-frequency)
+  verification, ideally from early alignment runs once TBI has real alignment output to
+  inspect.
+- Confirm whether "bukan" vs. "tidak" is fully predictable from predicate type (nominal
+  vs. verbal) or whether there are verbal contexts that still prefer "bukan" for emphasis,
+  which would need a secondary rule rather than a clean binary split.

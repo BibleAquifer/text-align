@@ -1,5 +1,9 @@
 """French target-language prompt config for OT (Hebrew) refine-alignment.
 
+Examples checked against LSG (1910, full OT) and cross-checked against
+TOB10 (modern, full OT) — see docs/alignment-principles-ot.fra.md's
+Cross-translation methodology note.
+
 Key differences from OT Portuguese/Spanish (por.py/spa.py):
   BASE_BLOCK           — NOT pro-drop (inverse default from Portuguese/Spanish):
                          a supplied subject pronoun is normally present and
@@ -20,7 +24,12 @@ Key differences from OT Portuguese/Spanish (por.py/spa.py):
                          Portuguese and Spanish here.
   NEGATION_BLOCK       — full ne…X discontinuous structure (closer to OT
                          English's discontiguous treatment than to Portuguese/
-                         Spanish's simplified contiguous version).
+                         Spanish's simplified contiguous version). "point" is
+                         a dated LSG-era alternative to "pas" (1,836 OT
+                         instances in LSG vs. 133 in modern TOB10) — align
+                         like "pas" but don't expect it from modern
+                         translations. "aucun(e)" is a stable alternative to
+                         personne/rien/nul.
   INFINITIVE_BLOCK     — gérondif (en + present participle) for the temporal
                          בְּ+infinitive construction; no personal infinitive;
                          infinitive absolute still needs a secondary subject
@@ -171,9 +180,9 @@ NEGATION_BLOCK = """\
 ## NEGATION
 
 ### Standard French negation (ne…X)
-French negation is a discontinuous two-part structure: **ne** (pre-verbal) + a post-verbal negative word (**pas**, **jamais**, **plus**, **rien**, etc.). Together they correspond to a single Hebrew negation word-part (לֹא, אַל).
+Discontinuous: **ne** (pre-verbal) + a post-verbal negative word (**pas**, **jamais**, **plus**, **rien**, **point** — dated/LSG-style variant of "pas", same treatment) correspond to one Hebrew negation word-part (לֹא, אַל). "aucun(e)" is a stable alternative to personne/rien/nul for negative-pronoun contexts.
 
-- "ne" is **primary** to the Hebrew negation word-part; the post-verbal word (pas, plus, jamais, rien, etc.) is **secondary** in the same record — required by French grammar but not a separate Hebrew correspondent. Never NEQ the post-verbal word.
+- "ne" is **primary** to the Hebrew negation word-part; the post-verbal word (pas, plus, jamais, rien, point, etc.) is **secondary** in the same record — required by French grammar but not a separate Hebrew correspondent. Never NEQ the post-verbal word.
 - The negated verb gets its own record with auxiliaries and the required subject pronoun; **do not include "ne" or "pas" in the verb record**.
 - The verb record is discontiguous: "ne" precedes and "pas" follows the verb, but both stay in the negation record.
 

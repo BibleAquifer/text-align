@@ -8,8 +8,15 @@ sections follow the shared structural conventions of the English guidelines
 (`alignment-principles-ot.md` and `prompt/ot/eng.py`).
 
 Examples are grounded in Alkitab Terjemahan Baru (TBI) and checked against the actual
-target TSV (Genesis 1:1-2, Genesis 2:23, Joshua 1:1, Judges 21:25, Psalm 23:1, Genesis
-3:1) rather than constructed from general knowledge alone.
+target TSV. Initial examples were spot-checked against a handful of verses (Genesis
+1:1-2, Genesis 2:23, Joshua 1:1, Judges 21:25, Psalm 23:1, Genesis 3:1); ARTICLES,
+CONSTRUCT CHAINS, and NEGATION were subsequently re-verified at full-corpus scale
+(WLCM.tsv joined to TBI's OT target TSV by verse, all 23,213 OT verses). No second
+complete Indonesian OT translation was available for cross-checking — KKHv0 only
+covers Genesis 1–2 in this repo, and ID_GLT has no OT coverage at all — so the OT
+findings below are single-translation (TBI) full-corpus checks, not cross-translation
+verified the way the NT document's findings are. See the Cross-translation methodology
+note near the end of this document.
 
 Source files: `src/text_align/refine/prompt/ot/ind.py`, `src/text_align/refine/prompt/ot/eng.py`
 
@@ -186,14 +193,34 @@ required. This is the majority case in Indonesian, unlike English's near-obligat
 **MINORITY case → Branch A:** primary 1:1, when the translation does supply a distinct
 word.
 
+**Check for an explicit Hebrew demonstrative pronoun before assuming itu/ini is Branch
+A for the article.** OT Hebrew very commonly follows an articular noun with a separate
+demonstrative-pronoun word (הוּא/הִיא/זֶה/זֹאת/אֵלֶּה) to form "that/this X" (e.g.
+הָאִישׁ הַהוּא, lit. "the man, the that-one" = "that man") — a real, distinct Hebrew
+token, not just the bare article. When TBI's "itu"/"ini" corresponds to one of these
+demonstrative-pronoun tokens, align it primary 1:1 to THAT token, not to the article
+(which stays Branch B secondary as usual on the noun). This matters more for OT than NT:
+checked against all 24,756 OT article word-parts, itu/ini co-occur in the verse at an
+upper-bound rate of 53.5% — more than double the NT rate (22%) — and that gap tracks
+with OT's much higher rate of explicit demonstrative-pronoun words, not a difference in
+how the bare article itself behaves. Don't treat the elevated raw itu/ini frequency as
+evidence that Branch A is more common for the article in OT than NT; it mostly reflects
+a different, additional Hebrew token being present.
+
 ### Branch A — article has a distinct Indonesian correspondent
 
 - **→ "itu" (distal, anaphoric) or "ini" (proximal):** primary 1:1; noun in its own
   record. Typically appears on a SECOND or later mention of a referent, not the first.
   Example (first mention): הָאָרֶץ → "bumi" — no correspondent (Branch B, absorbed, no
   target word).
-  Example (repeated/anaphoric mention): הָאָרֶץ → "bumi itu": source=[articlePart],
+  Example (repeated/anaphoric mention, no separate Hebrew demonstrative token — the
+  article itself is the only source of "itu"): הָאָרֶץ → "bumi itu": source=[articlePart],
   target=["itu"] — primary 1:1; source=[אָרֶץ], target=["bumi"] — primary 1:1.
+  Example (explicit Hebrew demonstrative present — align "itu" to THAT token, not the
+  article): הָאִישׁ הַהוּא → "orang itu": source=[articlePart] — no target correspondent
+  (Branch B, secondary to the noun); source=[אִישׁ], target=["orang"] — primary 1:1;
+  source=[הוּא], target=["itu"] — primary 1:1 (the demonstrative pronoun, not the
+  article, is itu's real correspondent).
 
 - **→ "orang"/"orang-orang" (substantive participle, generic head noun supplied):**
   article → primary 1:1; "yang" secondary to the participle.
@@ -314,9 +341,9 @@ single fused token (same mechanism as NT Indonesian's fused-clitic rule). Plural
 
 ## NEGATION **[ind]**
 
-Indonesian negation is simple and contiguous (tidak/jangan + verb) — unlike languages
-with discontinuous negation, and there is usually no separate auxiliary to
-secondary-mark.
+Ordinary clausal negation is contiguous (tidak/jangan immediately before the verb) —
+but the לֹא...עוֹד ("no longer") construction is a real, corpus-confirmed exception; see
+Compound negation below.
 
 - לֹא/לוֹא → "tidak" (indicative): primary 1:1. Verb gets its own record.
   Example: לֹא יֵדַע → "tidak tahu": source=[loId], target=["tidak"] — primary 1:1;
@@ -333,9 +360,25 @@ secondary-mark.
   Pronominal suffixes on אֵין (e.g., אֵינֶנּוּ) → suffix word-part fuses per PRONOMINAL
   SUFFIXES.
 
-No discontiguous-verb caveat is needed — Indonesian "tidak"/"jangan" always sits directly
-before the verb, so the negation record and the verb record never interleave the way
-French's ne...pas does.
+### Compound negation: לֹא...עוֹד ("no longer") is discontinuous
+
+**This is a real exception to the general contiguity rule above** — checked against all
+222 OT verses containing both לֹא and עוֹד: in a ~2,000-verse-limited sample, roughly 70%
+render with the verb/modal intervening between "tidak" and "lagi" ("tidak akan
+disebutkan lagi," "tidak dapat menyembunyikannya lebih lama lagi," "tidak akan kamu
+lihat lagi"), not the contiguous "tidak lagi" that a naive reading of the contiguity rule
+above would predict. Both words are still primary to their respective Hebrew tokens
+(לֹא → "tidak", עוֹד → "lagi"), but do not assume they land as adjacent target tokens.
+This parallels the NT document's οὐκέτι/μηκέτι finding exactly — treat "Indonesian
+negation is always contiguous" as the general case, not an absolute.
+Example: לֹא־יִקָּרֵא עוֹד שִׁמְךָ יַעֲקֹב → "Namamu tidak akan disebutkan lagi Yakub":
+source=[loId], target=["tidak"] — primary 1:1; source=[odId], target=["lagi"] —
+primary 1:1, non-adjacent to "tidak" (separated by "akan disebutkan").
+
+**Not cross-translation verified** — no second complete Indonesian OT was available in
+this repo to check this finding against (see the note at the top of this document); it
+is confirmed at full-TBI-corpus scale but single-translation. Flagged as an open
+question below.
 
 ---
 
@@ -406,3 +449,59 @@ source=[verbId], target=["engkau", "akan", "mati"] — primary: "mati"; secondar
 "engkau", "akan".
 Absorbed without separate Indonesian word → infinitive absolute secondary to finite
 verb, or NEQ if definitively untranslated.
+
+---
+
+## Cross-translation methodology note
+
+ARTICLES, CONSTRUCT CHAINS, and NEGATION were re-checked at full-corpus scale (WLCM.tsv
+joined to TBI's OT target TSV by verse, all 23,213 OT verses / 24,756 articles / 7,199
+מִן-family prepositions / 222 verses with לֹא...עוֹד) rather than the six verses the
+original draft was built from. Unlike the NT document's methodology, no second complete
+Indonesian OT translation was available in this repo to cross-check findings against:
+KKHv0's `all-KKHv0.tsv` covers only Genesis 1–2 of the OT (plus the full NT), and
+ID_GLT's `ot_ID_GLT.tsv` is empty (header row only, no OT coverage at all). The findings
+below are therefore full-corpus-scale but single-translation (TBI) confirmations, not
+cross-translation-verified the way the NT document's findings are — treat them as more
+solid than the original six-verse spot-check but less solid than a genuine
+cross-translation check would provide.
+
+What held up unchanged: the construct-chain "no supplied 'dari'" claim (dari count
+6,882 vs. מִן-preposition count 7,199 — a 0.96 ratio, i.e. "dari" essentially only
+appears when an actual מִן token is present).
+
+What changed: (1) לֹא...עוֹד ("no longer") was reclassified from implicitly contiguous
+(the doc previously stated "no discontiguous-verb caveat is needed" as a blanket claim)
+to a genuine discontinuous exception, parallel to the NT document's οὐκέτι/μηκέτι
+correction. (2) The ARTICLES section now flags that OT Hebrew's much higher itu/ini
+co-occurrence rate (53.5% upper bound vs. NT's 22%) reflects the frequent presence of an
+explicit Hebrew demonstrative-pronoun word (הוּא/הִיא/זֶה/זֹאת/אֵלֶּה) following an
+articular noun, not a difference in how the bare article's own Branch A/B split behaves
+— itu/ini should be aligned to that demonstrative-pronoun token when one is present,
+not treated as the article's correspondent.
+
+What was checked and did NOT produce a finding: a search for an OT parallel to the NT
+document's "barangsiapa"/"siapa" generic-participle strategy, using כָּל ("all")
+immediately preceding a participle as a proxy for Hebrew casuistic/gnomic "whoever"
+constructions. The sample turned out to be dominated by ordinary quantificational "all
+who were counted/enrolled/armed" readings (correctly rendered "yang", no new strategy
+needed), not the legal-formula "whoever does X" sense — Hebrew casuistic law typically
+uses אִישׁ אֲשֶׁר / כִּי clauses rather than bare articular participles for that meaning,
+a different construction not covered by this document's PARTICIPIAL CONSTRUCTIONS
+section at all. This is flagged as an open question below rather than resolved.
+
+## Open questions for native-speaker review
+
+- The לֹא...עוֹד discontinuity finding needs cross-translation verification once a
+  second complete Indonesian OT becomes available — it is currently TBI-only, even
+  though it is full-corpus-scale and structurally identical to the NT document's
+  independently-cross-checked οὐκέτι/μηκέτι finding.
+- Hebrew casuistic/gnomic "whoever does X" formulas (אִישׁ אֲשֶׁר / כִּי-clause legal
+  formulas, common in Exodus/Leviticus/Deuteronomy) were not systematically checked
+  against TBI at all in this pass — only the (unproductive) כָּל+participle proxy was
+  tried. A targeted search on actual casuistic-law verses is needed to determine whether
+  OT Indonesian has anything parallel to the NT document's "barangsiapa"/"siapa" strategy.
+- As in the NT document: the fused-clitic claim (-ku/-mu/-nya) could not be verified by
+  frequency counting alone, since -nya is heavily overloaded beyond the pronominal-suffix
+  cases this document describes. Needs token-level verification from real alignment
+  output once TBI OT alignment runs exist to inspect.

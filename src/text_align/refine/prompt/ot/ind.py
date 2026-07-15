@@ -1,8 +1,11 @@
 """Indonesian target-language prompt config for OT (Hebrew) refine-alignment.
 
 Examples grounded in Alkitab Terjemahan Baru (TBI) — checked against the
-actual target TSV (Genesis 1:1-2, Genesis 2:23, Joshua 1:1, Judges 21:25,
-Psalm 23:1, Genesis 3:1), not constructed from general knowledge alone.
+actual target TSV, initially on a handful of verses (Genesis 1:1-2, Genesis
+2:23, Joshua 1:1, Judges 21:25, Psalm 23:1, Genesis 3:1) and later
+re-verified at full-corpus scale (ARTICLES, CONSTRUCT CHAINS, NEGATION).
+No second complete Indonesian OT was available for cross-checking — see
+docs/alignment-principles-ot.ind.md's Cross-translation methodology note.
 
 Key differences from OT English (eng.py):
   BASE_BLOCK           — no articles at all (Hebrew article word-part is
@@ -10,12 +13,19 @@ Key differences from OT English (eng.py):
                          word — the majority case, unlike English's
                          near-obligatory "the"); "itu"/"ini" only for the
                          minority anaphoric/demonstrative case, parallel to
-                         NT Indonesian. Fused possessive/object clitics
-                         (-ku/-mu/-nya) attach directly to noun, preposition,
-                         or verb as ONE target token — both the head token
-                         and the pronominal-suffix word-part are primary,
-                         sharing that one token (see nt/ind.py precedent).
-                         No indefinite article (bare noun default).
+                         NT Indonesian. Check for an explicit Hebrew
+                         demonstrative pronoun (הוּא/הִיא/זֶה/זֹאת/אֵלֶּה)
+                         before assuming itu/ini is the article's own Branch
+                         A correspondent — OT's itu/ini co-occurrence rate is
+                         more than double NT's, tracking with how often an
+                         explicit demonstrative token is present, not a
+                         difference in the article's own behavior. Fused
+                         possessive/object clitics (-ku/-mu/-nya) attach
+                         directly to noun, preposition, or verb as ONE target
+                         token — both the head token and the
+                         pronominal-suffix word-part are primary, sharing
+                         that one token (see nt/ind.py precedent). No
+                         indefinite article (bare noun default).
   CONSTRUCT CHAINS     — the standout structural difference: Indonesian forms
                          possession/genitive by bare noun-noun juxtaposition
                          in the SAME head-then-modifier order Hebrew already
@@ -32,10 +42,13 @@ Key differences from OT English (eng.py):
                          Indonesian word; both Hebrew word-parts are primary
                          to that single fused token. Plural pronouns
                          (kami/kita/mereka) never fuse — normal 1:1.
-  NEGATION_BLOCK       — simple contiguous negation (tidak/jangan + verb),
-                         no discontiguous structure (contrast French's
-                         ne...X); existential אֵין renders as the fixed
-                         "tidak ada" phrase.
+  NEGATION_BLOCK       — ordinary clausal negation is contiguous
+                         (tidak/jangan + verb), but לֹא...עוֹד ("no longer")
+                         is a real exception: the verb regularly separates
+                         "tidak" from "lagi" (checked against all 222 OT
+                         verses with both particles) — parallels the NT
+                         config's οὐκέτι/μηκέτι finding exactly. Existential
+                         אֵין renders as the fixed "tidak ada" phrase.
   PARTICIPLE_BLOCK     — "yang" pattern for substantive participles, with or
                          without an explicit head noun ("orang(-orang)"),
                          matching NT Indonesian exactly.
@@ -129,10 +142,13 @@ Hebrew article (הַ/הָ/הֶ) appears as a separate word-part token (pos=parti
 DEFAULT (most common in Indonesian) → Branch B: no separate word at all — the noun stands bare, and the article is secondary to the noun's own record with no target word required. This is the majority case in Indonesian, unlike English's near-obligatory "the".
 MINORITY case → Branch A: primary 1:1, when the translation does supply a distinct word.
 
+Check for an explicit Hebrew demonstrative pronoun (הוּא/הִיא/זֶה/זֹאת/אֵלֶּה) before assuming itu/ini is the article's Branch A correspondent. OT Hebrew commonly follows an articular noun with a separate demonstrative-pronoun word to form "that/this X" (הָאִישׁ הַהוּא, lit. "the man, the that-one" = "that man") — a real, distinct token. When TBI's itu/ini corresponds to one of these, align it to THAT token, not the article (which stays Branch B). Confirmed against the full OT corpus: itu/ini co-occur with articles at more than double the NT rate (53.5% vs 22% upper bound), tracking with OT's much higher rate of explicit demonstrative pronouns, not a difference in the article's own Branch A/B split.
+
 ### Branch A — article has a distinct Indonesian correspondent
 - → "itu" (distal, anaphoric — referring to something already introduced) or "ini" (proximal): primary 1:1; noun in its own record. Typically appears on a SECOND or later mention of a referent, not the first.
   הָאָרֶץ (first mention) → "bumi" — no correspondent (Branch B, absorbed, no target word)
-  הָאָרֶץ (repeated/anaphoric mention) → "bumi itu": source=[articlePart], target=["itu"] — primary 1:1; source=[אָרֶץ], target=["bumi"] — primary 1:1
+  הָאָרֶץ (repeated/anaphoric mention, no separate Hebrew demonstrative token) → "bumi itu": source=[articlePart], target=["itu"] — primary 1:1; source=[אָרֶץ], target=["bumi"] — primary 1:1
+  הָאִישׁ הַהוּא (explicit Hebrew demonstrative present) → "orang itu": source=[articlePart] — no target correspondent (Branch B); source=[אִישׁ], target=["orang"] — primary 1:1; source=[הוּא], target=["itu"] — primary 1:1 (the demonstrative, not the article, is itu's real correspondent)
 - → "orang"/"orang-orang" (substantive participle, generic head noun supplied): article → primary 1:1; "yang" secondary to the participle (see PARTICIPIAL CONSTRUCTIONS).
 
 ### Branch B — no distinct Indonesian correspondent → secondary, no target word
@@ -193,7 +209,7 @@ Pronominal suffixes are separate word-part tokens (pos=suffix). Singular suffixe
 NEGATION_BLOCK = """\
 ## NEGATION
 
-Indonesian negation is simple and contiguous (tidak/jangan + verb) — unlike languages with discontinuous negation, and there is usually no separate auxiliary to secondary-mark.
+Ordinary clausal negation is contiguous (tidak/jangan immediately before the verb) — but לֹא...עוֹד ("no longer") is a real, corpus-confirmed exception; see below.
 
 - לֹא/לוֹא → "tidak" (indicative): primary 1:1. Verb gets its own record.
   לֹא יֵדַע → "tidak tahu": source=[loId], target=["tidak"] — primary 1:1; source=[verbId], target=["tahu"] — primary 1:1
@@ -203,7 +219,9 @@ Indonesian negation is simple and contiguous (tidak/jangan + verb) — unlike la
   אֵין מֶלֶךְ → "tidak ada raja": source=[einId], target=["tidak", "ada"] — both primary; source=[melekId], target=["raja"] — primary 1:1
   Pronominal suffixes on אֵין (e.g., אֵינֶנּוּ) → suffix word-part fuses per PRONOMINAL SUFFIXES.
 
-No discontiguous-verb caveat is needed — Indonesian "tidak"/"jangan" always sits directly before the verb, so the negation record and the verb record never interleave the way French's ne...pas does.\
+### Compound negation: לֹא...עוֹד ("no longer") is DISCONTINUOUS, not contiguous
+Checked against all 222 OT verses with both לֹא and עוֹד: the verb/modal regularly separates "tidak" from "lagi" ("tidak akan disebutkan lagi," "tidak dapat menyembunyikannya lebih lama lagi") — do not assume they land adjacent. Both still primary to their respective Hebrew tokens.
+  לֹא־יִקָּרֵא עוֹד שִׁמְךָ יַעֲקֹב → "Namamu tidak akan disebutkan lagi Yakub": source=[loId], target=["tidak"] — primary 1:1; source=[odId], target=["lagi"] — primary 1:1, non-adjacent to "tidak"\
 """
 
 PARTICIPLE_BLOCK = """\

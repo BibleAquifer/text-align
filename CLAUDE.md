@@ -60,13 +60,31 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   pronoun — inverse of Spanish/Portuguese). Contracted forms du/des/au/aux (non-contracting
   stay two words). Double-article attributive handled (first → Branch A, second → Branch B).
   Partitive du/de la/des secondary for anarthrous mass nouns. Reflexive passive (se + verb)
-  and impersonal "on" as passive equivalent. Discontinuous ne…X negation; restrictive ne…que.
-- `nt/ind.py` — Indonesian. No articles (Branch B is the default, not the exception); "itu"/
-  "ini" only for anaphoric/demonstrative mentions. Fused possessive/object clitics (-ku/-mu/
-  -nya) for singular pronouns only. "yang" is the universal relativizer. Two passive
-  strategies: di- prefix (direct, one fused word, no auxiliary) vs. ter- + "ada" (resultative,
-  for γέγραπται-type perfects). No infinitive form; articular/temporal infinitive renders as
-  a finite clause with "ketika"/"saat". Simple contiguous negation (tidak + verb).
+  and impersonal "on" as passive equivalent. Discontinuous ne…X negation; "point" is a dated
+  LSG (1910) alternative to "pas" (460 NT instances in LSG vs. ~1 in the modern AFBRT sample)
+  — align like "pas" but don't expect it from modern translations. μόνον/μόνος DEFAULTS to
+  "seul(ement)" (75-84% of 111 checked instances across LSG/TOB10/ULBFR) — restrictive
+  "ne…que" is a real but minority variant (3-5%), not the standard rendering as originally
+  drafted. "aucun(e)" is a stable alternative to personne/rien/nul. Distilled from
+  `docs/alignment-principles-nt.fra.md` (and `alignment-principles-ot.fra.md` for
+  `ot/fra.py`), reverse-engineered from the pre-existing code and then corpus-checked
+  against LSG/AFBRT/TOB10/ULBFR — see that document's "Cross-translation methodology note".
+- `nt/ind.py` — Indonesian. No articles (Branch B is the default, not the exception,
+  confirmed at full-corpus scale: itu/ini appear on ≤22% of article tokens); "itu"/"ini"
+  only for anaphoric/demonstrative mentions. Fused possessive/object clitics (-ku/-mu/
+  -nya) for singular pronouns only. "yang" is the universal relativizer for substantive
+  participles, but generic/gnomic reference ("whoever does X") often uses "barangsiapa"/
+  "siapa" instead — a third strategy confirmed against a second Indonesian NT (KKHv0),
+  which uses different lexemes for the same slot. Two passive strategies: di- prefix
+  (direct, one fused word, no auxiliary) vs. ter- + "ada" (resultative, for γέγραπται-type
+  perfects, confirmed 14/15 sampled instances). Ordinary negation is contiguous
+  (tidak/jangan + verb), but οὐκέτι/μηκέτι ("no longer") is discontinuous — the verb
+  regularly separates "tidak"/"bukan" from "lagi"; "bukan" (not "tidak") negates
+  nominal/copular predicates. No infinitive form; articular/temporal infinitive renders as
+  a finite clause with "ketika"/"saat". Distilled from `docs/alignment-principles-nt.ind.md`,
+  which was cross-checked against KKHv0 (a second complete Indonesian NT; ID_GLT excluded —
+  it covers only a subset of epistles, not a complete NT) — see that document's
+  "Cross-translation methodology note".
 - `nt/hin.py` — Hindi. No articles; split-ergative ने and DOM/dative को have partial or no
   Greek trigger; genitive का/की/के agrees with the possessed noun, not the possessor. Finite
   verbs are almost always periphrastic (participle + copula) by default, not stylistic

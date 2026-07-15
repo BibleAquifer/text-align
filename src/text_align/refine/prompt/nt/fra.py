@@ -1,5 +1,10 @@
 """French target-language prompt config for refine-alignment.
 
+Examples checked against LSG (1910, full NT) and cross-checked against AFBRT
+(modern; Mark plus a few epistles), TOB10 (modern, full NT), and ULBFR
+(modern, full NT) — see docs/alignment-principles-nt.fra.md's
+Cross-translation methodology note.
+
 Key differences from English (eng.py):
   BASE_BLOCK    — NOT pro-drop: subject pronouns required; absent Greek pronoun →
                   French pronoun secondary (inverse of Spanish/Portuguese).
@@ -10,7 +15,14 @@ Key differences from English (eng.py):
   PASSIVE_BLOCK — reflexive passive (se + verb); "on" + active as passive equivalent.
   INFINITIVE_BLOCK — governed "de"/"à" secondary; gérondif for articular infinitive.
   HINA_BLOCK    — pour que/afin que + subjunctive; bare "que" + subjunctive; pour/afin de + infinitive.
-  NEGATION_BLOCK — discontinuous ne…X structure; compound tokens; restrictive ne…que.
+  NEGATION_BLOCK — discontinuous ne…X structure; compound tokens. μόνον/μόνος
+                  DEFAULTS to "seul(ement)" (75-84% of 111 SBLGNT instances
+                  checked across three translations) — "ne…que" is a real but
+                  minority variant (3-5%), not the standard rendering. "point"
+                  is a dated LSG-era alternative to "pas" (460 NT instances in
+                  LSG vs. ~1 in modern AFBRT) — align like "pas" but don't
+                  expect it from modern translations. "aucun(e)" is a stable
+                  alternative to personne/rien/nul, not tied to translation age.
 
 Prose reference preserved in fra.prose.py.
 """
@@ -246,19 +258,13 @@ NEGATION_BLOCK = """\
 ## NEGATION
 
 ### Standard French negation (ne…X)
-French negation is a discontinuous two-part structure: **ne** (pre-verbal) + a post-verbal negative word (**pas**, **jamais**, **plus**, **rien**, etc.). Together they correspond to a single Greek negation particle (οὐ, οὐκ, οὐχ, μή).
-
-- "ne" is **primary** to the Greek negation particle; the post-verbal word (**pas**, **plus**, **jamais**, **rien**, etc.) is **secondary** in the same record — required by French grammar but not a separate Greek correspondent. Never NEQ the post-verbal word.
-- The negated verb gets its own record with auxiliaries and subject pronoun; **do not include "ne" or "pas" in the verb record**.
-- The verb record is discontiguous: "ne" precedes and "pas" follows the verb, but both stay in the negation record.
-- In compound tenses ("il ne l'a pas vu"), "ne" and "pas" are discontiguous across the auxiliary and object clitic — both remain in the negation record.
-
+Discontinuous: **ne** (pre-verbal) + a post-verbal negative word (**pas**, **jamais**, **plus**, **rien**, **point** — dated/LSG-style variant of "pas", same treatment) correspond to one Greek negation particle (οὐ, οὐκ, οὐχ, μή). "ne" primary; the post-verbal word secondary in the same record — never NEQ, never in the verb's record. Discontiguous across auxiliaries/clitics too ("il ne l'a pas vu") — both stay in the negation record.
   οὐκ ἔρχεται → "il ne vient pas":
     source=[οὐκ],     target=["ne", "pas"]  — primary: "ne"; secondary.target: ["pas"]
     source=[ἔρχεται], target=["il", "vient"] — primary: "vient"; secondary: "il"
 
 ### Emphatic negation (οὐ μή)
-Both Greek particles + both French words primary in a single record (two source tokens justify two primary targets).
+Both Greek particles + both French words primary in a single record.
   οὐ μή + subjunctive → "ne…jamais [verb]":
     source=[οὐ, μή], target=["ne", "jamais"] — both particles, both words primary
 
@@ -267,15 +273,18 @@ Both Greek particles + both French words primary in a single record (two source 
 - οὔπω/μήπω ("not yet") → "ne…pas encore": "ne" primary; "pas", "encore" secondary
 - οὐδέ/μηδέ ("and not"/"neither"/"nor") → "ni" (primary) or "et ne…pas" ("ne" primary, "pas" secondary)
 - οὔτε ("neither…nor") → "ni"
-- οὐδείς/μηδείς ("nobody"/"no one"/"nothing") → "personne"/"rien"/"nul" — primary
+- οὐδείς/μηδείς ("nobody"/"no one"/"nothing") → "personne"/"rien"/"nul"/"aucun(e)" — primary
   source=[οὐκέτι], target=["ne", "plus"] — primary: "ne"; secondary.target: ["plus"]
 
 ### Negation with negative pronouns
-Negative pronoun (οὐδείς → "personne"/"nul", μηδείς → "rien") primary to its Greek token. "ne" before the verb is retained; "pas" is typically omitted when a strong post-verbal negative is already present.
+Negative pronoun (οὐδείς → "personne"/"nul"/"aucun", μηδείς → "rien"/"aucun") primary to its Greek token. "ne" before the verb is retained; "pas" is typically omitted when a strong post-verbal negative is already present.
 
-### Restrictive "ne…que" (= "only") — not a true negation
-When Greek μόνον/μόνος → "ne…que", both "ne" and "que" are **primary** to the Greek word for "only". Do not treat "ne" here as a negation particle — the construction is restrictive, not negative.
-  source=[μόνον], target=["ne", "que"] — both primary\
+### μόνον/μόνος → "seul(ement)" (default) or restrictive "ne…que" (minority)
+DEFAULT: "seul(ement)" as a plain adverb/adjective, primary 1:1 — a positive lexical item ("only/alone"), not negation machinery.
+  σὺ μόνος → "toi seul": source=[μόνος], target=["seul"] — primary 1:1
+MINORITY (restrictive "only", not true negation): "ne" and "que" both primary to μόνον/μόνος.
+  source=[μόνον], target=["ne", "que"] — both primary
+Both can co-occur for emphasis ("ils ne virent que Jésus seul") — treat each as primary.\
 """
 
 

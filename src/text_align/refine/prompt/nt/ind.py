@@ -1,8 +1,10 @@
 """Indonesian target-language prompt config for refine-alignment.
 
 Examples grounded in Alkitab Terjemahan Baru (TBI) — checked against the
-actual target TSV (Mark 1:2-9, John 1:1, John 3:16, Matthew 1:21), not
-constructed from general knowledge alone.
+actual target TSV, initially on a handful of verses (Mark 1:2-9, John 1:1,
+John 3:16, Matthew 1:21) and later re-verified at full-corpus scale
+(ARTICLES, NEGATION, PARTICIPIAL) cross-checked against KKHv0 — see
+docs/alignment-principles-nt.ind.md's Cross-translation methodology note.
 
 Key differences from the Romance-language configs (por.py/spa.py/fra.py):
   BASE_BLOCK    — fused possessive/object clitics: singular Greek possessive
@@ -24,13 +26,19 @@ Key differences from the Romance-language configs (por.py/spa.py/fra.py):
                   every Romance config) vs. ter- + "ada" (resultative/stative
                   passive, used for perfect-type Greek passives like γέγραπται).
   PARTICIPLE_BLOCK — "yang" pattern for substantive participles, with or
-                  without an explicit head noun ("orang(-orang)").
+                  without an explicit head noun ("orang(-orang)"); a third
+                  strategy, "barangsiapa"/"siapa", for generic/gnomic
+                  reference ("whoever does X") — confirmed against KKHv0,
+                  which uses different lexemes for the same slot.
   INFINITIVE_BLOCK — no distinct infinitive form at all (bare verb primary);
                   no gérondif/participle either — the articular/temporal
                   infinitive renders as an ordinary finite clause with
                   "ketika"/"saat" instead.
-  NEGATION_BLOCK — simple contiguous negation (tidak + verb), no discontiguous
-                  structure; "belum" is a single lexeme for "not yet".
+  NEGATION_BLOCK — ordinary clausal negation is contiguous (tidak/jangan +
+                  verb), but οὐκέτι/μηκέτι ("no longer") is a real exception:
+                  the verb regularly separates "tidak"/"bukan" from "lagi".
+                  "bukan" (not "tidak") negates nominal/copular predicates.
+                  "belum" is a single lexeme for "not yet".
 
 AUTOS_BLOCK, COMPARATIVE_BLOCK, CONDITIONAL_BLOCK, HOTI_BLOCK, IMPERSONAL_BLOCK,
 and VERBAL_ASPECT_BLOCK are imported unchanged from eng.py, matching the
@@ -222,13 +230,16 @@ HINA_BLOCK = """\
 NEGATION_BLOCK = """\
 ## NEGATION
 
-Indonesian negation is simple and contiguous (tidak + verb) — unlike French's discontinuous ne…pas structure, and there is usually no separate auxiliary to secondary-mark.
+Ordinary clausal negation is contiguous (tidak/jangan immediately before the verb).
 
 - οὐ/οὐκ/οὐχ/μή → "tidak" (indicative) / "jangan" (prohibitive/imperative): primary 1:1. Verb gets its own record.
   οὐκ ἔρχεται → "tidak datang": source=[οὐκ], target=["tidak"] — primary 1:1; source=[ἔρχεται], target=["datang"] — primary 1:1
+- Nominal/copular predicate negated → "bukan" instead of "tidak" (lexical choice by predicate type, not a different Greek construction), still primary 1:1.
+  οὐκέτι εἰσὶν δύο → "mereka bukan lagi dua": "bukan" chosen because the predicate ("dua") is nominal — see Compound negation for the "lagi" split.
 
 ### Compound negation
-- οὐκέτι/μηκέτι ("no longer") → "tidak lagi": both words primary — Indonesian expresses this with two words, unlike English's fused "no longer".
+- οὐκέτι/μηκέτι ("no longer") is DISCONTINUOUS, not one contiguous "tidak lagi" unit: the verb/predicate regularly separates "tidak"(or "bukan") from "lagi" — both still primary to the single Greek token, but do not expect them adjacent.
+  οὐκέτι δύναται...εἰσελθεῖν → "tidak dapat lagi ... masuk": source=[οὐκέτι], target=["tidak", "lagi"] — both primary, non-adjacent target tokens.
 - οὔπω/μήπω ("not yet") → "belum": primary 1:1 — a single dedicated lexeme, no periphrasis needed.
 - οὐδέ/μηδέ ("and not"/"neither"/"nor") → "dan tidak"/"pun tidak": primary
 - οὐδείς/μηδείς ("nobody"/"no one"/"nothing") → "tidak seorang pun"/"tiada": primary
@@ -257,6 +268,11 @@ Article → generic head noun "orang"/"orang-orang" (person/people) primary 1:1 
     source=[τοῖς], target=["orang-orang"] — primary 1:1
     source=[πιστεύουσιν], target=["yang", "percaya"] — primary: "percaya"; secondary: "yang"
   Bare form, no head noun: ὁ πιστεύων → "yang percaya": source=[ὁ] — no target correspondent (Branch B); source=[πιστεύων], target=["yang", "percaya"] — primary: "percaya"; secondary: "yang"
+
+### Substantive, generic/gnomic — "barangsiapa"/"siapa" pattern
+When the articular participle is generic/gnomic ("whoever does X," not a specific known individual — typically proverbial or conditional), translation may supply "barangsiapa"/"siapa"/"siapa pun" instead of "yang" (or a translation-specific equivalent like "orang yang"/"siapa yang"). Article has no target correspondent (Branch B); the head-word is primary to the participle, same slot "yang" fills elsewhere — this is a lexical variant, not a different construction.
+  ὁ φιλῶν πατέρα → "Barangsiapa mengasihi bapa": source=[ὁ] — no target correspondent; source=[φιλῶν], target=["Barangsiapa", "mengasihi"] — primary: "mengasihi"; secondary: "Barangsiapa"
+  ὁ ἔχων ὦτα → "Siapa bertelinga": source=[ὁ] — no target correspondent; source=[ἔχων], target=["Siapa", "bertelinga"] — primary: "bertelinga"; secondary: "Siapa"
 
 ### Discourse particle adjacent to participle
 δέ/καί/οὖν near participle with no correspondent → NEQ source (only when certain).\
