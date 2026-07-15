@@ -1,0 +1,79 @@
+# IRVHin.yaml — config for Indian Revised Version (Hindi) Text (IRVHin)
+#
+# Invoke any tool with:  --config IRVHin
+
+alignments_root: ~/git/Clear-Bible
+
+# ---------------------------------------------------------------------------
+# Identity
+# ---------------------------------------------------------------------------
+
+target_language: hin
+target_edition: IRVHin
+target_edition_name: Indian Revised Version (Hindi) Text
+
+#source_edition: JFA11
+#source_language: por
+
+alignment_sources: []
+alignment_suffix: LLM-REFINED
+from-scratch: true
+
+# smaller chunks?
+batch-size: 4
+
+# Gloo
+llm_provider: gloo
+reasoning_effort: high
+#llm_model: gloo-google-gemini-3.5-flash # decent (better than not bad)
+llm_model: gloo-deepseek-v4-pro # decent (better than not bad)
+max_output_tokens: 32000
+# ---------------------------------------------------------------------------
+# retry-alignment settings
+# ---------------------------------------------------------------------------
+
+fallback_threshold: 0.30
+
+# LLM provider and model for retry-alignment (the second-pass / quality-repair step).
+# If absent, retry-alignment falls back to the llm_provider / llm_model /
+# reasoning_effort values above. Set these to use a different (typically better)
+# model for the retry pass than the initial refine pass.
+retry_reasoning_effort: high
+retry_llm_provider: gloo
+#retry_llm_model: gloo-anthropic-claude-opus-4.7
+retry_llm_model: gloo-google-gemini-3.1-pro
+retry_max_output_tokens: 32000
+
+# retry suspect verses?
+include_suspect: true
+suspect_cost_per_verse_max: .05
+suspect_cost_max: 5
+#suspect_stddev: 2.5
+
+# Alignment quality scoring threshold for retry-alignment and score-alignment.
+# Verses with a composite penalty score above this value are flagged for retry.
+# Range 0–1; lower = more retries, higher = fewer. Default: 0.25.
+# semantic_threshold: 0.35
+
+# Expected natural NEQ rate (signal 3 baseline), measured from existing APBRT
+# output: NT ~8.6% (close to the 0.07 code default, no override needed), OT
+# (law) ~22.8% (well above the 0.16 testament default — Portuguese OT runs
+# NEQ-heavier than eng/fra OT samples, plausibly a translation-style effect
+# layered on the general Hebrew testament effect).
+neq_baseline_ot: 0.20
+
+# Legacy coverage threshold (deprecated; superseded by score_retry_threshold).
+# Flag verses with more than this many unaligned source tokens.
+min_unaligned_src: 2
+
+# ---------------------------------------------------------------------------
+# ACAI and trabina — paths derived automatically from git-root sibling layout
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# sim-migrate settings
+# ---------------------------------------------------------------------------
+
+model: sentence-transformers/LaBSE
+min_similarity: 0.7
+max_word_distance: 8
