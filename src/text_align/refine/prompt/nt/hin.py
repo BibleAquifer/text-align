@@ -144,6 +144,7 @@ Unrecorded = correspondence not determined (normal). NEQ records must not includ
 - Uncertain → leave unrecorded
 
 Supplied copula ("है"/"हूँ"/"हैं") with no Greek εἶναι token → NEQ target. Copula ELLIPSIS after नहीं is common in predicate-nominal/adjectival clauses ("योग्य नहीं [हूँ]," "कर्जदार नहीं [हैं]") — this is normal Hindi grammar, not a gap to fill; when both Greek and Hindi omit the copula there is simply nothing to align.
+A parenthetical cross-reference (e.g. "(यहूदा 1:1)") → NEQ target.
 ने and को-as-DOM are never NEQ even though neither has a Greek trigger — secondary to the noun phrase they mark, since that noun phrase is itself the source anchor.
 
 ## SURFACE FORM DIFFERENCES
