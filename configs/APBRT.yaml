@@ -2,7 +2,7 @@
 #
 # Invoke any tool with:  --config APBRT
 
-alignments_root: ./data/alignments
+alignments_root: ~/git/Clear-Bible
 
 # ---------------------------------------------------------------------------
 # Identity
