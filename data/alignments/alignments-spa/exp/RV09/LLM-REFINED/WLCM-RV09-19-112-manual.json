@@ -1,4 +1,4 @@
-{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-deepseek-v4-pro", "reasoning_effort": "high"}, "retry_llm": {"provider": "gloo", "model": "gloo-google-gemini-3.1-pro", "reasoning_effort": "high"}, "nonEquivalent": {"source": ["191120100042", "191120010031", "191120010041", "191120010051", "191120010061", "191120010071", "191120010081", "191120010082", "191120010083", "191120010091", "191120010101", "191120010011", "191120010021", "191120010061"], "target": ["19112003004", "19112004010", "19112008015", "19112008016", "19112001009"]}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
+{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-deepseek-v4-pro", "reasoning_effort": "high"}, "retry_llm": {"provider": "gloo", "model": "gloo-google-gemini-3.1-pro", "reasoning_effort": "high"}, "nonEquivalent": {"source": ["191120100042"], "target": ["19112003004", "19112004010", "19112008015", "19112008016", "19112001009"]}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
 {"scheme": "BCVWP", "docid": "RV09"}], "roles": ["source", "target"], 
 "records": [{"source": ["191120020011"], "target": ["19112002004"]},
 {"source": ["191120020021"], "target": ["19112002005", "19112002006"], "meta": {"secondary": {"target": ["19112002006"]}}},
@@ -99,13 +99,4 @@
 {"source": ["191120100071"], "target": ["19112010018", "19112010019", "19112010020"], "meta": {"secondary": {"target": ["19112010018", "19112010020"]}}},
 {"source": ["191120100081"], "target": ["19112010021", "19112010022"], "meta": {"secondary": {"target": ["19112010021"]}}},
 {"source": ["191120100091"], "target": ["19112010017"]},
-{"source": ["191120010011", "191120010021"], "target": ["19112000001"]},
-{"source": ["191120010031"], "target": ["19112001001"]},
-{"source": ["191120010041"], "target": ["19112001002", "19112001003"], "meta": {"secondary": {"target": ["19112001002"]}}},
-{"source": ["191120010051"], "target": ["19112001004", "19112001005"], "meta": {"secondary": {"target": ["19112001004"]}}},
-{"source": ["191120010071"], "target": ["19112001006", "19112001007"], "meta": {"secondary": {"target": ["19112001006"]}}},
-{"source": ["191120010081"], "target": ["19112001010"]},
-{"source": ["191120010082"], "target": ["19112001012"]},
-{"source": ["191120010083"], "target": ["19112001011"]},
-{"source": ["191120010091"], "target": ["19112001013", "19112001014"], "meta": {"secondary": {"target": ["19112001013"]}}},
-{"source": ["191120010101"], "target": ["19112001015", "19112001016", "19112001017"]}]}]}
+{"source": ["191120010011", "191120010021"], "target": ["19112000001"]}]}]}

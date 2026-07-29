@@ -1,4 +1,4 @@
-{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-deepseek-v4-pro", "reasoning_effort": "high"}, "retry_llm": {"provider": "gloo", "model": "gloo-google-gemini-3.1-pro", "reasoning_effort": "high"}, "nonEquivalent": {"source": ["191380020061", "191380020102", "191380030031", "191380060061", "191380010011", "191380010012"], "target": ["19138000001", "19138002026", "19138002031", "19138002032", "19138003004", "19138004004", "19138005014", "19138008009", "19138008012"]}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
+{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-deepseek-v4-pro", "reasoning_effort": "high"}, "retry_llm": {"provider": "gloo", "model": "gloo-google-gemini-3.1-pro", "reasoning_effort": "high"}, "nonEquivalent": {"source": ["191380020061", "191380020102", "191380030031", "191380060061", "191380010021", "191380010022", "191380010031", "191380010032", "191380010041", "191380010042", "191380010051", "191380010061", "191380010071", "191380010072"], "target": ["19138002026", "19138002031", "19138002032", "19138003004", "19138004004", "19138005014", "19138008009", "19138008012", "19138000001"]}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
 {"scheme": "BCVWP", "docid": "RV09"}], "roles": ["source", "target"], 
 "records": [{"source": ["191380020011"], "target": ["19138002001"]},
 {"source": ["191380020021"], "target": ["19138002002"]},
@@ -93,12 +93,5 @@
 {"source": ["191380080082"], "target": ["19138008021"]},
 {"source": ["191380080091"], "target": ["19138008016"]},
 {"source": ["191380080101"], "target": ["19138008017"]},
-{"source": ["191380010021", "191380010022"], "target": ["19138001001", "19138001002"]},
-{"source": ["191380010031"], "target": ["19138001003"]},
-{"source": ["191380010032"], "target": ["19138001004"]},
-{"source": ["191380010041"], "target": ["19138001006"]},
-{"source": ["191380010042"], "target": ["19138001005"]},
-{"source": ["191380010051"], "target": ["19138001008", "19138001009"]},
-{"source": ["191380010061"], "target": ["19138001010", "19138001011"], "meta": {"secondary": {"target": ["19138001010"]}}},
-{"source": ["191380010071"], "target": ["19138001013", "19138001014"]},
-{"source": ["191380010072"], "target": ["19138001012"]}]}]}
+{"source": ["191380010011"], "target": ["19138000002"]},
+{"source": ["191380010012"], "target": ["19138000003"]}]}]}

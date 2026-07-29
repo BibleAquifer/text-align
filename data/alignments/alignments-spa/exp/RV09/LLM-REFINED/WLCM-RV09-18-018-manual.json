@@ -1,4 +1,4 @@
-{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-deepseek-v4-pro", "reasoning_effort": "high"}, "retry_llm": {"provider": "gloo", "model": "gloo-google-gemini-3.1-pro", "reasoning_effort": "high"}, "nonEquivalent": {"source": ["180180020011", "180180080031", "180180090021", "180180110051", "180180110052", "180180110053", "180180170091", "180180180012", "180180180062", "180180190072"], "target": ["18018003009", "18018010003", "18018013013", "18018015008", "18018020014", "18018021003", "18018021011", "18018021015", "18018021018"]}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
+{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-deepseek-v4-pro", "reasoning_effort": "high"}, "retry_llm": {"provider": "gloo", "model": "gloo-google-gemini-3.1-pro", "reasoning_effort": "high"}, "nonEquivalent": {"source": ["180180020011", "180180080031", "180180090021", "180180110051", "180180110052", "180180110053", "180180170091", "180180180012", "180180180062", "180180190072"], "target": ["18018003009", "18018010003", "18018013013", "18018015008", "18018020014", "18018021003", "18018021011", "18018021015", "18018021018", "18018007012"]}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
 {"scheme": "BCVWP", "docid": "RV09"}], "roles": ["source", "target"], 
 "records": [{"source": ["180180010011"], "target": ["18018001001"]},
 {"source": ["180180010012"], "target": ["18018001002"]},
@@ -203,5 +203,5 @@
 {"source": ["180180070032"], "target": ["18018007004"]},
 {"source": ["180180070041"], "target": ["18018007009"]},
 {"source": ["180180070042", "180180070043"], "target": ["18018007010"]},
-{"source": ["180180070051"], "target": ["18018007012", "18018007013"], "meta": {"secondary": {"target": ["18018007012"]}}},
+{"source": ["180180070051"], "target": ["18018007013"]},
 {"source": ["180180070052"], "target": ["18018007011"]}]}]}

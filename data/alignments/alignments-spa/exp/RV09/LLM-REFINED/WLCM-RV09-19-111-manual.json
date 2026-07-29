@@ -1,4 +1,4 @@
-{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-deepseek-v4-pro", "reasoning_effort": "high"}, "retry_llm": {"provider": "gloo", "model": "gloo-google-gemini-3.1-pro", "reasoning_effort": "high"}, "nonEquivalent": {"source": ["191110040031", "191110060051", "191110010031", "191110010041", "191110010051", "191110010052", "191110010061", "191110010071", "191110010072", "191110010081", "191110010091", "191110010092"], "target": ["19111001002", "19111002002", "19111003004", "19111004009", "19111007006", "19111007012", "19111009018", "19111010006"]}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
+{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-deepseek-v4-pro", "reasoning_effort": "high"}, "retry_llm": {"provider": "gloo", "model": "gloo-google-gemini-3.1-pro", "reasoning_effort": "high"}, "nonEquivalent": {"source": ["191110040031", "191110060051"], "target": ["19111002002", "19111003004", "19111004009", "19111007006", "19111007012", "19111009018", "19111010006"]}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
 {"scheme": "BCVWP", "docid": "RV09"}], "roles": ["source", "target"], 
 "records": [{"source": ["191110020011"], "target": ["19111002001"]},
 {"source": ["191110020021"], "target": ["19111002003", "19111002004", "19111002005"], "meta": {"secondary": {"target": ["19111002003", "19111002005"]}}},
@@ -97,4 +97,14 @@
 {"source": ["191110100101"], "target": ["19111010023"]},
 {"source": ["191110100111"], "target": ["19111010024"]},
 {"source": ["191110100112"], "target": ["19111010025"]},
-{"source": ["191110010011", "191110010021"], "target": ["19111000001"]}]}]}
+{"source": ["191110010011", "191110010021"], "target": ["19111000001"]},
+{"source": ["191110010031"], "target": ["19111001001"]},
+{"source": ["191110010041"], "target": ["19111001002", "19111001003"], "meta": {"secondary": {"target": ["19111001002"]}}},
+{"source": ["191110010051"], "target": ["19111001004"]},
+{"source": ["191110010052"], "target": ["19111001005"]},
+{"source": ["191110010061"], "target": ["19111001006", "19111001007"], "meta": {"secondary": {"target": ["19111001006"]}}},
+{"source": ["191110010071"], "target": ["19111001009"]},
+{"source": ["191110010072"], "target": ["19111001010", "19111001011", "19111001014"], "meta": {"secondary": {"target": ["19111001010", "19111001014"]}}},
+{"source": ["191110010081"], "target": ["19111001015", "19111001016"], "meta": {"secondary": {"target": ["19111001015"]}}},
+{"source": ["191110010091"], "target": ["19111001012"]},
+{"source": ["191110010092"], "target": ["19111001013"]}]}]}
