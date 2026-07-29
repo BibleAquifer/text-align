@@ -1,4 +1,4 @@
-{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-deepseek-v4-pro", "reasoning_effort": "high"}, "retry_llm": {"provider": "gloo", "model": "gloo-deepseek-v4-pro", "reasoning_effort": "high"}, "nonEquivalent": {"source": ["190670050102", "190670080041"], "target": ["19067003005", "19067005005"]}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
+{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-deepseek-v4-pro", "reasoning_effort": "high"}, "retry_llm": {"provider": "gloo", "model": "gloo-deepseek-v4-pro", "reasoning_effort": "high"}, "nonEquivalent": {"source": ["190670050102", "190670080041", "190670040062", "190670060062"], "target": ["19067003005", "19067005005"]}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
 {"scheme": "BCVWP", "docid": "RV09"}], "roles": ["source", "target"], 
 "records": [{"source": ["190670020011"], "target": ["19067001001"]},
 {"source": ["190670020021"], "target": ["19067001002", "19067001003", "19067001004"], "meta": {"secondary": {"target": ["19067001004"]}}},
@@ -64,11 +64,11 @@
 {"source": ["190670040031"], "target": ["19067003006"]},
 {"source": ["190670040041", "190670040042"], "target": ["19067003008"]},
 {"source": ["190670040051"], "target": ["19067003009", "19067003010"], "meta": {"secondary": {"target": ["19067003009"]}}},
-{"source": ["190670040061", "190670040062"], "target": ["19067003011"]},
+{"source": ["190670040061"], "target": ["19067003011"]},
 {"source": ["190670060011", "190670060012"], "target": ["19067005001"]},
 {"source": ["190670060021"], "target": ["19067005002", "19067005003"], "meta": {"secondary": {"target": ["19067005002"]}}},
 {"source": ["190670060031"], "target": ["19067005006"]},
 {"source": ["190670060041"], "target": ["19067005012"]},
 {"source": ["190670060042"], "target": ["19067005011"]},
 {"source": ["190670060051"], "target": ["19067005009", "19067005010"], "meta": {"secondary": {"target": ["19067005009"]}}},
-{"source": ["190670060061", "190670060062"], "target": ["19067005008"]}]}]}
+{"source": ["190670060061"], "target": ["19067005008"]}]}]}

@@ -1,8 +1,9 @@
 {
   "edition": "RV09",
   "chapter_id": "19145",
-  "passes": 1,
+  "passes": 2,
   "retried_verses": [
-    "19145000"
+    "19145000",
+    "19145001"
   ]
 }
