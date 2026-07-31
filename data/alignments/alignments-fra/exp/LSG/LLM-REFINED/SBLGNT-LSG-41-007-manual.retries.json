@@ -1,8 +1,9 @@
 {
   "edition": "LSG",
   "chapter_id": "41007",
-  "passes": 2,
+  "passes": 3,
   "retried_verses": [
+    "41007016",
     "41007019",
     "41007035"
   ]
