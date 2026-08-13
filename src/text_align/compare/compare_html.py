@@ -18,7 +18,7 @@ from text_align.burrito.source import Source
 from text_align.migrate.models import MigrateVerse
 
 from .links import translate_target_links, verse_links
-from .metrics import VerseComparison
+from .metrics import CoverageNote, VerseComparison
 
 _CSS = """
 <style>
@@ -36,8 +36,15 @@ tr.unaligned, .legend span.unaligned { background: #f5f5f5; color: #888; }
 .legend span { display: inline-block; padding: 2px 8px; margin-right: 8px; border: 1px solid #ccc; }
 .worst-f1 { border: 1px solid #ccc; padding: 0.75em 1.5em; background: #fafafa; }
 .worst-f1 li { margin: 0.2em 0; }
+.coverage-gap { margin-top: 2em; padding: 0.5em 1em; border-left: 4px solid #bbb; background: #fafafa; color: #666; }
+.coverage-gap strong { color: #333; }
 </style>
 """
+
+_COVERAGE_GAP_NOTE = {
+    "ours": "we aligned this verse, but it is not in Biblica's reference",
+    "biblica": "Biblica's reference aligns this verse, but we haven't aligned it yet",
+}
 
 _LEGEND = (
     '<div class="legend">'
@@ -135,6 +142,22 @@ def render_verse_table(
         "<th>ours</th><th>Biblica</th><th>status</th></tr>"
         + "".join(rows)
         + "</table>"
+    )
+
+
+def render_coverage_gap_note(gap: CoverageNote) -> str:
+    """Render a one-line placeholder for a verse aligned on only one side.
+
+    Placed at the verse's normal position in the report (see compare_cli.py's
+    verse-ordered merge) rather than dropped or only mentioned in a summary
+    count, so scanning the report top-to-bottom shows the full verse
+    sequence with gaps noted in place.
+    """
+    note = _COVERAGE_GAP_NOTE[gap.only_in]
+    return (
+        f'<div class="coverage-gap" id="{_verse_anchor(gap.verse_id)}">'
+        f"<strong>{_esc(gap.verse_id)}</strong> — {_esc(note)}"
+        "</div>"
     )
 
 

@@ -28,9 +28,14 @@ from text_align.burrito.AlignmentSet import AlignmentSet
 from text_align.burrito.alignments import AlignmentsReader
 
 from .biblica import load_biblica_reader, load_biblica_target_verses
-from .compare_html import flatten_target_text, render_verse_table, write_comparison_html
+from .compare_html import (
+    flatten_target_text,
+    render_coverage_gap_note,
+    render_verse_table,
+    write_comparison_html,
+)
 from .links import build_target_id_map
-from .metrics import compare_chapters, print_summary, write_comparison_tsv
+from .metrics import compare_chapters, print_summary, verse_coverage_gaps, write_comparison_tsv
 
 _SOURCES_DIR = ROOT / "data" / "sources"
 
@@ -160,26 +165,32 @@ def main() -> None:
     biblica_verse_records = {v: r for v, r in biblica_verse_records.items() if v in biblica_scope}
 
     comparisons = compare_chapters(our_verse_records, biblica_verse_records, id_map)
+    gaps = verse_coverage_gaps(our_verse_records, biblica_verse_records)
 
-    our_only_verses = set(our_verse_records) - set(biblica_verse_records)
-    biblica_only_verses = set(biblica_verse_records) - set(our_verse_records)
-
-    write_comparison_tsv(comparisons, args.output)
-    print_summary(comparisons, our_only_verses, biblica_only_verses, args.output)
+    write_comparison_tsv(comparisons, gaps, args.output)
+    print_summary(comparisons, gaps, args.output)
 
     if args.html_output:
         print(f"  Loading source tokens ({sourceid}) ...")
         source_verses = load_source_verses(args.sources_dir, args.corpus)
         our_target_text = flatten_target_text(our_target_verses)
         biblica_target_text = flatten_target_text(biblica_target_verses)
-        sections = [
-            render_verse_table(
+        # Merge compared verses and coverage-gap notes into one verse-ordered
+        # sequence, so the report reads as the full verse range with gaps
+        # noted in place rather than compared verses followed by a separate
+        # summary block.
+        keyed_sections = [
+            (c.verse_id, render_verse_table(
                 c.verse_id, c, source_verses.get(c.verse_id, []),
                 our_verse_records[c.verse_id], biblica_verse_records[c.verse_id],
                 id_map, our_target_text, biblica_target_text,
-            )
+            ))
             for c in comparisons
+        ] + [
+            (gap.verse_id, render_coverage_gap_note(gap))
+            for gap in gaps
         ]
+        sections = [html for _, html in sorted(keyed_sections)]
         write_comparison_html(
             sections, args.html_output,
             title=f"{args.target_edition} vs. Biblica reference ({sourceid})",
