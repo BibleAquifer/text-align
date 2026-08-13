@@ -139,8 +139,15 @@ def render_verse_table(
 
 
 def render_worst_f1_list(comparisons: list[VerseComparison], n: int = 5) -> str:
-    """Render a bulleted list of the *n* lowest-F1 verses, linking down to their sections."""
-    worst = sorted(comparisons, key=lambda c: c.f1)[:n]
+    """Render a bulleted list of the *n* lowest-F1 verses, linking down to their sections.
+
+    Verses with f1 == 0.0 are excluded — total disagreement (no overlap at
+    all) is usually a degenerate case (e.g. one side has no links at all for
+    the verse) rather than the kind of partial disagreement worth surfacing
+    first for review.
+    """
+    candidates = [c for c in comparisons if c.f1 > 0.0]
+    worst = sorted(candidates, key=lambda c: c.f1)[:n]
     items = "".join(
         f'<li><a href="#{_verse_anchor(c.verse_id)}">{_esc(c.verse_id)}</a> '
         f"— f1={c.f1:.3f} (precision={c.precision:.3f}, recall={c.recall:.3f})</li>"
