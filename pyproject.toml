@@ -48,6 +48,7 @@ fetch-batch = "text_align.refine.fetch_batch:main"
 retry-alignment = "text_align.refine.retry_cli:main"
 score-alignment = "text_align.refine.score_alignments:main"
 clean-alignments = "text_align.refine.clean_cli:main"
+compare-alignment = "text_align.compare.compare_cli:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
