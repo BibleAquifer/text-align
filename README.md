@@ -700,6 +700,38 @@ render-alignment \
   [--r2l]
 ```
 
+### Comparison
+
+#### `compare-alignment`
+
+For translations where a partner org (Biblica) also maintains a hand-curated alignment — Scripture Burrito 0.3, in `~/git/Clear-Bible/alignments-<lang>/data/`, alongside their own `data/targets/` TSVs — `compare-alignment` checks our LLM-generated output against theirs, treating their hand-curated alignment as a reference. It reports per-verse and aggregate **precision**, **recall**, and **F1** over source→target links, plus an optional HTML side-by-side diff for a Greek/Hebrew-literate reviewer.
+
+```
+compare-alignment \
+  --alignment-dir path/to/exp/IRVHin/LLM-REFINED \
+  --corpus nt \
+  --target-language hin \
+  --target-edition IRVHin \
+  --target-tsv-dir path/to/alignments-hin/data/targets/IRVHin \
+  [--sources-dir data/sources/] \
+  [--clear-root ~/git/Clear-Bible] \                    # root of Biblica's checkout (default shown)
+  [--biblica-reference-file FILE] \                     # override the reference filename (default: {sourceid}-{targetid}-manual.json)
+  [--biblica-reference-file-nt FILE] [--biblica-reference-file-ot FILE] \  # corpus-specific overrides
+  [--output compare.tsv] \                              # default: output/<target-edition>/compare_YYYY-MM-DD.tsv
+  [--html-output [FILE]] \                              # opt-in; bare flag lands next to --output, same date-stamped basename
+  [--config IRVHin]
+```
+
+**What's being compared.** Each verse produces two sets of `(source_id, target_id)` links: ours (both primary and secondary source ids count — Biblica's format has no such distinction to compare against) and Biblica's (translated into our target-token-id space; see below). Comparison scope is the **intersection** of verses both sources actually cover — Biblica's file isn't assumed to span a whole testament or the same material we've aligned, and vice versa.
+
+- **Precision** — of the links *we* made, what fraction does Biblica also have? Low precision flags spurious or over-generated links on our side.
+- **Recall** — of the links *Biblica* made, what fraction did we also find? Low recall flags gaps — tokens we left unaligned that Biblica linked.
+- **F1** — harmonic mean of the two; a single score that only looks good when both are reasonably good. `print_summary`'s "Lowest-F1 verses" list is the practical entry point — it surfaces where the two alignments diverge most, which is where reviewer attention is best spent.
+
+This is the standard evaluation method for word alignment (comparable to Och & Ney's AER), with one caveat specific to this tool: because our primary+secondary links are compared against Biblica's flat link set, some "ours-only" disagreement is a legitimate secondary/implied relation their simpler format doesn't represent, not necessarily an error. The HTML diff (one row per source token, with glosses, color-coded by agreement) exists so a reviewer can tell the difference between a real error and a valid difference in alignment philosophy — the metric says *where* to look, not *whether it's wrong*.
+
+**Target-id reconciliation.** Our and Biblica's target TSVs aren't assumed to share identical tokenization — differences (punctuation joining/splitting, hyphen/apostrophe handling) do happen. Target ids are reconciled per verse via the same word-level diff machinery `diff-migrate` uses (`build_remap`), with a fast path when the two verses' text is identical. A Biblica target id with no match is dropped from that link and counted as "unmatched" rather than excluding the whole verse. Source ids need no reconciliation — both sides draw from the same `SBLGNT.tsv`/`WLCM.tsv` tokenization by construction.
+
 ## Data layout
 
 The tools expect kathairo-produced target TSVs split by canon:

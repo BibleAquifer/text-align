@@ -36,7 +36,8 @@ src/text_align/
 │   ├── clean.py             # core cleaning logic (CleanResult, clean_chapter_file, run_clean_pass)
 │   ├── clean_cli.py         # clean-alignments CLI entry point
 │   └── score_alignments.py  # score-alignment CLI entry point
-└── render/        # render-alignment HTML visualizer
+├── render/        # render-alignment HTML visualizer
+└── compare/       # compare-alignment CLI: compare our alignments against Biblica's reference
 ```
 
 ## Multi-language prompt system (`refine/prompt/`)
@@ -782,6 +783,64 @@ back to `pos` + `gloss` when `morph` is absent, giving the LLM part-of-speech co
 and an English gloss for each Hebrew token. When proper WLCM morph data becomes
 available, the `if token.morph:` branch takes priority automatically — no code change
 needed.
+
+## compare-alignment (`compare/`)
+
+Compares our SB 0.4 alignment output against a partner org's (Biblica) hand-curated
+SB 0.3 reference alignment for the same translation — reports per-verse and aggregate
+precision/recall/F1 over source→target links, plus an optional HTML side-by-side diff
+for human (Greek/Hebrew-literate) review.
+
+```bash
+compare-alignment --config IRVHin --corpus nt --html-output
+```
+
+`--corpus` must always be passed explicitly (it's not one of the keys `config.py`
+auto-derives). Everything else (`--alignment-dir`, `--target-tsv-dir`,
+`--target-language`, `--target-edition`) comes from `--config`; `--clear-root`
+defaults to `~/git/Clear-Bible`. `--output` defaults to
+`output/<target-edition>/compare_YYYY-MM-DD.tsv`; the TSV is always written.
+`--html-output` is opt-in — omit it to skip the (more expensive) HTML diff, pass it
+bare to land next to wherever `--output` ended up (same folder, same date-stamped
+basename, `.html` extension — so a custom `--output` path relocates the HTML default
+too), or give it an explicit path of its own.
+
+`biblica.py` builds an `AlignmentSet`/`AlignmentsReader` pointed at Biblica's own
+`~/git/Clear-Bible/alignments-{lang}/data/` tree (`{lang}` = `--target-language`)
+instead of writing a separate SB 0.3 parser — `AlignmentsReader._make_record` already
+calls `macula_unprefixer` on every source selector (Biblica keeps the `n`/`o` canon
+prefix we drop) and `read_alignments` already handles a flat, non-`groups`-wrapped
+top-level JSON, which is exactly SB 0.3's shape. `load_biblica_reader(clear_root,
+lang_dir, sourceid, targetid, target_language, override=None)` resolves the reference
+file as `{sourceid}-{targetid}-manual.json` by default (matching the pattern documented
+in Biblica's own `.toml` sidecars); override with `--biblica-reference-file` or the
+corpus-specific `--biblica-reference-file-nt`/`-ot` (also settable via YAML), since the
+right file is not always `-manual` and can vary by translation — Biblica's IRVHin
+`alignments/` dir alone has `-manual`, `-manual0801`, `-manualCA`, `-merged`, and
+unrelated unfoldingWord UGNT/UHB-based files.
+
+Comparison scope is the **intersection** of verse ids covered by both alignment
+sources — Biblica's reference is not assumed to cover a whole testament or the same
+material we've aligned, and vice versa.
+
+**Link definition** (`links.py`): a record's implied links are the full cross product
+of `source_selectors × target_selectors` — both primary and secondary source ids count,
+since Biblica's SB 0.3 format has no primary/secondary distinction to compare against.
+
+**Target-id reconciliation**: our and Biblica's target TSVs are *not* assumed to share
+identical tokenization (they happened to for IRVHin, but this varies by edition).
+`build_target_id_map` reuses `migrate/diff.py`'s existing `build_remap` — word-level
+`diff_match_patch` diffing with a fast path for identical verse text — to map Biblica
+target ids into our id space per verse, tolerating minor differences (punctuation
+joining/splitting, hyphen/apostrophe handling). A Biblica target id with no match
+(diff assigned it to an insert/delete) is dropped from that link and counted as
+unmatched, rather than excluding the whole verse. Source ids need no remap — both
+sides draw from the same `SBLGNT.tsv`/`WLCM.tsv` macula tokenization by construction.
+
+`compare_html.py` is a standalone renderer (one row per source token, color-coded by
+agreement) rather than an extension of `render/html.py`'s `write_verse` — that
+function's idiom/multi-primary cell-merging logic is tuned for a single alignment
+source and isn't a good graft point for a second, independently-tokenized one.
 
 ## Testing
 
