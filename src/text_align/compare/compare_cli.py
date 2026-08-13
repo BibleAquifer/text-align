@@ -20,6 +20,7 @@ from pathlib import Path
 from text_align import ROOT
 from text_align.config import load_config_from_args, require
 from text_align.migrate.tsv import process_usfm_tsv
+from text_align.refine.refine import _filter_verse_ids
 from text_align.refine.retry import _filter_chapter_files, discover_chapter_files
 from text_align.refine.source import load_source_verses
 from text_align.refine.util import _CORPUS_ID
@@ -78,6 +79,10 @@ def parse_args() -> argparse.Namespace:
                         "output/<target-edition>/compare_YYYY-MM-DD.html")
 
     range_group = p.add_mutually_exclusive_group()
+    range_group.add_argument("--verse", default=None, metavar="BCV",
+                             help="Compare a single verse BCV, e.g. --verse 41004003")
+    range_group.add_argument("--verse-range", default=None, nargs=2, metavar=("START", "END"),
+                             help="Compare a BCV range, e.g. --verse-range 41004001 41004020")
     range_group.add_argument("--book", default=None, metavar="BB")
     range_group.add_argument("--book-range", default=None, nargs=2, metavar=("START", "END"))
     range_group.add_argument("--chapter", default=None, metavar="BBCCC")
@@ -144,6 +149,16 @@ def main() -> None:
 
     our_verse_records = our_reader.alignmentgroup.verserecords()
     biblica_verse_records = biblica_reader.alignmentgroup.verserecords()
+    # --book/--book-range/--chapter/--chapter-range already narrowed which of our
+    # chapter files got loaded (via _filter_chapter_files above); Biblica's reader
+    # always loads the whole reference file, and --verse/--verse-range operate at
+    # finer-than-chapter granularity either way, so apply the same range filter to
+    # both sides' verse-record maps here to pin the final comparison scope exactly.
+    our_scope = set(_filter_verse_ids(sorted(our_verse_records), args))
+    biblica_scope = set(_filter_verse_ids(sorted(biblica_verse_records), args))
+    our_verse_records = {v: r for v, r in our_verse_records.items() if v in our_scope}
+    biblica_verse_records = {v: r for v, r in biblica_verse_records.items() if v in biblica_scope}
+
     comparisons = compare_chapters(our_verse_records, biblica_verse_records, id_map)
 
     our_only_verses = set(our_verse_records) - set(biblica_verse_records)

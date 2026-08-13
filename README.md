@@ -719,8 +719,11 @@ compare-alignment \
   [--biblica-reference-file-nt FILE] [--biblica-reference-file-ot FILE] \  # corpus-specific overrides
   [--output compare.tsv] \                              # default: output/<target-edition>/compare_YYYY-MM-DD.tsv
   [--html-output [FILE]] \                              # opt-in; bare flag lands next to --output, same date-stamped basename
+  [--verse BCV | --verse-range START END | --book BB | --book-range START END | --chapter BBCCC | --chapter-range START END] \
   [--config IRVHin]
 ```
+
+Range filters are mutually exclusive and narrow comparison scope on **both** sides (ours and Biblica's) — `--book`/`--book-range`/`--chapter`/`--chapter-range` also limit which of our chapter files get loaded in the first place; `--verse`/`--verse-range` filter at verse granularity after loading, since Biblica's reference is always one whole-testament file.
 
 **What's being compared.** Each verse produces two sets of `(source_id, target_id)` links: ours (both primary and secondary source ids count — Biblica's format has no such distinction to compare against) and Biblica's (translated into our target-token-id space; see below). Comparison scope is the **intersection** of verses both sources actually cover — Biblica's file isn't assumed to span a whole testament or the same material we've aligned, and vice versa.
 
