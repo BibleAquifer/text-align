@@ -432,3 +432,12 @@
 {"model": "gloo-deepseek-v4-pro", "prompt_tokens": 9876, "completion_tokens": 13192}
 {"model": "gloo-deepseek-v4-pro", "prompt_tokens": 8294, "completion_tokens": 2850}
 {"model": "gloo-deepseek-v4-pro", "prompt_tokens": 3559, "completion_tokens": 1898}
+{"model": "gloo-deepseek-v4-pro", "prompt_tokens": 5487, "completion_tokens": 20091}
+{"model": "gloo-deepseek-v4-pro", "prompt_tokens": 8963, "completion_tokens": 9051}
+{"model": "gloo-deepseek-v4-pro", "prompt_tokens": 10626, "completion_tokens": 3871}
+{"model": "gloo-deepseek-v4-pro", "prompt_tokens": 6369, "completion_tokens": 19531}
+{"model": "gloo-deepseek-v4-pro", "prompt_tokens": 6979, "completion_tokens": 22909}
+{"model": "gloo-deepseek-v4-pro", "prompt_tokens": 5811, "completion_tokens": 19701}
+{"model": "gloo-deepseek-v4-pro", "prompt_tokens": 6723, "completion_tokens": 22991}
+{"model": "gloo-deepseek-v4-pro", "prompt_tokens": 5504, "completion_tokens": 12333}
+{"model": "gloo-deepseek-v4-pro", "prompt_tokens": 4223, "completion_tokens": 4364}
