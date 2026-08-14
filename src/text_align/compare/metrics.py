@@ -15,6 +15,14 @@ from .links import translate_target_links, verse_links
 
 
 @dataclass
+class CoverageNote:
+    """A verse aligned on only one side — outside the comparable intersection."""
+
+    verse_id: str
+    only_in: str  # "ours" | "biblica"
+
+
+@dataclass
 class VerseComparison:
     """Comparison result for one verse's links (agreement, ours-only, Biblica-only)."""
 
@@ -83,6 +91,24 @@ def compare_chapters(
     ]
 
 
+def verse_coverage_gaps(
+    our_verse_records: dict[str, list[AlignmentRecord]],
+    biblica_verse_records: dict[str, list[AlignmentRecord]],
+) -> list[CoverageNote]:
+    """Return a CoverageNote for every verse aligned on only one side.
+
+    These verses fall outside compare_chapters()'s intersection-only scope —
+    surfacing them separately (rather than dropping them silently) lets
+    reports place them in verse order alongside compared verses, with a note
+    on which side is missing, instead of just a summary count.
+    """
+    our_ids = set(our_verse_records)
+    biblica_ids = set(biblica_verse_records)
+    gaps = [CoverageNote(vid, "ours") for vid in sorted(our_ids - biblica_ids)]
+    gaps += [CoverageNote(vid, "biblica") for vid in sorted(biblica_ids - our_ids)]
+    return gaps
+
+
 def aggregate_prf(comparisons: list[VerseComparison]) -> tuple[float, float, float]:
     """Micro-averaged precision/recall/F1 across all compared verses."""
     agree = sum(c.agree_count for c in comparisons)
@@ -100,20 +126,45 @@ def _format_links(links: set[tuple[str, str]], cap: int = 6) -> str:
 
 
 _TSV_FIELDS = [
-    "verse_id", "our_link_count", "biblica_link_count", "agree_count",
+    "verse_id", "coverage", "our_link_count", "biblica_link_count", "agree_count",
     "precision", "recall", "f1", "unmatched_biblica_target_ids",
     "our_only_links", "biblica_only_links",
 ]
 
+_COVERAGE_LABEL = {"ours": "ours_only", "biblica": "biblica_only"}
 
-def write_comparison_tsv(comparisons: list[VerseComparison], output: Path) -> None:
+
+def write_comparison_tsv(
+    comparisons: list[VerseComparison],
+    gaps: list[CoverageNote],
+    output: Path,
+) -> None:
+    """Write one row per verse, in verse order — comparable verses get full
+    metrics; one-sided verses (see verse_coverage_gaps) get a coverage note
+    with metric columns left blank, placed in their proper verse-id position
+    rather than dropped or summarized separately."""
     output.parent.mkdir(parents=True, exist_ok=True)
+    rows = sorted(
+        [(c.verse_id, "compared", c) for c in comparisons]
+        + [(g.verse_id, _COVERAGE_LABEL[g.only_in], None) for g in gaps]
+    )
     with open(output, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=_TSV_FIELDS, delimiter="\t")
         writer.writeheader()
-        for c in comparisons:
+        for verse_id, coverage, c in rows:
+            if c is None:
+                writer.writerow({
+                    "verse_id": verse_id,
+                    "coverage": coverage,
+                    "our_link_count": "", "biblica_link_count": "", "agree_count": "",
+                    "precision": "", "recall": "", "f1": "",
+                    "unmatched_biblica_target_ids": "",
+                    "our_only_links": "", "biblica_only_links": "",
+                })
+                continue
             writer.writerow({
                 "verse_id": c.verse_id,
+                "coverage": coverage,
                 "our_link_count": c.our_link_count,
                 "biblica_link_count": c.biblica_link_count,
                 "agree_count": c.agree_count,
@@ -128,17 +179,26 @@ def write_comparison_tsv(comparisons: list[VerseComparison], output: Path) -> No
 
 def print_summary(
     comparisons: list[VerseComparison],
-    our_only_verses: set[str],
-    biblica_only_verses: set[str],
+    gaps: list[CoverageNote],
     tsv_path: Path,
 ) -> None:
     total = len(comparisons)
+    our_only = sum(1 for g in gaps if g.only_in == "ours")
+    biblica_only = sum(1 for g in gaps if g.only_in == "biblica")
     if total == 0:
         print("No verses in common between our alignments and Biblica's reference.", file=sys.stderr)
+        if our_only or biblica_only:
+            print(f"  ({our_only} ours-only, {biblica_only} Biblica-only — see {tsv_path})", file=sys.stderr)
         return
     precision, recall, f1 = aggregate_prf(comparisons)
     total_unmatched = sum(c.unmatched_biblica_target_ids for c in comparisons)
+    coverage_total = total + our_only + biblica_only
     print(f"compare-alignment — {total} verse(s) compared", file=sys.stderr)
+    print(
+        f"  Biblica reference covers {total}/{total + our_only} of the verses we aligned "
+        f"({100 * total / (total + our_only):.0f}%)",
+        file=sys.stderr,
+    )
     print(f"  precision={precision:.4f}  recall={recall:.4f}  f1={f1:.4f}", file=sys.stderr)
     if total_unmatched:
         print(
@@ -146,12 +206,12 @@ def print_summary(
             "after diff-based id reconciliation (excluded from scoring, not from the run)",
             file=sys.stderr,
         )
-    if our_only_verses:
-        print(f"  {len(our_only_verses)} verse(s) we aligned but Biblica's reference doesn't cover", file=sys.stderr)
-    if biblica_only_verses:
-        print(f"  {len(biblica_only_verses)} verse(s) in Biblica's reference we haven't aligned yet", file=sys.stderr)
+    if our_only:
+        print(f"  {our_only} verse(s) we aligned but Biblica's reference doesn't cover (in TSV as ours_only)", file=sys.stderr)
+    if biblica_only:
+        print(f"  {biblica_only} verse(s) in Biblica's reference we haven't aligned yet (in TSV as biblica_only)", file=sys.stderr)
     worst = sorted(comparisons, key=lambda c: c.f1)[:10]
     print("  Lowest-F1 verses:", file=sys.stderr)
     for c in worst:
         print(f"    {c.verse_id}  f1={c.f1:.3f}  precision={c.precision:.3f}  recall={c.recall:.3f}", file=sys.stderr)
-    print(f"  Full per-verse detail: {tsv_path}", file=sys.stderr)
+    print(f"  Full per-verse detail: {tsv_path} ({coverage_total} row(s) total, including coverage-only rows)", file=sys.stderr)
