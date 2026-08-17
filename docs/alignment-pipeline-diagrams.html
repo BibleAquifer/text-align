@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alignment Pipeline Diagrams</title>
+<style>
+  :root {
+    --bg: #F1F2F4;
+    --surface: #FFFFFF;
+    --surface-border: #DBDEE4;
+    --ink: #1B1F27;
+    --ink-muted: #565E6D;
+    --ink-faint: #8891A0;
+    --accent: #3A5A78;
+    --accent-soft: #E4EBF1;
+    --rubric: #A85A2A;
+    --rubric-soft: #F3E4D6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161B;
+      --surface: #1C1F26;
+      --surface-border: #323744;
+      --ink: #E7E9EE;
+      --ink-muted: #9BA3B4;
+      --ink-faint: #6B7284;
+      --accent: #8FB4D4;
+      --accent-soft: #26333E;
+      --rubric: #E0975C;
+      --rubric-soft: #362920;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 3rem 1.5rem 5rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  main {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    margin: 0 0 0.4rem;
+  }
+
+  .lede {
+    color: var(--ink-muted);
+    font-size: 1.02rem;
+    line-height: 1.6;
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  .lede code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.92em;
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+  }
+
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  figure {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: 10px;
+    padding: 1.75rem 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  figure .eyebrow {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  figure h2 {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .svg-wrap {
+    overflow-x: auto;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+  }
+
+  svg text {
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  svg .mono {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  figcaption {
+    color: var(--ink-muted);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    max-width: 68ch;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    padding-top: 0.25rem;
+    border-top: 1px dashed var(--surface-border);
+    margin-top: 0.25rem;
+  }
+
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .swatch {
+    width: 14px;
+    height: 3px;
+    display: inline-block;
+    border-radius: 2px;
+  }
+
+  .swatch.rubric { background: var(--rubric); }
+  .swatch.rubric.dashed {
+    background: repeating-linear-gradient(90deg, var(--rubric) 0 5px, transparent 5px 9px);
+  }
+  .swatch.line { background: var(--ink-faint); }
+
+  footer {
+    color: var(--ink-faint);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    border-top: 1px solid var(--surface-border);
+    padding-top: 1.25rem;
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Alignment Pipeline Diagrams</h1>
+    <p class="lede">
+      Layout reference for two slides — not the final artwork. Rebuild these as
+      native shapes (<code>Insert → Diagram</code> / <code>Insert → Shape</code>)
+      in the deck template so they inherit its theme and stay editable.
+    </p>
+  </header>
+
+  <figure>
+    <div class="eyebrow">Slide 2 — pipeline overview</div>
+    <h2>From tokenized text to two independent checks</h2>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 900 300" role="img" aria-label="Tokenized TSVs feed refine-alignment, which feeds the score/retry quality loop, which branches into two independent outputs: render-alignment for HTML visualization, and compare-alignment for diffing against Biblica's reference alignment.">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor" />
+          </marker>
+        </defs>
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <!-- box 1: TSVs -->
+          <rect x="20" y="112" width="150" height="56" rx="6" />
+          <!-- box 2: refine-alignment -->
+          <rect x="230" y="112" width="180" height="56" rx="6" />
+          <!-- box 3: score/retry loop -->
+          <rect x="470" y="112" width="200" height="56" rx="6" />
+          <!-- box 4a: render-alignment -->
+          <rect x="730" y="34" width="150" height="52" rx="6" />
+          <!-- box 4b: compare-alignment -->
+          <rect x="730" y="214" width="150" height="52" rx="6" />
+        </g>
+
+        <!-- arrows: 1 -> 2, 2 -> 3 -->
+        <line x1="170" y1="140" x2="222" y2="140" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" />
+        <line x1="410" y1="140" x2="462" y2="140" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- branch: 3 -> dot -> 4a / 4b -->
+        <circle cx="700" cy="140" r="3" fill="currentColor" />
+        <line x1="670" y1="140" x2="700" y2="140" stroke="currentColor" stroke-width="1.5" />
+        <path d="M700,140 C712,140 712,60 722,60" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" />
+        <path d="M700,140 C712,140 712,240 722,240" fill="none" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow)" />
+
+        <!-- labels on arrows -->
+        <text x="196" y="132" text-anchor="middle" font-size="11.5" fill="currentColor">source +</text>
+        <text x="196" y="145" text-anchor="middle" font-size="11.5" fill="currentColor">target tokens</text>
+
+        <text x="436" y="132" text-anchor="middle" font-size="11.5" fill="currentColor">chapter JSON</text>
+        <text x="436" y="145" text-anchor="middle" font-size="11.5" fill="currentColor">(first pass)</text>
+
+        <text x="706" y="108" text-anchor="start" font-size="11.5" fill="currentColor">verified</text>
+        <text x="706" y="120" text-anchor="start" font-size="11.5" fill="currentColor">chapter JSON</text>
+
+        <!-- box labels -->
+        <g font-size="13.5" text-anchor="middle" fill="currentColor">
+          <text x="95" y="136">Tokenized</text>
+          <text x="95" y="152">TSVs</text>
+
+          <text x="320" y="145" class="mono">refine-alignment</text>
+
+          <text x="570" y="136" class="mono">score-alignment</text>
+          <text x="570" y="152" class="mono">retry-alignment</text>
+
+          <text x="805" y="55" class="mono">render-alignment</text>
+          <text x="805" y="235" class="mono">compare-alignment</text>
+        </g>
+
+        <g font-size="11" text-anchor="middle" fill="var(--ink-muted)">
+          <text x="805" y="103">HTML visualization</text>
+          <text x="805" y="283">vs. Biblica reference (P / R / F1)</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      The last step is a branch, not a fourth link in a chain: once a chapter clears
+      scoring, it feeds two independent, parallel checks — a human-readable render
+      and a diff against an outside reference — not one feeding the other.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <div class="eyebrow">Slide 18 — the retry loop</div>
+    <h2>Only flagged verses go back around</h2>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 900 340" role="img" aria-label="Refine feeds clean-alignments, which feeds score-alignment. Score-alignment sends flagged verses to retry-alignment, whose re-aligned output merges back into clean-alignments, looping. Verses that score below the retry threshold exit directly to done.">
+        <defs>
+          <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor" />
+          </marker>
+          <marker id="arrow-rubric" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--rubric)" />
+          </marker>
+        </defs>
+
+        <g fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="30"  y="50" width="170" height="56" rx="6" />
+          <rect x="250" y="50" width="170" height="56" rx="6" />
+          <rect x="470" y="50" width="170" height="56" rx="6" />
+          <rect x="690" y="50" width="170" height="56" rx="6" />
+          <rect x="470" y="220" width="170" height="52" rx="6" />
+        </g>
+
+        <!-- forward arrows -->
+        <line x1="200" y1="78" x2="242" y2="78" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow2)" />
+        <line x1="420" y1="78" x2="462" y2="78" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow2)" />
+        <line x1="640" y1="78" x2="682" y2="78" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow2)" />
+
+        <!-- exit: score -> done -->
+        <line x1="555" y1="106" x2="555" y2="212" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow2)" />
+
+        <!-- feedback: retry -> clean (rubric, dashed) -->
+        <path d="M775,106 C775,175 335,175 335,106"
+              fill="none" stroke="var(--rubric)" stroke-width="1.75"
+              stroke-dasharray="6 5" marker-end="url(#arrow-rubric)" />
+
+        <!-- box labels -->
+        <g font-size="13" text-anchor="middle" fill="currentColor" class="mono">
+          <text x="115" y="82">refine</text>
+          <text x="335" y="82">clean-alignments</text>
+          <text x="555" y="82">score-alignment</text>
+          <text x="775" y="82">retry-alignment</text>
+          <text x="555" y="250">done</text>
+        </g>
+
+        <!-- forward arrow labels -->
+        <g font-size="11" text-anchor="middle" fill="currentColor">
+          <text x="221" y="70">chapter</text>
+          <text x="221" y="82">JSON</text>
+
+          <text x="441" y="70">validated</text>
+          <text x="441" y="82">JSON</text>
+
+          <text x="661" y="70">flagged</text>
+          <text x="661" y="82">verse IDs</text>
+
+          <text x="595" y="150">clean verses</text>
+          <text x="595" y="163">(below threshold)</text>
+        </g>
+
+        <!-- feedback label -->
+        <text x="555" y="168" text-anchor="middle" font-size="11" fill="var(--rubric)">
+          re-aligned verses merged back — loop repeats
+        </text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><i class="swatch line"></i> forward pass</span>
+      <span><i class="swatch rubric dashed"></i> feedback — only flagged verses</span>
+    </div>
+    <figcaption>
+      The loop is selective: <span class="mono" style="font-family: ui-monospace, monospace;">score-alignment</span>
+      splits the chapter in two on every pass — verses under the retry threshold exit to
+      <em>done</em>, only the flagged remainder is re-aligned and merged back in for another round.
+    </figcaption>
+  </figure>
+
+  <footer>
+    Reference only — recreate with native shapes so colors/fonts follow the deck template.
+    The rubric-orange feedback path nods to manuscript rubrication (scribes marking
+    what needs attention in red ink) — worth keeping as the "needs another pass" color
+    if your template has a warm accent to spare.
+  </footer>
+</main>
+</body>
+</html>
