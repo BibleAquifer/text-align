@@ -101,6 +101,33 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   `docs/alignment-principles-nt.hin.md`, which was cross-checked against two further Hindi
   NT translations (HSB, OHCV) to separate general Hindi grammar from one translation's
   stylistic choices — see that document's "Cross-translation methodology note".
+- `nt/arb.py` — Arabic (Van Dyck). **Draft — not yet reviewed by a native Arabic
+  speaker/Arabist; do not use for production runs.** Target TSV tokenizes on
+  whitespace only, and Arabic orthography fuses conjunctions (وَ/فَ), prepositions
+  (بِ/لِ/كَ), the definite article (ال), and pronominal suffixes onto the adjacent
+  word with no space — one target token routinely corresponds to 2-4 Greek tokens,
+  making N:1 records the dominant pattern rather than an occasional case. Construct-
+  state (ʾiḍāfa) genitive chains carry no token at all for "of" (unlike English's
+  secondary "of"). The fused article is treated as primary (not secondary, unlike
+  every other supported language) since it is a real definite-article morpheme —
+  flagged as an open question for native-speaker review. Passive voice has six
+  coexisting strategies, with true morphological passive the most common (a reversal
+  of an early single-verse-based hypothesis); the derived-stem active-verb strategy is
+  real but narrower, limited to physical/experiential change-of-state verbs. Negation
+  particle choice is aspect-conditioned (لم covers aorist AND perfect); emphatic
+  negation (οὐ μή) has no dedicated construction. Substantive participles split three
+  ways by referent type (ism al-fāʿil / الَّذِي / مَنْ, closer to Indonesian's
+  yang/barangsiapa split than Hindi's single-default जो). Classical Arabic has no true
+  infinitive — the Greek infinitive's role splits across five distinct strategies
+  (أَنْ+subjunctive, a purpose-marker family, nominalization, or a finite clause)
+  depending on syntactic function; ἵνα-as-infinitive-substitute collapses into the
+  same أَنْ pattern. Verbal aspect (iterative/conative/ingressive) is marked
+  explicitly *less* often than Greek/English — a plain unmarked verb is the majority
+  outcome. Distilled from `docs/alignment-principles-nt.arb.md`, cross-checked against
+  ONAV (a second, more dynamic Arabic NT translation) verse-by-verse — see that
+  document's "Cross-translation methodology note" and its per-section "Open questions"
+  for what remains unconfirmed; the sample size (~20-30 verses per construction) is
+  well short of Hindi's corpus-wide validation.
 - `ot/eng.py` — OT English config.
 - `__init__.py` — re-exports the public API and imports all language modules to trigger
   registration.
@@ -123,16 +150,22 @@ compressed. Approximate token budget (all blocks assembled):
 | NT fra | 4,488 |
 | NT ind | ~5,641 |
 | NT hin | ~7,100 |
+| NT arb | ~18,128 |
 | OT eng | 2,560 |
 | OT ind | ~4,000 |
 
-NT ind/hin figures use `tiktoken` (cl100k_base) on the fully-assembled prompt (all
+NT ind/hin/arb figures use `tiktoken` (cl100k_base) on the fully-assembled prompt (all
 conditional blocks included), matching `cost_estimate.py`'s counting method — the eng/
 por/spa/fra figures predate that measurement approach and have not been recomputed.
+NT arb is far larger than the rest because every one of its 11 conditional blocks is
+Arabic-specific (none still import `eng.py` unchanged, unlike every other language) —
+expect the highest per-verse prompt cost of any currently-supported NT config until
+the block content is trimmed post-review.
 
-Current languages: eng, por, spa, fra, ind, hin.
-Planned: Arabic, Chinese Simplified, Chinese Traditional, Gujarati,
-Nepali, Tok Pisin, Bislama, Lingala, Swahili.
+Current languages: eng, por, spa, fra, ind, hin, arb (arb is draft — not yet
+native-speaker/Arabist reviewed; see `docs/alignment-principles-nt.arb.md`).
+Planned: Chinese Simplified, Chinese Traditional, Gujarati, Nepali, Tok Pisin,
+Bislama, Lingala, Swahili.
 
 ## LLM providers (`refine/llm.py`)
 
