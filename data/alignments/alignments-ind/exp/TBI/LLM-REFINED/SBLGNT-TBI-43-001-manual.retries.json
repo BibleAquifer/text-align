@@ -1,8 +1,9 @@
 {
   "edition": "TBI",
   "chapter_id": "43001",
-  "passes": 5,
+  "passes": 6,
   "retried_verses": [
+    "43001001",
     "43001003",
     "43001017",
     "43001019",

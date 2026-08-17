@@ -1,0 +1,74 @@
+# ULT.yaml — config for unfoldingWord Literal Translation
+#
+# Invoke any tool with:  --config ULT
+
+alignments_root: ./data/alignments
+
+# ---------------------------------------------------------------------------
+# Identity
+# ---------------------------------------------------------------------------
+
+target_language: eng
+target_edition: ULT
+target_edition_name: unfoldingWord Literal Translation
+
+# for migrating alignments from a reference edition (e.g. for diff-migrate or sim-migrate)
+source_edition: LEB
+source_language: eng
+
+alignment_sources: []
+alignment_suffix: LLM-REFINED
+from-scratch: true
+
+# smaller chunks?
+batch-size: 4
+max_output_tokens: 32000
+
+# Gloo
+llm_provider: gloo
+reasoning_effort: high
+llm_model: gloo-deepseek-v4-pro
+
+# Ollama (local)
+#llm_provider: ollama
+#llm_model: qwen3.6:35b
+
+# ---------------------------------------------------------------------------
+# retry-alignment settings
+# ---------------------------------------------------------------------------
+
+fallback_threshold: 0.30
+
+# LLM provider and model for retry-alignment (the second-pass / quality-repair step).
+# If absent, retry-alignment falls back to the llm_provider / llm_model /
+# reasoning_effort values above. Set these to use a different (typically better)
+# model for the retry pass than the initial refine pass.
+retry_llm_provider: gloo
+retry_llm_model: gloo-google-gemini-3.1-pro
+retry_max_output_tokens: 32000
+# Alignment quality scoring threshold for retry-alignment and score-alignment.
+# Verses with a composite penalty score above this value are flagged for retry.
+# Range 0–1; lower = more retries, higher = fewer. Default: 0.25.
+# semantic_threshold: 0.35
+
+# retry suspect verses?
+include_suspect: true
+suspect_cost_per_verse_max: .05
+suspect_cost_max: 5
+
+# Legacy coverage threshold (deprecated; superseded by score_retry_threshold).
+# Flag verses with more than this many unaligned source tokens.
+min_unaligned_src: 2
+
+
+# ---------------------------------------------------------------------------
+# ACAI and trabina — paths derived automatically from git-root sibling layout
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# sim-migrate settings
+# ---------------------------------------------------------------------------
+
+model: sentence-transformers/LaBSE
+min_similarity: 0.7
+max_word_distance: 8
