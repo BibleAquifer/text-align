@@ -56,6 +56,25 @@ _CORE: dict[str, frozenset[str]] = {
         "ne", "pas",
         "est", "sont", "était", "étaient", "être", "été", "étant",
     }),
+    "ind": frozenset({
+        "yang", "itu", "ini",
+        "dan", "atau", "tetapi", "tapi", "maupun",
+        "di", "ke", "dari", "pada", "kepada", "oleh",
+        "dengan", "untuk", "karena", "sebab", "bagi", "tanpa",
+        "sampai", "hingga", "tentang", "terhadap", "antara", "seperti",
+        "akan", "adalah", "ialah", "sebagai",
+        "tidak", "bukan", "jangan",
+        "juga", "pun", "lah", "se", "ada",
+    }),
+    "hin": frozenset({
+        "का", "की", "के", "को", "में", "से", "पर", "ने",
+        "और", "या", "एवं",
+        "है", "हैं", "था", "थी", "थे", "हो", "होना",
+        "यह", "वह", "इस", "उस", "इन", "उन",
+        "जो", "कि", "ताकि",
+        "नहीं", "न", "मत",
+        "भी", "तो", "ही", "एक", "साथ",
+    }),
 }
 
 # ISO 639-3 → ISO 639-1 for stopwordsiso
@@ -64,6 +83,7 @@ _ISO3_TO_ISO1: dict[str, str] = {
     "por": "pt",
     "spa": "es",
     "fra": "fr",
+    "ind": "id",
     "ara": "ar",
     "zho": "zh",
     "hin": "hi",
