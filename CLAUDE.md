@@ -212,22 +212,29 @@ compressed. Approximate token budget (all blocks assembled):
 | NT fra | 4,488 |
 | NT ind | ~5,309 |
 | NT hin | ~7,100 |
-| NT arb | ~18,128 |
+| NT arb | ~15,958 |
 | OT eng | 2,560 |
 | OT ind | ~4,000 |
-| OT arb | ~8,035 |
+| OT arb | ~7,187 |
 
 NT ind/hin/arb and OT arb figures use `tiktoken` (cl100k_base) on the fully-assembled
 prompt (all conditional blocks included), matching `cost_estimate.py`'s counting method
 — the eng/por/spa/fra figures predate that measurement approach and have not been
-recomputed. NT arb is far larger than the rest because every one of its 11 conditional
-blocks is Arabic-specific (none still import `eng.py` unchanged, unlike every other
-language) — expect the highest per-verse prompt cost of any currently-supported NT
-config until the block content is trimmed post-review. OT arb grew well past OT ind's
-size across two rounds of corpus-scale verification (each revised/expanded finding
-added more rules and worked examples than it replaced) despite the OT block set being
-much smaller than NT's (4 conditional blocks vs. 11) — now the largest OT config, and
-a candidate for trimming post-review the same way NT arb is.
+recomputed. NT arb is still far larger than the rest because every one of its 11
+conditional blocks is Arabic-specific (none still import `eng.py` unchanged, unlike
+every other language) — expect the highest per-verse prompt cost of any
+currently-supported NT config. OT arb grew well past OT ind's size across two rounds of
+corpus-scale verification despite the OT block set being much smaller than NT's (4
+conditional blocks vs. 11) — still the largest OT config.
+
+Both NT arb and OT arb were compressed once already (down from ~18,128 and ~8,035
+respectively) by deleting sample-size citations, cross-language comparisons, and other
+meta-commentary that doesn't change alignment behavior, while preserving every rule and
+worked example — a pure token-budget pass, not a content or accuracy change. Further
+compression is possible (both remain the largest configs in their testament) but was
+intentionally left as headroom for a future pass rather than pushed further in one
+sitting, to keep the diff reviewable and the typo risk from hand-editing dense
+Hebrew/Arabic text low.
 
 Current languages: eng, por, spa, fra, ind, hin, arb (arb is draft — not yet
 native-speaker/Arabist reviewed; see `docs/alignment-principles-nt.arb.md` and
