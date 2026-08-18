@@ -260,6 +260,34 @@ unfamiliar (e.g. `gpt-5.4-mini`, `gemini-3-flash-preview`). Trust the user.
   source index. The triangle (`▸` / `◂`) points toward the anchor cell.
 - `_tri_toward(token_pos, anchor_pos, is_r2l)` computes the correct direction.
 - CSS classes: `.tri` (triangle, 90% font-size), `.sub` (subscript, 60%).
+- `is_r2l` (RTL layout, `dir='rtl'` on the chapter/verse containers) is
+  **auto-detected** from `--alignment-lang` via `text_align.languages.RTL_LANGUAGES`
+  (currently `arb`, `apd`, `fas`, `heb`, `arc` — mirrors the `is_rtl=True` entries in
+  BN-Content's `aquifer_pipeline.languages` registry, copied locally rather than taken
+  as a cross-repo dependency; shared with `compare-alignment`, see below).
+  `--r2l`/`--no-r2l` (an `argparse.BooleanOptionalAction`, default `None`) overrides
+  the auto-detection when passed explicitly; a YAML config's `r2l:` key works the same
+  way via `set_defaults`. This applies to the *target* translation's directionality —
+  mixed-directionality verses (e.g. AVD Arabic target + SBLGNT Greek source, or WLCM
+  Hebrew source + a LTR target) are already handled correctly by the existing
+  `is_r2l`-parameterized rendering logic regardless of which side is RTL.
+
+## RTL language registry (`text_align/languages.py`)
+
+`RTL_LANGUAGES` (frozenset of ISO 639-3 codes) and `is_rtl_language(code)` are the
+single source of truth for right-to-left detection, shared by `render-alignment`
+(`render/html.py`) and `compare-alignment` (`compare_html.py`/`compare_cli.py`).
+Mirrors BN-Content's `aquifer_pipeline.languages` `is_rtl=True` entries — update both
+registries together if a new RTL language is added.
+
+`compare-alignment`'s HTML diff (`compare_html.render_verse_table`) takes two
+*independent* RTL flags, since source and target directionality don't correlate:
+`source_r2l` marks the "src text" `<td>` `dir="rtl"` (true whenever `--corpus ot`,
+since WLCM Hebrew is always RTL — not language-detected, since the OT source is always
+Hebrew); `target_r2l` marks the "ours"/"Biblica" `<td>`s `dir="rtl"`, auto-detected
+from `--target-language` via `RTL_LANGUAGES` the same way `render-alignment` does, with
+the same `--r2l`/`--no-r2l` override convention. `gloss` (always English) and `src id`
+are never marked RTL.
 
 ## LLM robustness (`refine/llm.py`)
 

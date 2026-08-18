@@ -701,7 +701,7 @@ render-alignment \
   [--alignment-dir path/to/exp/BONBV/LLM-REFINED]  # override default alignments/ path
   [--target-edition-name "Biblia de Nuestra Familia Versión Breve"] \
   [--acai-data-dir PATH]  # default derived from git-root (https://github.com/BibleAquifer/ACAI); set null in config to disable
-  [--r2l]
+  [--r2l | --no-r2l]  # right-to-left layout; auto-detected from --alignment-lang (arb, apd, fas, heb, arc) when omitted
 ```
 
 ### Comparison
@@ -723,6 +723,7 @@ compare-alignment \
   [--biblica-reference-file-nt FILE] [--biblica-reference-file-ot FILE] \  # corpus-specific overrides
   [--output compare.tsv] \                              # default: output/<target-edition>/compare_YYYY-MM-DD.tsv
   [--html-output [FILE]] \                              # opt-in; bare flag lands next to --output, same date-stamped basename
+  [--r2l | --no-r2l] \                                  # HTML diff's target-language columns; auto-detected from --target-language (arb, apd, fas, heb, arc) when omitted; the src-text column is separately RTL whenever --corpus ot
   [--verse BCV | --verse-range START END | --book BB | --book-range START END | --chapter BBCCC | --chapter-range START END] \
   [--config IRVHin]
 ```

@@ -41,6 +41,7 @@ from biblelib.word import BCVID, BCVWPID
 from text_align.burrito import AlignmentSet, Manager
 from text_align.burrito.alignments import AlignmentsReader
 from text_align.config import load_config_from_args, require
+from text_align.languages import RTL_LANGUAGES
 from text_align.align.acai_common import (
     ACAI_TYPES,
     AcaiEntity,
@@ -804,8 +805,9 @@ def parse_args() -> argparse.Namespace:
                    help=f"ACAI entity types to load (default: {ACAI_TYPES})")
     p.add_argument("--include-acai-pronominals", action="store_true",
                    help="Include pronominal referents in ACAI entity data")
-    p.add_argument("--r2l", action="store_true",
-                   help="Target language is right-to-left")
+    p.add_argument("--r2l", action=argparse.BooleanOptionalAction, default=None,
+                   help="Target language is right-to-left. Auto-detected from "
+                        "--alignment-lang when omitted; pass --r2l/--no-r2l to override.")
     p.add_argument("--target-edition-name", default=None,
                    help="Full translation name shown in the HTML header (e.g. 'Biblia de Nuestra Familia')")
     p.set_defaults(**config_defaults)
@@ -817,7 +819,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     iso_date = datetime.datetime.now().isoformat().split("T")[0]
-    is_r2l = args.r2l
+    is_r2l = args.r2l if args.r2l is not None else args.alignment_lang in RTL_LANGUAGES
     tag_acai = args.acai_data_dir is not None
 
     print("Loading AlignmentSets ...")

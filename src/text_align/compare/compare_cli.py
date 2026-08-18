@@ -19,6 +19,7 @@ from pathlib import Path
 
 from text_align import ROOT
 from text_align.config import load_config_from_args, require
+from text_align.languages import RTL_LANGUAGES
 from text_align.migrate.tsv import process_usfm_tsv
 from text_align.refine.refine import _filter_verse_ids
 from text_align.refine.retry import _filter_chapter_files, discover_chapter_files
@@ -82,6 +83,12 @@ def parse_args() -> argparse.Namespace:
                    help="Also write a per-verse HTML side-by-side diff. Pass a path, "
                         "or bare --html-output for the default "
                         "output/<target-edition>/compare_YYYY-MM-DD.html")
+    p.add_argument("--r2l", action=argparse.BooleanOptionalAction, default=None,
+                   help="Target translation is right-to-left, for the HTML diff's "
+                        "'ours'/'Biblica' columns. Auto-detected from --target-language "
+                        "when omitted; pass --r2l/--no-r2l to override. The 'src text' "
+                        "column is independently right-to-left whenever --corpus ot "
+                        "(WLCM Hebrew).")
 
     range_group = p.add_mutually_exclusive_group()
     range_group.add_argument("--verse", default=None, metavar="BCV",
@@ -179,11 +186,14 @@ def main() -> None:
         # sequence, so the report reads as the full verse range with gaps
         # noted in place rather than compared verses followed by a separate
         # summary block.
+        target_r2l = args.r2l if args.r2l is not None else args.target_language in RTL_LANGUAGES
+        source_r2l = args.corpus == "ot"  # WLCM Hebrew is always right-to-left
         keyed_sections = [
             (c.verse_id, render_verse_table(
                 c.verse_id, c, source_verses.get(c.verse_id, []),
                 our_verse_records[c.verse_id], biblica_verse_records[c.verse_id],
                 id_map, our_target_text, biblica_target_text,
+                source_r2l=source_r2l, target_r2l=target_r2l,
             ))
             for c in comparisons
         ] + [

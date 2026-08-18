@@ -95,8 +95,17 @@ def render_verse_table(
     id_map: dict[str, str],
     our_target_text: dict[str, str],
     biblica_target_text: dict[str, str],
+    source_r2l: bool = False,
+    target_r2l: bool = False,
 ) -> str:
-    """Render one verse as an HTML section: one row per source token."""
+    """Render one verse as an HTML section: one row per source token.
+
+    ``source_r2l`` marks the "src text" column dir='rtl' (WLCM Hebrew source,
+    corpus=ot); ``target_r2l`` marks the "ours"/"Biblica" columns dir='rtl'
+    (an RTL target translation, e.g. Arabic). The two are independent — an
+    RTL target aligned against the LTR Greek NT source only sets target_r2l,
+    while any OT comparison sets source_r2l regardless of target language.
+    """
     our_by_src: dict[str, set[str]] = {}
     for s, t in verse_links(our_records):
         our_by_src.setdefault(s, set()).add(t)
@@ -104,6 +113,9 @@ def render_verse_table(
     biblica_raw_by_src: dict[str, set[str]] = {}
     for s, t in verse_links(biblica_records):
         biblica_raw_by_src.setdefault(s, set()).add(t)
+
+    src_dir = ' dir="rtl"' if source_r2l else ""
+    tgt_dir = ' dir="rtl"' if target_r2l else ""
 
     rows: list[str] = []
     for src in src_tokens:
@@ -122,10 +134,10 @@ def render_verse_table(
         rows.append(
             f'<tr class="{status}">'
             f"<td>{_esc(src.id)}</td>"
-            f"<td>{_esc(src.text)}</td>"
+            f"<td{src_dir}>{_esc(src.text)}</td>"
             f"<td>{_esc(src.gloss)}</td>"
-            f"<td>{_esc(our_text)}</td>"
-            f"<td>{_esc(biblica_text)}</td>"
+            f"<td{tgt_dir}>{_esc(our_text)}</td>"
+            f"<td{tgt_dir}>{_esc(biblica_text)}</td>"
             f"<td>{status}</td>"
             "</tr>"
         )
