@@ -217,7 +217,7 @@ class _GlooAuth:
             _GLOO_COMPLETIONS_URL,
             headers=headers,
             json=payload,
-            timeout=(30, None) if stream else timeout,
+            timeout=(30, 90) if stream else timeout,
             stream=stream,
         )
         try:
@@ -1273,9 +1273,10 @@ class LLMClient:
                     if not tool_call_name and fn.get("name"):
                         tool_call_name = fn["name"]
                     accumulated_args += fn.get("arguments", "")
-        except requests.exceptions.ChunkedEncodingError:
+        except (requests.exceptions.ChunkedEncodingError, requests.exceptions.Timeout) as exc:
+            kind = "stream-drop" if isinstance(exc, requests.exceptions.ChunkedEncodingError) else "stream-stall"
             print(
-                f"  DEBUG stream-drop: tool_call_name={tool_call_name!r}, "
+                f"  DEBUG {kind}: tool_call_name={tool_call_name!r}, "
                 f"args_chars={len(accumulated_args)}, finish_reason={finish_reason!r}, "
                 f"text={accumulated_text[:100]!r}"
             )

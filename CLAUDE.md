@@ -148,7 +148,7 @@ compressed. Approximate token budget (all blocks assembled):
 | NT por | 3,614 |
 | NT spa | 3,599 |
 | NT fra | 4,488 |
-| NT ind | ~5,641 |
+| NT ind | ~5,309 |
 | NT hin | ~7,100 |
 | NT arb | ~18,128 |
 | OT eng | 2,560 |
@@ -218,16 +218,24 @@ never hit an expired-token error.  Credentials are read from `GLOO_CLIENT_ID` /
 concatenates `choices[0].delta.tool_calls[0].function.arguments` fragments into a
 complete JSON string, then returns a dict matching the non-streaming response shape.
 The entire accumulate call is wrapped in `_api_call_with_backoff` so
-`ChunkedEncodingError` (server drops stream mid-generation) and `ConnectionError` are
-retried with exponential backoff.  `reasoning_effort` is ignored (Gloo routes to the
-underlying provider; no pass-through for thinking config).  Async batch mode is not
-supported for Gloo.
+`ChunkedEncodingError` (server drops stream mid-generation), `ConnectionError`, and
+`Timeout` (stream stalls — no bytes for 90 s) are retried with exponential backoff.
+`reasoning_effort` is ignored (Gloo routes to the underlying provider; no pass-through
+for thinking config).  Async batch mode is not supported for Gloo.
 
 Streaming is used because Gloo routes through Cloudflare, which enforces a ~100 s
 timeout on the first response byte.  Non-streaming calls to slow models time out with
 a 504 before generation begins; streaming bypasses this by delivering the first SSE
-chunk as soon as the model starts.  `timeout=(30, None)` on the `requests` call sets
-a 30 s connect timeout with no read timeout so long generations are not killed.
+chunk as soon as the model starts.  `timeout=(30, 90)` on the `requests` call sets a
+30 s connect timeout and a 90 s *read* timeout (reset on every chunk received, so it
+caps only silent stalls, not total stream duration).  An earlier version used a `None`
+read timeout ("so long generations are not killed") but this let a silent Cloudflare
+stall — bytes stop arriving without the connection closing — hang `iter_lines()`
+forever with no exception ever raised, bypassing all retry/backoff logic entirely.
+This caused both a GHA job to sit for hours until the runner's own timeout killed it,
+and local runs to hang indefinitely on affected batches. `_accumulate_gloo_stream`
+catches `Timeout` alongside `ChunkedEncodingError`, prints the same DEBUG diagnostic
+line, and re-raises so `_api_call_with_backoff` retries it normally.
 
 Gloo model IDs follow the pattern `gloo-{family}-{model}`, e.g.:
 - `gloo-anthropic-claude-sonnet-4.5`

@@ -78,34 +78,34 @@ Grammar-required translation words (implied pronoun, aspect particle, modal help
 
 ## TOKEN ROLES
 
-primary — direct lexical or semantic connection to the Greek token
-secondary — exists only because of grammatical features in the Greek token's morphology (person, number, case, aspect, voice); no separate Greek word
+primary — direct lexical/semantic connection to the Greek token
+secondary — exists only because of the Greek token's morphology (person, number, case, aspect, voice); no separate Greek word
 other Greek token → separate record
 
 Structural constraints: every record ≥1 primary per populated side; a lone token on a side cannot be secondary; each target token ID in exactly one record per verse.
 
 Common secondary cases:
 
-- Subject pronoun — Indonesian verbs never inflect for person/number, but pronoun use is discourse-driven rather than grammar-driven: a pronoun is typically supplied when a clause introduces or switches to a new subject, and dropped when a coordinate clause continues the same topic. When present with no explicit Greek pronoun backing it → secondary. When dropped (topic continuity) → none expected, leave unrecorded.
-  ἦλθεν → "ia datang" (introducing/re-establishing the subject) — "datang" primary; "ia" secondary
-  Coordinate continuation (same subject as prior clause, e.g. "...tampil...dan menyerukan"): no repeated pronoun — none expected.
+- Subject pronoun — Indonesian verbs don't inflect for person/number; pronoun use is discourse-driven, not grammar-driven: supplied when a clause introduces/switches subject, dropped on topic continuity (no Greek pronoun needed either way).
+  ἦλθεν → "ia datang" (new subject): "datang" primary; "ia" secondary
+  Coordinate continuation ("...tampil...dan menyerukan"): no repeated pronoun — none expected.
 
-- Aspect/tense particle — Indonesian marks tense/aspect with a separate particle rather than inflection: "akan" (future), "sudah"/"telah" (perfect), "sedang" (progressive). Secondary to the main verb when it reflects Greek's own tense/aspect morphology with no separate Greek word.
+- Aspect/tense particle — a separate particle, not inflection: "akan" (future), "sudah"/"telah" (perfect), "sedang" (progressive). Secondary to the verb when it reflects Greek's own tense/aspect with no separate Greek word.
   ἐδίδασκεν → "sedang mengajar": "mengajar" primary; "sedang" secondary
 
-- No infinitive marker — λαβεῖν → "mengambil": primary alone. Indonesian has no distinct infinitive form or marker (unlike English "to").
+- No infinitive marker — λαβεῖν → "mengambil": primary alone; no distinct infinitive form or marker.
 
-- No indefinite article — ἄνθρωπος → "orang": primary alone, no secondary needed (contrast Portuguese/Spanish/French's "un/una/un" secondary). Indonesian has no indefinite article by default. Only when the translation explicitly supplies "seorang"/"sebuah" (lit. "one [classifier]") for emphasis or specificity is it secondary.
+- No indefinite article — ἄνθρωπος → "orang": primary alone. Only "seorang"/"sebuah" (lit. "one [classifier]"), when supplied for emphasis/specificity, is secondary.
 
-- Fused possessive/object clitic — Indonesian's 1st/2nd/3rd-singular possessive and object pronouns (-ku, -mu, -nya) hyphenate directly onto the noun, preposition, or verb they attach to, forming ONE target token (rumah-Ku, kepada-Nya, mengasihi-nya). When Greek expresses this with a separate possessive pronoun or a pronoun governed by a preposition, BOTH Greek tokens are primary, sharing the single fused target token. Plural pronouns (kami, kita, kalian, mereka) never fuse — they stay separate words and align as a normal 1:1 pair.
-  τοὺς ὀφθαλμούς σου → "matamu": source=[ὀφθαλμούς, σου], target=["matamu"] — both primary
-  τοὺς ὀφθαλμοὺς αὐτῶν → "mata mereka" (plural — no fusion): source=[αὐτῶν], target=["mereka"] — primary 1:1; source=[τούς, ὀφθαλμούς], target=["mata"] — primary 1:1
+- Fused possessive/object clitic — singular possessive/object pronouns (-ku, -mu, -nya) hyphenate onto the noun/preposition/verb as ONE target token (rumah-Ku, kepada-Nya, mengasihi-nya); both Greek tokens primary, sharing it. Plural (kami, kita, kalian, mereka) never fuses — normal 1:1.
+  τοὺς ὀφθαλμούς σου → "matamu": [ὀφθαλμούς, σου]→["matamu"] — both primary
+  τοὺς ὀφθαλμοὺς αὐτῶν → "mata mereka" (plural, no fusion): [αὐτῶν]→["mereka"] primary 1:1; [τούς, ὀφθαλμούς]→["mata"] primary 1:1
 
-- Periphrastic rendering — when a single Greek token is rendered by multiple Indonesian words, all words carrying lexical content are primary; purely grammatical connectors (relativizers, case markers) are secondary to the same token. Indonesian's rich verbal morphology (me-, memper-, ber-, ter-, di-) often does the reverse — rendering a Greek verb as a SINGLE Indonesian word where English/Romance needed a multi-word periphrasis; when that happens, align 1:1, no split needed.
-  κυριεύει → "menguasai": primary 1:1 (compare English "exercises authority over," which needs three words)
-  καρποφορέω → "berbuah": primary 1:1 (compare "bear fruit")
-  γινώσκουσιν (dative substantive participle) → "kepada orang-orang yang mengenal": "mengenal" primary; "kepada", "orang-orang", "yang" secondary (see ARTICLES and PARTICIPIAL CONSTRUCTIONS)
-  φιλαδελφία → "kasih persaudaraan": "kasih", "persaudaraan" both primary
+- Periphrastic rendering — 1 Greek token → several Indonesian words: lexical words primary, grammatical connectors secondary. Often reverses for Indonesian's rich verbal morphology (me-, memper-, ber-, ter-, di-): one Indonesian word covers what needed a periphrasis in English/Romance — align 1:1.
+  κυριεύει → "menguasai": primary 1:1
+  καρποφορέω → "berbuah": primary 1:1
+  γινώσκουσιν (dative substantive participle) → "kepada orang-orang yang mengenal": "mengenal" primary; "kepada", "orang-orang", "yang" secondary (see ARTICLES/PARTICIPIAL CONSTRUCTIONS)
+  φιλαδελφία → "kasih persaudaraan": both primary
 
 ## NEQ (NON-EQUIVALENT)
 
@@ -127,36 +127,31 @@ Automated suggestions — no secondary classification, no idiom flags, some wron
 ## ARTICLES
 
 For every Greek article (POS T-*): does the translation supply a distinct correspondent ("itu"/"ini", or a generic head noun for a substantive participle)?
-DEFAULT (most common in Indonesian) → Branch B: no separate word at all — the noun stands bare, and the article is secondary to the noun's own record with no target word required. This is the majority case in Indonesian, unlike Portuguese/Spanish/French where an explicit article is nearly always present.
-MINORITY case → Branch A: primary 1:1, when the translation does supply a distinct word.
+DEFAULT → Branch B: no separate word — article secondary to the noun's own record, no target word required.
+MINORITY → Branch A: primary 1:1, when the translation does supply a distinct word.
 
-### Branch A — article has a distinct Indonesian correspondent
+### Branch A — distinct Indonesian correspondent
 
-- → "itu" (distal, anaphoric — referring to something already introduced) or "ini" (proximal): 1:1 primary; noun in its own record. Typically appears on a SECOND or later mention of a referent, not the first.
-  ὁ λόγος (first mention) → "Firman" — no correspondent (Branch B, absorbed, no target word)
-  ὁ λόγος (repeated/anaphoric mention) → "Firman itu": source=[ὁ], target=["itu"] — primary 1:1; source=[λόγος], target=["Firman"] — primary 1:1
+- "itu" (distal/anaphoric) or "ini" (proximal): 1:1 primary; noun its own record. Typically a SECOND+ mention, not the first.
+  ὁ λόγος (first mention) → "Firman" (Branch B, no target word)
+  ὁ λόγος (anaphoric) → "Firman itu": [ὁ]→["itu"] primary 1:1; [λόγος]→["Firman"] primary 1:1
 
-- → "orang"/"orang-orang" (substantive participle, generic head noun supplied): article → primary 1:1; "yang" secondary to the participle (see PARTICIPIAL CONSTRUCTIONS).
-  τοῖς πιστεύουσιν → "kepada orang-orang yang percaya":
-    source=[τοῖς], target=["orang-orang"] — primary 1:1
-    source=[πιστεύουσιν], target=["yang", "percaya"] — primary: "percaya"; secondary: "yang"
-    "kepada" secondary to πιστεύουσιν (dative case-implied)
+- "orang"/"orang-orang" (substantive participle, explicit head noun): article primary 1:1; "yang" secondary to the participle (see PARTICIPIAL CONSTRUCTIONS).
+  τοῖς πιστεύουσιν → "kepada orang-orang yang percaya": [τοῖς]→["orang-orang"] primary 1:1; [πιστεύουσιν]→["yang", "percaya"] primary "percaya", secondary "yang"; "kepada" secondary (dative case-implied)
 
-### Branch B — no distinct Indonesian correspondent → secondary, no target word
+### Branch B — no correspondent → secondary, no target word
 
-Apply to each article independently.
-- Articular noun, bare in Indonesian: source=[τήν, χεῖρα], target=["tangan"] — primary: "tangan"; secondary.source: [τήν] (no target word needed)
-- Attributive adjective (double article): Greek repeats the article before an attributive adjective; Indonesian instead links noun and adjective with "yang". First article (on the noun) → Branch A or B per the noun's own status; second article (before the adjective) → secondary to the adjective, and "yang" (if present) is ALSO secondary to the adjective — it is a real word but a grammatical linker, not a lexical correspondent (same treatment as qui/que/che in the other three configs).
-  τὴν γῆν τὴν καλήν → "tanah yang baik":
-    source=[τήν₁, γῆν], target=["tanah"] — primary: "tanah"; secondary.source: [τήν₁] (no target word)
-    source=[τήν₂, καλήν], target=["yang", "baik"] — primary: "baik"; secondary: "yang"
-- Article before proper name: Indonesian never uses one. ὁ Ἰησοῦς → "Yesus": source=[ὁ, Ἰησοῦς], target=["Yesus"] — primary: "Yesus"; secondary.source: [ὁ]
+Apply per article.
+- Bare articular noun: [τήν, χεῖρα]→["tangan"] — "tangan" primary; [τήν] secondary, no target word
+- Attributive adjective (double article): Indonesian links noun+adjective with "yang" instead of repeating the article. First article → Branch A/B per the noun; second article AND "yang" (if present) both secondary to the adjective — "yang" is a grammatical linker, not lexical.
+  τὴν γῆν τὴν καλήν → "tanah yang baik": [τήν₁, γῆν]→["tanah"] primary, [τήν₁] secondary no target word; [τήν₂, καλήν]→["yang", "baik"] primary "baik", secondary "yang"
+- Proper name: Indonesian never uses an article. ὁ Ἰησοῦς → "Yesus": [Ἰησοῦς]→["Yesus"] primary; [ὁ] secondary, no target word
 
 ### Possessive pronoun
-Do NOT use a separate Branch A rule here — see FUSED POSSESSIVE/OBJECT CLITIC in TOKEN ROLES above. Singular possessives fuse into one target token (both Greek tokens primary); plural possessives stay separate words (normal 1:1 pair, article/pronoun token primary to its own word).
+See FUSED POSSESSIVE/OBJECT CLITIC in TOKEN ROLES — singular fuses (both primary); plural stays 1:1.
 
 ### Anarthrous noun
-No Greek article token exists, and Indonesian has no indefinite article — bare noun, no secondary needed. ἄνθρωπος → "orang": primary alone. (Contrast Portuguese/Spanish/French's obligatory "un/una/un" secondary.)
+See TOKEN ROLES → "No indefinite article".
 
 ## CONJUNCTIONS AND PARTICLES
 - Clear correspondent → primary. Multiple words rendering one: all primary (ὥστε → "sehingga": primary; or "sampai akhirnya": all primary if rendered periphrastically).
@@ -167,33 +162,33 @@ No Greek article token exists, and Indonesian has no indefinite article — bare
 meta.is_idiom: true when phrase-level correspondence has no token-level equivalent. All tokens implicitly primary; meta.secondary does not apply.
 Last resort — always prefer standard records, even with loose primary matches. Use idiom only when no plausible token-level decomposition exists. Function-word-only source records (POS C-*, X-*, prepositions) are never idioms.
 
-  μὴ γένοιτο — optative negation, typically rendered as a fixed idiom ("Sekali-kali tidak!" / "Tidak akan pernah!") with no token-level mapping — use is_idiom: true. Only prefer standard records if the translation is literal enough to allow granular alignment (μή → negation; γένοιτο → verb).
-    source=[μή, γένοιτο], target=["Sekali-kali", "tidak"] — is_idiom: true\
+  μὴ γένοιτο — optative negation, typically a fixed idiom ("Sekali-kali tidak!" / "Tidak akan pernah!") with no token-level mapping — use is_idiom: true. Prefer standard records only if the translation is literal enough for granular alignment (μή → negation; γένοιτο → verb).
+    [μή, γένοιτο]→["Sekali-kali", "tidak"] — is_idiom: true\
 """
 
 PASSIVE_BLOCK = """\
 ## PASSIVE VOICE
 
 ### Direct/action passive (di- prefix)
-Greek passive verb → Indonesian di- prefix fused directly onto the verb root: ONE token, primary 1:1 — no separate auxiliary needed at all (contrast Portuguese/Spanish/French, which require a separate auxiliary word like "foi"/"fue"/"a été").
-  ἐβαπτίσθη → "dibaptis": source=[ἐβαπτίσθη], target=["dibaptis"] — primary 1:1
+Greek passive verb → Indonesian di- prefix fused directly onto the verb root: ONE token, primary 1:1 — no separate auxiliary needed at all.
+  ἐβαπτίσθη → "dibaptis": [ἐβαπτίσθη]→["dibaptis"] primary 1:1
 Agent phrase (ὑπό + genitive): "oleh" (by) primary to ὑπό when present.
-  ἐβαπτίσθη ὑπὸ Ἰωάννου → "dibaptis oleh Yohanes": source=[ἐβαπτίσθη], target=["dibaptis"] — primary; source=[ὑπό], target=["oleh"] — primary; source=[Ἰωάννου], target=["Yohanes"] — primary
+  ἐβαπτίσθη ὑπὸ Ἰωάννου → "dibaptis oleh Yohanes": [ἐβαπτίσθη]→["dibaptis"] primary; [ὑπό]→["oleh"] primary; [Ἰωάννου]→["Yohanes"] primary
 
 ### Resultative/stative passive (ter- + "ada")
-Greek perfect passive (γέγραπται-type, emphasizing a resulting state rather than the action itself) often renders with the ter- prefix plus the existential auxiliary "ada" (there is/exists), rather than di-: "ada" secondary; the ter-verb primary.
-  γέγραπται → "ada tertulis": source=[γέγραπται], target=["ada", "tertulis"] — primary: "tertulis"; secondary: "ada"
+Greek perfect passive (γέγραπται-type, a resulting state rather than the action itself) often renders with ter- + the existential auxiliary "ada" (there is/exists), rather than di-: "ada" secondary; the ter-verb primary.
+  γέγραπται → "ada tertulis": [γέγραπται]→["ada", "tertulis"] primary "tertulis", secondary "ada"
 
 ### Supplied subject pronoun
-Same rule as BASE_BLOCK: secondary when introducing/switching subject with no Greek pronoun; none expected when dropped for topic continuity.
-  ἐβαπτίσθη (new subject) → "Ia dibaptis": source=[ἐβαπτίσθη], target=["Ia", "dibaptis"] — primary: "dibaptis"; secondary: "Ia"\
+Same rule as TOKEN ROLES: secondary when introducing/switching subject with no Greek pronoun; none expected on topic continuity.
+  ἐβαπτίσθη (new subject) → "Ia dibaptis": [ἐβαπτίσθη]→["Ia", "dibaptis"] primary "dibaptis", secondary "Ia"\
 """
 
 INFINITIVE_BLOCK = """\
 ## INFINITIVAL CONSTRUCTIONS
 
 ### Complementary infinitive
-Indonesian has no distinct infinitive form — the ordinary verb is primary alone, no separate marker (unlike English "to").
+Indonesian has no distinct infinitive form — the ordinary verb is primary alone, no separate marker.
   θέλω ἐλθεῖν → "mau datang": source=[ἐλθεῖν], target=["datang"] — primary 1:1
 
 ### Purpose infinitive with "untuk"
@@ -201,17 +196,12 @@ Indonesian has no distinct infinitive form — the ordinary verb is primary alon
   ἦλθεν σῴζειν → "datang untuk menyelamatkan": source=[σῴζειν], target=["untuk", "menyelamatkan"] — primary: "menyelamatkan"; secondary: "untuk"
 
 ### Articular/temporal infinitive → finite clause, not a nonfinite form
-Indonesian has no participle or gérondif-like nonfinite form for this construction. Greek's ἐν τῷ + infinitive ("while/when X-ing") instead renders as an ordinary finite clause introduced by "ketika"/"saat"/"waktu" (when/while). Treat ἐν and τῷ together as a fused correspondent to the conjunction, both primary (parallel to the fused-clitic pattern in TOKEN ROLES) — no separate secondary is needed for the article once it is folded into the conjunction.
-  ἐν τῷ σπείρειν αὐτόν → "ketika ia menabur":
-    source=[ἐν, τῷ], target=["ketika"] — both primary
-    source=[αὐτόν], target=["ia"] — primary
-    source=[σπείρειν], target=["menabur"] — primary
+No participle/gérondif-like form for this construction. Greek's ἐν τῷ + infinitive ("while/when X-ing") renders as a finite clause with "ketika"/"saat"/"waktu". ἐν+τῷ fuse as one correspondent to the conjunction, both primary (parallel to the fused-clitic pattern in TOKEN ROLES) — no separate secondary needed for the article.
+  ἐν τῷ σπείρειν αὐτόν → "ketika ia menabur": [ἐν, τῷ]→["ketika"] both primary; [αὐτόν]→["ia"] primary; [σπείρειν]→["menabur"] primary
 
 ### Indirect discourse
-Supplied "bahwa" (that) introducing an indirect statement → secondary to the governing verb — not to the infinitive.
-  λέγει αὐτὸν εἶναι → "berkata bahwa ia adalah":
-    source=[λέγει], target=["berkata"]; source=[αὐτόν], target=["ia"]
-    source=[εἶναι], target=["bahwa", "adalah"] — primary: "adalah"; secondary: "bahwa"\
+Supplied "bahwa" (that) introducing an indirect statement → secondary to the governing verb, not the infinitive.
+  λέγει αὐτὸν εἶναι → "berkata bahwa ia adalah": [λέγει]→["berkata"]; [αὐτόν]→["ia"]; [εἶναι]→["bahwa", "adalah"] primary "adalah", secondary "bahwa"\
 """
 
 HINA_BLOCK = """\
@@ -221,10 +211,8 @@ HINA_BLOCK = """\
 - → bare "untuk" + verb (purpose infinitive rendering): "untuk" primary to ἵνα — not secondary to the verb.
 - No correspondent → NEQ source (only when certain no element expresses purpose/result force).
 
-  ἵνα σωθῇ → "supaya diselamatkan": source=[ἵνα], target=["supaya"] — primary 1:1
-  ἵνα σῴζῃ → "untuk menyelamatkan":
-    source=[ἵνα], target=["untuk"] — primary (purpose marker)
-    source=[σῴζῃ], target=["menyelamatkan"] — primary\
+  ἵνα σωθῇ → "supaya diselamatkan": [ἵνα]→["supaya"] primary 1:1
+  ἵνα σῴζῃ → "untuk menyelamatkan": [ἵνα]→["untuk"] primary (purpose marker); [σῴζῃ]→["menyelamatkan"] primary\
 """
 
 NEGATION_BLOCK = """\
@@ -233,46 +221,41 @@ NEGATION_BLOCK = """\
 Ordinary clausal negation is contiguous (tidak/jangan immediately before the verb).
 
 - οὐ/οὐκ/οὐχ/μή → "tidak" (indicative) / "jangan" (prohibitive/imperative): primary 1:1. Verb gets its own record.
-  οὐκ ἔρχεται → "tidak datang": source=[οὐκ], target=["tidak"] — primary 1:1; source=[ἔρχεται], target=["datang"] — primary 1:1
+  οὐκ ἔρχεται → "tidak datang": [οὐκ]→["tidak"] primary 1:1; [ἔρχεται]→["datang"] primary 1:1
 - Nominal/copular predicate negated → "bukan" instead of "tidak" (lexical choice by predicate type, not a different Greek construction), still primary 1:1.
   οὐκέτι εἰσὶν δύο → "mereka bukan lagi dua": "bukan" chosen because the predicate ("dua") is nominal — see Compound negation for the "lagi" split.
 
 ### Compound negation
-- οὐκέτι/μηκέτι ("no longer") is DISCONTINUOUS, not one contiguous "tidak lagi" unit: the verb/predicate regularly separates "tidak"(or "bukan") from "lagi" — both still primary to the single Greek token, but do not expect them adjacent.
-  οὐκέτι δύναται...εἰσελθεῖν → "tidak dapat lagi ... masuk": source=[οὐκέτι], target=["tidak", "lagi"] — both primary, non-adjacent target tokens.
+- οὐκέτι/μηκέτι ("no longer") is DISCONTINUOUS, not "tidak lagi" as one unit: the verb/predicate regularly separates "tidak"(or "bukan") from "lagi" — both still primary to the single Greek token, not necessarily adjacent.
+  οὐκέτι δύναται...εἰσελθεῖν → "tidak dapat lagi ... masuk": [οὐκέτι]→["tidak", "lagi"] both primary, non-adjacent.
 - οὔπω/μήπω ("not yet") → "belum": primary 1:1 — a single dedicated lexeme, no periphrasis needed.
 - οὐδέ/μηδέ ("and not"/"neither"/"nor") → "dan tidak"/"pun tidak": primary
 - οὐδείς/μηδείς ("nobody"/"no one"/"nothing") → "tidak seorang pun"/"tiada": primary
 
 ### Emphatic negation (οὐ μή)
 Both particles primary to the single emphatic expression.
-  οὐ μή + subjunctive → "sekali-kali tidak"/"tidak akan pernah": source=[οὐ, μή], target=["sekali-kali", "tidak"] — both primary\
+  οὐ μή + subjunctive → "sekali-kali tidak"/"tidak akan pernah": [οὐ, μή]→["sekali-kali", "tidak"] both primary\
 """
 
 PARTICIPLE_BLOCK = """\
 ## PARTICIPIAL CONSTRUCTIONS
 
 ### Adverbial (circumstantial)
-Introductory conjunction/adverb secondary; supplied subject pronoun secondary (see BASE_BLOCK).
-  ἀκούσας → "ketika ia mendengar": source=[ἀκούσας], target=["ketika", "ia", "mendengar"] — primary: "mendengar"; secondary: "ketika", "ia"
+Introductory conjunction/adverb secondary; supplied subject pronoun secondary (see TOKEN ROLES).
+  ἀκούσας → "ketika ia mendengar": [ἀκούσας]→["ketika", "ia", "mendengar"] primary "mendengar", secondary "ketika", "ia"
 
 ### Genitive absolute
-Align each element to its correspondent; introduced conjunctions/adverbs secondary to the participle; supplied subject pronoun secondary.
-  αὐτοῦ λαλοῦντος → "ketika ia sedang berbicara":
-    source=[αὐτοῦ], target=["ia"] — primary
-    source=[λαλοῦντος], target=["ketika", "sedang", "berbicara"] — primary: "berbicara"; secondary: "ketika", "sedang"
+Align each element to its correspondent; introduced conjunctions/adverbs and supplied subject pronoun secondary to the participle.
+  αὐτοῦ λαλοῦντος → "ketika ia sedang berbicara": [αὐτοῦ]→["ia"] primary; [λαλοῦντος]→["ketika", "sedang", "berbicara"] primary "berbicara", secondary "ketika", "sedang"
 
 ### Substantive — "yang" pattern
-Article → generic head noun "orang"/"orang-orang" (person/people) primary 1:1 WHEN the translation supplies an explicit head noun; "yang" secondary to the participle. When the translation uses bare "yang" with no separate head noun, the article has no target correspondent at all (Branch B, absorbed) — "yang" remains secondary to the participle regardless.
-  τοῖς πιστεύουσιν → "kepada orang-orang yang percaya":
-    source=[τοῖς], target=["orang-orang"] — primary 1:1
-    source=[πιστεύουσιν], target=["yang", "percaya"] — primary: "percaya"; secondary: "yang"
-  Bare form, no head noun: ὁ πιστεύων → "yang percaya": source=[ὁ] — no target correspondent (Branch B); source=[πιστεύων], target=["yang", "percaya"] — primary: "percaya"; secondary: "yang"
+Explicit head noun ("orang"/"orang-orang") supplied → article primary 1:1, "yang" secondary to the participle — see ARTICLES → Branch A for the worked example. Bare "yang" with no head noun → article absorbed (Branch B), "yang" still secondary.
+  ὁ πιστεύων → "yang percaya": [ὁ] no target correspondent; [πιστεύων]→["yang", "percaya"] primary "percaya", secondary "yang"
 
 ### Substantive, generic/gnomic — "barangsiapa"/"siapa" pattern
-When the articular participle is generic/gnomic ("whoever does X," not a specific known individual — typically proverbial or conditional), translation may supply "barangsiapa"/"siapa"/"siapa pun" instead of "yang" (or a translation-specific equivalent like "orang yang"/"siapa yang"). Article has no target correspondent (Branch B); the head-word is primary to the participle, same slot "yang" fills elsewhere — this is a lexical variant, not a different construction.
-  ὁ φιλῶν πατέρα → "Barangsiapa mengasihi bapa": source=[ὁ] — no target correspondent; source=[φιλῶν], target=["Barangsiapa", "mengasihi"] — primary: "mengasihi"; secondary: "Barangsiapa"
-  ὁ ἔχων ὦτα → "Siapa bertelinga": source=[ὁ] — no target correspondent; source=[ἔχων], target=["Siapa", "bertelinga"] — primary: "bertelinga"; secondary: "Siapa"
+Generic/gnomic referent ("whoever does X," not a specific individual) → "barangsiapa"/"siapa"/"siapa pun" (or "orang yang"/"siapa yang") instead of "yang" — same slot, lexical variant not a different construction. Article absorbed (Branch B).
+  ὁ φιλῶν πατέρα → "Barangsiapa mengasihi bapa": [ὁ] no target correspondent; [φιλῶν]→["Barangsiapa", "mengasihi"] primary "mengasihi", secondary "Barangsiapa"
+  ὁ ἔχων ὦτα → "Siapa bertelinga": [ὁ] no target correspondent; [ἔχων]→["Siapa", "bertelinga"] primary "bertelinga", secondary "Siapa"
 
 ### Discourse particle adjacent to participle
 δέ/καί/οὖν near participle with no correspondent → NEQ source (only when certain).\
