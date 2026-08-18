@@ -618,7 +618,17 @@ alone cannot reach the retry threshold even with a high signal_4 value.
 **Stop-word lists (`scoring_stopwords.py`):** uses `stopwordsiso` (already a project
 dependency) intersected with a small curated core per language to keep lists minimal.
 Languages without coverage (Tok Pisin, Bislama, Lingala, …) return an empty frozenset —
-the safe direction is to penalise gaps rather than suppress content words.
+the safe direction is to penalise gaps rather than suppress content words. `ind` and
+`hin` have curated cores (Indonesian: space-delimited with genuine free-standing
+function words, so this meaningfully reduces signal 2 noise; Hindi: was previously
+missing a `_CORE` entry despite being mapped to `stopwordsiso`'s `hi` package, silently
+returning empty — now fixed). `arb` deliberately has none: Arabic's function words
+(waw/fa- conjunctions, bi-/li-/ka- prepositions, the definite article) are fused
+proclitics that never appear as standalone whitespace tokens, so a word-list stoplist
+has little to offer — and `stopwordsiso`'s Arabic package uses undiacritized forms
+while the AVD/ONAV corpus is fully vocalized, so naive matching would silently fail
+regardless. Revisit only alongside a diacritic-normalization pass if this becomes worth
+doing.
 
 **`ScoringConfig`** holds signal weights (w1–w5), NEQ baseline, adjacency multiplier,
 smear forced-retry threshold, deviation k, and retry threshold. All overridable; defaults
