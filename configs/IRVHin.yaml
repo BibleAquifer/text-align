@@ -24,7 +24,7 @@ batch-size: 4
 
 # Gloo
 llm_provider: gloo
-reasoning_effort: high
+reasoning_effort: low
 #llm_model: gloo-google-gemini-3.5-flash # decent (better than not bad)
 llm_model: gloo-deepseek-v4-pro # decent (better than not bad)
 max_output_tokens: 32000
@@ -38,7 +38,7 @@ fallback_threshold: 0.30
 # If absent, retry-alignment falls back to the llm_provider / llm_model /
 # reasoning_effort values above. Set these to use a different (typically better)
 # model for the retry pass than the initial refine pass.
-retry_reasoning_effort: high
+retry_reasoning_effort: low
 retry_llm_provider: gloo
 #retry_llm_model: gloo-anthropic-claude-opus-4.7
 retry_llm_model: gloo-google-gemini-3.1-pro
