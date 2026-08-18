@@ -30,7 +30,7 @@ from .retry import (
     discover_chapter_files,
     retry_chapter_sync,
 )
-from .scoring import ScoringConfig, VerseScore, find_suspect_verses, resolve_neq_baseline, score_chapter_file
+from .scoring import VerseScore, build_scoring_config, find_suspect_verses, resolve_neq_baseline, score_chapter_file
 from .source import load_source_verses
 from .util import _CORPUS_ID, _chapter_id_from_path
 
@@ -453,7 +453,8 @@ def main() -> None:
     else:
         neq_baseline = resolve_neq_baseline(args)
         print(f"  NEQ baseline: {neq_baseline:.3f}")
-        scoring_config = ScoringConfig(
+        scoring_config = build_scoring_config(
+            args.target_language,
             retry_threshold=args.score_retry_threshold,
             neq_baseline=neq_baseline,
             semantic_model=args.semantic_model,

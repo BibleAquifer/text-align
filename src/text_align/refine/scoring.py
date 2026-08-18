@@ -230,6 +230,37 @@ class ScoringConfig:
     # Optional semantic similarity check (separate flag, not part of composite)
     semantic_model: str | None = None
     semantic_threshold: float = 0.35
+    # Per-language rule toggles — see build_scoring_config() / _LANGUAGE_SCORING_OVERRIDES.
+    # disable_signal_4: signal 4 (smearing) is excluded from the composite (remaining
+    # weights renormalized to sum to 1.0 via effective_weights()) and no longer forces
+    # needs_retry via smear_forced_retry_threshold. signal_4 is still computed and
+    # reported for audit. Intended for languages whose tokenization fuses multiple
+    # source tokens into one target token as the structural norm (e.g. Arabic), where
+    # signal 4's N:M-over-grouping heuristic doesn't map cleanly onto legitimate fusion.
+    disable_signal_4: bool = False
+    # check_article_neq: when False, an NEQ'd article no longer forces needs_retry on
+    # its own. article_neq_count is still computed and reported. Intended for languages
+    # with a documented, structural reason an article can be legitimately NEQ'd (e.g.
+    # Arabic's bare-transliterated-proper-name exception — see
+    # docs/alignment-principles-nt.arb.md).
+    check_article_neq: bool = True
+
+    def effective_weights(self) -> tuple[float, float, float, float, float]:
+        """Signal weights after applying disable_signal_4.
+
+        When signal 4 is disabled, its weight is zeroed and the remaining
+        weights are renormalized (proportionally scaled) to sum back to 1.0,
+        so the composite score still runs 0-1 and retry_threshold means the
+        same thing regardless of which signals are active.
+        """
+        w1, w2, w3, w4, w5 = self.w1, self.w2, self.w3, self.w4, self.w5
+        if self.disable_signal_4:
+            w4 = 0.0
+            active_sum = w1 + w2 + w3 + w5
+            if active_sum > 0:
+                scale = 1.0 / active_sum
+                w1, w2, w3, w5 = w1 * scale, w2 * scale, w3 * scale, w5 * scale
+        return w1, w2, w3, w4, w5
 
 
 @dataclass
@@ -252,6 +283,35 @@ class VerseScore:
     # semantic-delta ranking pass (apply_smear_delta_scores). Not written to
     # the score-alignment TSV.
     smear_1toN_flagged: list = field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Per-language rule toggles
+# ---------------------------------------------------------------------------
+
+# Static overrides applied by build_scoring_config() before any explicit
+# kwargs (which always win). Add a language here only when a signal's
+# underlying assumption is structurally wrong for that language, not to
+# tune sensitivity — that's what the CLI/YAML-exposed thresholds are for.
+_LANGUAGE_SCORING_OVERRIDES: dict[str, dict[str, Any]] = {
+    # AVD's whitespace-only tokenization fuses conjunction/preposition/article/
+    # suffix onto the adjacent word, making N:1 records (multiple source tokens
+    # -> one fused target token) the structural norm rather than the occasional
+    # over-grouping signal 4 is designed to catch. Arabic also legitimately NEQs
+    # the article before a bare transliterated proper name (Arabic never fuses
+    # al- onto one) — see docs/alignment-principles-nt.arb.md.
+    "arb": {"disable_signal_4": True, "check_article_neq": False},
+}
+
+
+def build_scoring_config(target_language: str | None, **kwargs: Any) -> ScoringConfig:
+    """Construct a ScoringConfig, applying _LANGUAGE_SCORING_OVERRIDES first.
+
+    Explicit kwargs (CLI/YAML-driven values like retry_threshold, neq_baseline)
+    always take precedence over a language's static overrides.
+    """
+    overrides = _LANGUAGE_SCORING_OVERRIDES.get(target_language or "", {})
+    return ScoringConfig(**{**overrides, **kwargs})
 
 
 # ---------------------------------------------------------------------------
@@ -409,13 +469,15 @@ def score_chapter(verse_scores: list[VerseScore], config: ScoringConfig) -> list
     if not verse_scores:
         return verse_scores
 
+    w1, w2, w3, w4, w5 = config.effective_weights()
+
     # Composite of signals 1–4 for each verse
     for vs in verse_scores:
         vs.composite = (
-            config.w1 * vs.signal_1
-            + config.w2 * vs.signal_2
-            + config.w3 * vs.signal_3
-            + config.w4 * vs.signal_4
+            w1 * vs.signal_1
+            + w2 * vs.signal_2
+            + w3 * vs.signal_3
+            + w4 * vs.signal_4
         )
 
     # Signal 5: per-verse deviation from chapter mean
@@ -432,16 +494,16 @@ def score_chapter(verse_scores: list[VerseScore], config: ScoringConfig) -> list
     # Final composite including signal 5, then set retry flag
     for vs in verse_scores:
         vs.composite = (
-            config.w1 * vs.signal_1
-            + config.w2 * vs.signal_2
-            + config.w3 * vs.signal_3
-            + config.w4 * vs.signal_4
-            + config.w5 * vs.signal_5
+            w1 * vs.signal_1
+            + w2 * vs.signal_2
+            + w3 * vs.signal_3
+            + w4 * vs.signal_4
+            + w5 * vs.signal_5
         )
         vs.needs_retry = (
             vs.composite > config.retry_threshold
-            or vs.article_neq_count > 0
-            or vs.signal_4 > config.smear_forced_retry_threshold
+            or (config.check_article_neq and vs.article_neq_count > 0)
+            or (not config.disable_signal_4 and vs.signal_4 > config.smear_forced_retry_threshold)
             or vs.acai_unaligned_count > 0
         )
 

@@ -30,7 +30,7 @@ from .clean import run_clean_pass
 from .cost_estimate import DEFAULT_GLOO_RATES_CACHE, CostEstimate, estimate_retry_cost, fetch_gloo_rates
 from .coverage import find_low_coverage_verses
 from .retry import _filter_chapter_files, discover_chapter_files
-from .scoring import ScoringConfig, VerseScore, find_suspect_verses, resolve_neq_baseline, score_chapter_file
+from .scoring import ScoringConfig, VerseScore, build_scoring_config, find_suspect_verses, resolve_neq_baseline, score_chapter_file
 from .source import load_source_verses
 from .util import _CORPUS_ID, _chapter_id_from_path
 
@@ -356,7 +356,8 @@ def main() -> None:
 
     neq_baseline = resolve_neq_baseline(args)
     print(f"  NEQ baseline: {neq_baseline:.3f}", file=sys.stderr)
-    scoring_config = ScoringConfig(
+    scoring_config = build_scoring_config(
+        args.target_language,
         retry_threshold=args.score_retry_threshold,
         neq_baseline=neq_baseline,
         semantic_model=args.semantic_model,
