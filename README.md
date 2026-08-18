@@ -111,7 +111,7 @@ Both testaments (NT/Greek and OT/Hebrew) support the same set of target-language
 | `spa` | Spanish (Latin American) | ✅ | ✅ |
 | `fra` | French | ✅ | ✅ |
 | `ind` | Indonesian | ✅ | ✅ |
-| `hin` | Hindi | ✅ | — |
+| `hin` | Hindi | ✅ | ✅ |
 | `arb` | Arabic (draft — not yet native-speaker reviewed) | ✅ | ✅ |
 
 An unrecognized `target_language` code falls back to the English (`eng`) prompt config automatically. See `src/text_align/refine/prompt/nt/` and `src/text_align/refine/prompt/ot/` to add a new language.
@@ -233,6 +233,7 @@ src/text_align/
 │   │   │   ├── spa.py   #     Latin American Spanish (auto-registered)
 │   │   │   ├── fra.py   #     French (auto-registered)
 │   │   │   ├── ind.py   #     Indonesian (auto-registered)
+│   │   │   ├── hin.py   #     Hindi (auto-registered)
 │   │   │   └── arb.py   #     Arabic (auto-registered; draft, not native-speaker reviewed)
 │   │   └── __init__.py  #   Public API re-export
 │   ├── llm.py           # Provider-agnostic LLM call layer (OpenAI / Anthropic / Google / OpenRouter / Gloo / Ollama)

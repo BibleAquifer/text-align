@@ -210,17 +210,22 @@ compressed. Approximate token budget (all blocks assembled):
 | NT por | 3,614 |
 | NT spa | 3,599 |
 | NT fra | 4,488 |
-| NT ind | ~5,309 |
-| NT hin | ~7,100 |
+| NT ind | ~5,234 |
+| NT hin | ~7,055 |
 | NT arb | ~15,958 |
-| OT eng | 2,560 |
-| OT ind | ~4,000 |
+| OT eng | ~3,031 |
+| OT por | ~3,789 |
+| OT spa | ~4,020 |
+| OT fra | ~5,072 |
+| OT ind | ~5,254 |
 | OT arb | ~7,187 |
 
-NT ind/hin/arb and OT arb figures use `tiktoken` (cl100k_base) on the fully-assembled
+NT ind/hin/arb and all OT figures use `tiktoken` (cl100k_base) on the fully-assembled
 prompt (all conditional blocks included), matching `cost_estimate.py`'s counting method
-— the eng/por/spa/fra figures predate that measurement approach and have not been
-recomputed. NT arb is still far larger than the rest because every one of its 11
+— only the NT eng/por/spa/fra figures predate that measurement approach and have not
+been recomputed; the rest are freshly recomputed against the current file contents, not
+carried forward from whenever each config was first measured. NT arb is still far
+larger than the rest because every one of its 11
 conditional blocks is Arabic-specific (none still import `eng.py` unchanged, unlike
 every other language) — expect the highest per-verse prompt cost of any
 currently-supported NT config. OT arb grew well past OT ind's size across two rounds of
