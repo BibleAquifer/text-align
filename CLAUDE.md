@@ -129,6 +129,68 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   for what remains unconfirmed; the sample size (~20-30 verses per construction) is
   well short of Hindi's corpus-wide validation.
 - `ot/eng.py` — OT English config.
+- `ot/arb.py` — OT Arabic (Van Dyck). **Draft — not yet reviewed by a native Arabic
+  speaker/Arabist; do not use for production runs.** Follows `nt/arb.py`'s mechanics:
+  whitespace-only AVD target tokenization plus fused conjunctions/prepositions/article/
+  suffixes means N:1 records dominate, same as NT. Built in two passes: Pass 1 was a
+  ~15-verse spot-check; Pass 2 re-verified every item flagged as an open question after
+  Pass 1 against full-corpus or large stratified samples (WLCM joined to AVD/ONAV by
+  verse), and several Pass-1 single-instance claims did not survive — see each finding
+  below and `docs/alignment-principles-ot.arb.md`'s "Cross-translation methodology
+  note" for the full breakdown of what changed between passes.
+  Construct-state (ʾiḍāfa) genitive chains are a genuine typological match to Hebrew's
+  own construct chains (both mark possession by bare noun-noun juxtaposition,
+  head-first) — no supplied "of"-equivalent is needed, closer to Indonesian's OT
+  finding than to NT Arabic's (which supplies iḍāfa for a Greek case-marked genitive
+  Arabic itself doesn't morphologically mark). Verified at scale (28-verse exhaustive
+  sample of construct-participles after הָיָה/וַיְהִי): bare ʾiḍāfa is the actual
+  majority even for occupational-title participles (armor-bearer, ark-bearers, archer
+  all stayed bare) — the one confirmed exception is a lexicalized `אֲבִי` ("father of")
+  + participle idiom, not a general occupational-participle rule.
+  Pronominal suffixes split by grammatical ROLE, not host type (a finding not present
+  in any other OT config): object/possessive suffixes are always primary regardless of
+  whether the host is a noun, preposition, finite verb, participle, or an infinitive
+  construct's own object; only a suffix marking the SUBJECT of an infinitive construct
+  restructured as a finite clause is secondary, since Arabic verb agreement already
+  carries that information.
+  Negation: לֹא and אַל both converge on `لَا`; nominal/copular negation uses `لَيْسَ`.
+  Existential אֵין/אַיִן — verified at scale (24-verse sample of 659 corpus instances):
+  three coexisting strategies, not the single `لَمْ يَكُنْ` Pass 1 assumed — `لا
+  النافية للجنس` (bare `لَا` + accusative predicate) is most common overall, `لَيْسَ`
+  (often + `مَنْ`) a close second, `لَمْ يَكُنْ` real but narrower (concrete-noun
+  narrative prose). `לֹא...עוֹד` ("no longer") discontinuity confirmed decisively at
+  scale, matching NT Arabic's οὐκέτι/μηκέτι finding.
+  Passive voice (30-verse sample across niphal/pual/hophal, ~5,024 corpus instances,
+  not present in Pass 1 at all): true morphological passive dominates even more than NT
+  Arabic's own revised finding (~77% of clean instances); a derived-stem active-form
+  verb (Form V/VII/VIII) is real but narrow, clustering around reciprocal/collective/
+  self-affecting actions; a genuine fourth strategy — plain adjectival/stative
+  rendering — appears for niphal forms marking a state rather than an event.
+  Substantive participles split three ways (ism al-fāʿil / `الَّذِي` / `كُلُّ مَنْ`),
+  matching NT Arabic's structure; `كُلُّ مَنْ`/`كُلُّ مَا` is confirmed (96-instance
+  full-corpus search) as the dominant strategy specifically for Hebrew's casuistic
+  legal formula `כָּל הַ`+participle, resolving the open question Indonesian OT flagged
+  as unproductive. Predicative participles (main-clause predicate) — reversed after a
+  9-verse sample: finite-verb conversion is the majority, not bare-participle
+  predication as a single incidental example first suggested; bare participles remain
+  real but minority, clustering around postural/stative verbs.
+  Purposive/complement `לְ`+infinitive (verified against 4,573 corpus instances, the
+  largest infinitive category) splits three ways: purposive `لِ`/`لِكَيْ` (majority),
+  `أَنْ`+subjunctive complement clause (matches NT Arabic), nominalization
+  (masdar+preposition). Infinitive absolute — reversed after a 20-verse sample: cognate
+  accusative and complete non-marking are roughly equally common, including within AVD
+  itself, not the clean AVD-cognate-vs-ONAV-adverb split Pass 1's single verse
+  suggested — though the cognate-accusative strategy, when it does occur, remains a
+  genuinely closer structural parallel than any other supported language has.
+  Dual number (7-verse sample of 1,933 corpus instances): dual-to-dual is the majority
+  pattern but not automatic — real lexeme-specific exceptions collapse to Arabic
+  singular ("nostrils" → "nose") or plural ("doors", "eyelids").
+  Distilled from `docs/alignment-principles-ot.arb.md`, cross-checked against ONAV's OT
+  (`ot_ONAV.tsv`) verse-by-verse, following `nt/arb.py`'s cross-translation
+  methodology; see that document's "Cross-translation methodology note" and "Open
+  questions" sections for what remains unconfirmed (mostly finer-grained sub-questions
+  the Pass-2 findings themselves raised, not gaps in section coverage — every item on
+  the original Pass-1 open-questions list has now been addressed).
 - `__init__.py` — re-exports the public API and imports all language modules to trigger
   registration.
 
@@ -153,17 +215,23 @@ compressed. Approximate token budget (all blocks assembled):
 | NT arb | ~18,128 |
 | OT eng | 2,560 |
 | OT ind | ~4,000 |
+| OT arb | ~8,035 |
 
-NT ind/hin/arb figures use `tiktoken` (cl100k_base) on the fully-assembled prompt (all
-conditional blocks included), matching `cost_estimate.py`'s counting method — the eng/
-por/spa/fra figures predate that measurement approach and have not been recomputed.
-NT arb is far larger than the rest because every one of its 11 conditional blocks is
-Arabic-specific (none still import `eng.py` unchanged, unlike every other language) —
-expect the highest per-verse prompt cost of any currently-supported NT config until
-the block content is trimmed post-review.
+NT ind/hin/arb and OT arb figures use `tiktoken` (cl100k_base) on the fully-assembled
+prompt (all conditional blocks included), matching `cost_estimate.py`'s counting method
+— the eng/por/spa/fra figures predate that measurement approach and have not been
+recomputed. NT arb is far larger than the rest because every one of its 11 conditional
+blocks is Arabic-specific (none still import `eng.py` unchanged, unlike every other
+language) — expect the highest per-verse prompt cost of any currently-supported NT
+config until the block content is trimmed post-review. OT arb grew well past OT ind's
+size across two rounds of corpus-scale verification (each revised/expanded finding
+added more rules and worked examples than it replaced) despite the OT block set being
+much smaller than NT's (4 conditional blocks vs. 11) — now the largest OT config, and
+a candidate for trimming post-review the same way NT arb is.
 
 Current languages: eng, por, spa, fra, ind, hin, arb (arb is draft — not yet
-native-speaker/Arabist reviewed; see `docs/alignment-principles-nt.arb.md`).
+native-speaker/Arabist reviewed; see `docs/alignment-principles-nt.arb.md` and
+`docs/alignment-principles-ot.arb.md`).
 Planned: Chinese Simplified, Chinese Traditional, Gujarati, Nepali, Tok Pisin,
 Bislama, Lingala, Swahili.
 
