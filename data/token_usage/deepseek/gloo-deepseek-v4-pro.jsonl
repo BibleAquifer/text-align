@@ -559,3 +559,4 @@
 {"model": "gloo-deepseek-v4-pro", "prompt_tokens": 5459, "completion_tokens": 30085}
 {"model": "gloo-deepseek-v4-pro", "prompt_tokens": 6538, "completion_tokens": 20055}
 {"model": "gloo-deepseek-v4-pro", "prompt_tokens": 4366, "completion_tokens": 14353}
+{"model": "gloo-deepseek-v4-pro", "prompt_tokens": 11630, "completion_tokens": 37661}
