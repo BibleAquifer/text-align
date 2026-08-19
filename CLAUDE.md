@@ -615,6 +615,29 @@ forces `needs_retry=True` regardless of composite score. This catches verses whe
 is the only quality problem (coverage is clean, no NEQ issues) — in those cases the composite
 alone cannot reach the retry threshold even with a high signal_4 value.
 
+**Per-language rule toggles (`build_scoring_config()`, `_LANGUAGE_SCORING_OVERRIDES`):**
+`score_alignments.py` and `retry_cli.py` both build their `ScoringConfig` via
+`build_scoring_config(args.target_language, ...)` rather than constructing `ScoringConfig`
+directly, so a small static per-language override table can disable a signal whose
+underlying assumption is structurally wrong for that language — not to tune sensitivity
+(that's what the CLI/YAML thresholds are for), only to turn a check off entirely where it
+doesn't apply. Two toggles exist:
+- `disable_signal_4: bool` — excludes signal 4 from the composite (remaining weights
+  renormalized via `ScoringConfig.effective_weights()` so composite still runs 0–1 and
+  `retry_threshold` means the same thing regardless of which signals are active) and skips
+  the standalone `signal_4 > smear_forced_retry_threshold` gate. `signal_4` is still
+  computed and reported in the TSV for audit — just not acted on.
+- `check_article_neq: bool` — skips the `article_neq_count > 0` forced-retry branch.
+  `article_neq_count` is still computed and reported.
+
+`arb` sets both: AVD's whitespace-only tokenization fuses conjunction/preposition/article/
+suffix onto the adjacent word, making N:1 records the structural norm rather than the
+occasional over-grouping signal 4 is designed to catch, and Arabic legitimately NEQs the
+article before a bare transliterated proper name (Arabic never fuses al- onto one) — see
+`docs/alignment-principles-nt.arb.md`. No other language has an override yet. Explicit
+kwargs (`retry_threshold`, `neq_baseline`, `semantic_model`, `semantic_threshold`) always
+take precedence over a language's static overrides.
+
 **Stop-word lists (`scoring_stopwords.py`):** uses `stopwordsiso` (already a project
 dependency) intersected with a small curated core per language to keep lists minimal.
 Languages without coverage (Tok Pisin, Bislama, Lingala, …) return an empty frozenset —
