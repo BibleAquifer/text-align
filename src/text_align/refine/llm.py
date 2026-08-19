@@ -448,7 +448,7 @@ def _iter_verse_entries(
                 f"{type(entry).__name__!r}): {str(entry)[:80]!r}"
             )
             continue
-        out.append((entry.get("verse_id", ""), entry.get("records", [])))
+        out.append((entry.get("verse_id", ""), entry.get("records") or []))
     return out
 
 
