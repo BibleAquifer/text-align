@@ -1,0 +1,10 @@
+{
+  "edition": "TBI",
+  "chapter_id": "05006",
+  "passes": 1,
+  "retried_verses": [
+    "05006008",
+    "05006018",
+    "05006020"
+  ]
+}
