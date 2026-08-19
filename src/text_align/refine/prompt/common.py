@@ -109,6 +109,9 @@ def reverse_map_records(
 
     for i, rec in enumerate(records):
         label = f"record {i + 1}"
+        if not isinstance(rec, dict):
+            errors.append(f"{label}: expected object, got {type(rec).__name__!r}; skipping")
+            continue
         new_rec = dict(rec)
         new_rec["source"] = _lookup(rec.get("source") or [], source_map, "source", label)
         new_rec["target"] = _lookup(rec.get("target") or [], target_map, "target", label)
