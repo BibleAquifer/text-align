@@ -26,8 +26,8 @@ batch-size: 4
 llm_provider: gloo
 reasoning_effort: low
 #llm_model: gloo-google-gemini-3.5-flash # decent (better than not bad)
-llm_model: gloo-deepseek-v4-pro # decent (better than not bad)
-#llm_model: gloo-deepseek-v4-flash # not great, apparently
+#llm_model: gloo-deepseek-v4-pro
+llm_model: gloo-google-gemini-3.7-flash # cheap through Dec 31 2026, then doubles
 max_output_tokens: 32000
 # ---------------------------------------------------------------------------
 # retry-alignment settings
