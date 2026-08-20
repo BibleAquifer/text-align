@@ -21,13 +21,11 @@ methodology note near the end.
 Source files: `src/text_align/refine/prompt/nt/arb.py`,
 `src/text_align/refine/prompt/nt/eng.py`
 
-**Draft status:** this document has not yet been reviewed by a native Arabic speaker or
-Arabist. Portuguese, Spanish, French, and (partially) Hindi configs were validated this
-way before being trusted in production; Arabic should follow the same path before being
-used for real alignment runs. Even the expanded sample (PASSIVE/NEGATION/PARTICIPLE:
+**Review status:** reviewed by a native Arabic speaker and confirmed "very good." Note
+that even the expanded sample this document is built from (PASSIVE/NEGATION/PARTICIPLE:
 ~25 verses each; COMPARATIVE/CONDITIONAL: ~20 verses each) is still well short of
-Hindi's hundreds-to-low-thousands-per-construction validation — treat every rule below
-as a well-evidenced working hypothesis, not an established fact.
+Hindi's hundreds-to-low-thousands-per-construction validation, but the native-speaker
+review is the stronger form of confirmation the other pre-review drafts were waiting on.
 
 **Key differences from every currently-supported language:**
 
@@ -1337,6 +1335,11 @@ edition) and treat ONAV's divergence as evidence of what else is grammatically p
 ---
 
 ## Open questions for native-speaker/Arabist review
+
+The native-speaker review referenced in the status note above confirmed the document
+overall as "very good"; the specific dispositions of each item below were not recorded
+back into this document, so the list is left as-is rather than marked resolved without
+evidence for each individual point.
 
 1. **Is the fused definite article primary or secondary?** This document currently
    treats it as primary (because al- is a real definite-article morpheme, not a

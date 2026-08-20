@@ -73,21 +73,27 @@ def main() -> None:
     config = load_config(args.config)
 
     lang = config.get("target_language")
+    # The Clear-Bible alignments-<code> repo naming (and our own staged mirror
+    # of it) follows Biblica's convention, which is not always our own
+    # target_language — Chinese's zht/zhs configs set biblica_language: cmn
+    # since Biblica groups both scripts under that macrolanguage code. Every
+    # other language's biblica_language coincides with target_language.
+    biblica_lang = config.get("biblica_language") or lang
     edition = config.get("target_edition")
     suffix = config.get("alignment_suffix") or _DEFAULT_SUFFIX
     if not lang or not edition:
         sys.exit(f"error: config {args.config} must define target_language and target_edition")
 
     clear_root = Path(args.clear_root).expanduser()
-    staged_root = _REPO_ROOT / "data" / "alignments" / f"alignments-{lang}"
+    staged_root = _REPO_ROOT / "data" / "alignments" / f"alignments-{biblica_lang}"
 
-    src_tsv_dir = clear_root / f"alignments-{lang}" / "data" / "targets" / edition
+    src_tsv_dir = clear_root / f"alignments-{biblica_lang}" / "data" / "targets" / edition
     dest_tsv_dir = staged_root / "data" / "targets" / edition
 
-    src_exp_dir = clear_root / f"alignments-{lang}" / "exp" / edition / suffix
+    src_exp_dir = clear_root / f"alignments-{biblica_lang}" / "exp" / edition / suffix
     dest_exp_dir = staged_root / "exp" / edition / suffix
 
-    src_viz_dir = clear_root / f"alignments-{lang}" / "viz" / edition
+    src_viz_dir = clear_root / f"alignments-{biblica_lang}" / "viz" / edition
     dest_viz_dir = staged_root / "viz" / edition
 
     if not src_tsv_dir.exists():
@@ -98,7 +104,8 @@ def main() -> None:
         sys.exit(f"error: no TSV files found in {src_tsv_dir}")
 
     tag = "[dry-run] " if args.dry_run else ""
-    print(f"copy-to-gha: {lang}/{edition}  suffix={suffix}")
+    label = lang if lang == biblica_lang else f"{lang} (biblica_language={biblica_lang})"
+    print(f"copy-to-gha: {label}/{edition}  suffix={suffix}")
     print()
 
     # --- TSV target files ---

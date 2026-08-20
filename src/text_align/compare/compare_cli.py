@@ -55,8 +55,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--alignment-dir", default=None, type=Path,
                    help="Directory containing our chapter JSON files to compare")
     p.add_argument("--target-language", default=None,
-                   help="ISO 639-3 language code, e.g. hin — also used as Biblica's "
-                        "alignments-<code> directory suffix")
+                   help="ISO 639-3 language code, e.g. hin — drives prompt/RTL/scoring "
+                        "selection")
+    p.add_argument("--biblica-language", default=None,
+                   help="Code for Biblica's alignments-<code> directory suffix, when it "
+                        "differs from --target-language (e.g. cmn for zht/zhs Chinese "
+                        "configs, since Biblica groups both scripts under the "
+                        "macrolanguage code). Defaults to --target-language.")
     p.add_argument("--target-edition", default=None,
                    help="Target edition ID, e.g. IRVHin")
     p.add_argument("--target-tsv-dir", default=None, type=Path,
@@ -125,8 +130,13 @@ def main() -> None:
         args.html_output = Path(args.html_output)
 
     sourceid = _CORPUS_ID[args.corpus]
+    biblica_lang = args.biblica_language or args.target_language
 
-    print(f"compare-alignment: {args.target_language}/{args.target_edition} ({args.corpus})")
+    label = (
+        args.target_language if biblica_lang == args.target_language
+        else f"{args.target_language} (biblica_language={biblica_lang})"
+    )
+    print(f"compare-alignment: {label}/{args.target_edition} ({args.corpus})")
     print(f"  Our alignment dir: {args.alignment_dir}")
     print(f"  Biblica root:      {args.clear_root}")
 
@@ -147,7 +157,7 @@ def main() -> None:
 
     reference_override = _resolve_reference_override(args)
     biblica_reader = load_biblica_reader(
-        args.clear_root, args.target_language, sourceid, args.target_edition,
+        args.clear_root, biblica_lang, sourceid, args.target_edition,
         args.target_language, reference_override,
     )
     print(f"  Biblica reference: {len(biblica_reader.alignmentgroup.records)} record(s)")
@@ -155,7 +165,7 @@ def main() -> None:
     print("  Loading target TSVs ...")
     our_target_verses = process_usfm_tsv(args.target_tsv_dir, args.target_edition)
     biblica_target_verses = load_biblica_target_verses(
-        args.clear_root, args.target_language, args.target_edition
+        args.clear_root, biblica_lang, args.target_edition
     )
     id_map = build_target_id_map(our_target_verses, biblica_target_verses)
 

@@ -101,8 +101,8 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   `docs/alignment-principles-nt.hin.md`, which was cross-checked against two further Hindi
   NT translations (HSB, OHCV) to separate general Hindi grammar from one translation's
   stylistic choices — see that document's "Cross-translation methodology note".
-- `nt/arb.py` — Arabic (Van Dyck). **Draft — not yet reviewed by a native Arabic
-  speaker/Arabist; do not use for production runs.** Target TSV tokenizes on
+- `nt/arb.py` — Arabic (Van Dyck). **Reviewed by a native Arabic speaker and confirmed
+  "very good."** Target TSV tokenizes on
   whitespace only, and Arabic orthography fuses conjunctions (وَ/فَ), prepositions
   (بِ/لِ/كَ), the definite article (ال), and pronominal suffixes onto the adjacent
   word with no space — one target token routinely corresponds to 2-4 Greek tokens,
@@ -128,6 +128,48 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   document's "Cross-translation methodology note" and its per-section "Open questions"
   for what remains unconfirmed; the sample size (~20-30 verses per construction) is
   well short of Hindi's corpus-wide validation.
+- `nt/zht.py` — Traditional Chinese (Mandarin). **Rebuilt 2026-08-20 from raw text +
+  reasoning, no alignment data anywhere — see `project_zht_alignment_paused` in the
+  auto-memory system for the full history.** An earlier draft used Clear-Bible's
+  `alignments-cmn` repo (Biblica's CUVMPS gold alignment, cross-checked against UBS's
+  CU2010T alignment) and was retracted by direction: CUVMPS was found to diverge from
+  our own CUV in more than script (a real `神`/`上帝` lexical difference, the
+  神版/上帝版 dual-edition tradition, plus an unexplained 85.4% verse-level token-count
+  mismatch), and CU2010T's alignment was confirmed unreliable for word-level
+  verification (98.8% of negation particles showed "unaligned" despite the Chinese
+  text plainly containing a negator every time it was spot-checked — that alignment was
+  built for a different purpose). The rebuild instead spot-checks 12–25 randomly
+  sampled verses per construction against two independent raw texts: our own CUV and
+  **BOCCB2023T** (Biblica® Open Chinese Contemporary Bible 2023, Traditional — a
+  genuinely independent modern translation, confirmed by comparing Genesis 1:1 wording
+  directly), plus unconditioned whole-corpus character counts and general linguistic
+  reasoning — no third party's alignment judged as ground truth. Findings hold up
+  directionally versus the retracted draft but without exact percentages: no articles
+  by default (spot-checked, not corpus-counted); `的` overloaded across genitive
+  marker, attributive linker, and substantive-participle nominalizer, plus a related
+  literary nominalizer `所` (often `為...所`/`所...的`) that the earlier
+  character-matching pass missed entirely; the disposal construction (`將`/`把`) is
+  real but `將` is confirmed polysemous (also "about to" and the fixed noun `將來`,
+  neither of which is the disposal construction — 2 of 15 raw hits in one sample were
+  false positives); copula εἰμί splits four ways, with `就是` confirmed to appear
+  independently in BOTH CUV and BOCCB2023T at different verses, directly refuting the
+  earlier retracted "CUV-specific" claim; passive voice's unmarked-verb-majority
+  finding held up in a 25-verse spot-check (`被` didn't appear at all in that CUV
+  sample), and surfaced a literary `為...所`/`所...的` passive marker and a
+  reflexive/self-directed active-conversion strategy neither of which the earlier
+  character-matching pass could have found; reflexive `自己` confirmed genuinely
+  narrow (1 of 15 sampled αὐτός instances triggered the coreference-substitution
+  reading); aspect particle `過` confirmed NOT obligatory even on negated perfects (a
+  real counter-example found), and stative "know" verbs consistently take no aspect
+  particle at all. CUV consistently uses the variant characters `着`/`裏` (not
+  `著`/`裡`, which BOCCB2023T uses) — all worked examples use CUV's actual characters.
+  `IMPERSONAL`, `INFINITIVE`, `HINA`, `COMPARATIVE`, `HOTI`, `CONDITIONAL`, and
+  `NEGATION` blocks are imported unchanged from `eng.py` — out of scope for this
+  research pass, unlike Hindi's negation/infinitive coverage; confirm with a native
+  speaker before assuming they transfer cleanly, especially negation. **Draft — not yet
+  reviewed by a native Mandarin speaker.** Simplified Chinese (zhs) is a fully separate
+  config (not derived from this one) and will get its own doc/code once real Simplified
+  target data is available — see `docs/alignment-principles-nt.zht.md`.
 - `ot/eng.py` — OT English config.
 - `ot/arb.py` — OT Arabic (Van Dyck). **Draft — not yet reviewed by a native Arabic
   speaker/Arabist; do not use for production runs.** Follows `nt/arb.py`'s mechanics:
@@ -191,6 +233,38 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   questions" sections for what remains unconfirmed (mostly finer-grained sub-questions
   the Pass-2 findings themselves raised, not gaps in section coverage — every item on
   the original Pass-1 open-questions list has now been addressed).
+- `ot/zht.py` — OT Traditional Chinese (Mandarin). **Rebuilt 2026-08-20 from raw text +
+  reasoning, no alignment data anywhere — see `project_zht_alignment_paused` in the
+  auto-memory system for the full history.** An earlier draft rested entirely on
+  `WLCM-CU2010T-manual.json` (the OT's only ever-produced alignment — no CUVMPS OT
+  alignment exists to fall back on) and was retracted by direction: that alignment was
+  confirmed unreliable for word-level verification (98.8% of לֹא tokens showed
+  "unaligned" despite the Hebrew text plainly having a Chinese negation correspondent in
+  every sampled verse). The rebuild mirrors `nt/zht.py`'s: WLCM.tsv joined by verse to
+  CUV's and BOCCB2023T's raw target text, 14-20 verses sampled and hand-classified per
+  construction, no alignment touched. **Two genuine reversals surfaced by reading real
+  text instead of trusting character-matching over the retracted alignment**:
+  participial constructions (previously claimed near-zero `的` for substantive/
+  attributive participles — false; they regularly take `的`, either bare-nominalized
+  `凡跌倒的` or with a head noun `南邊安的營`, once the real split — verbal/predicative
+  vs. substantive/attributive function, not mere article-adjacency — is checked) and
+  pronominal suffixes (previously claimed explicit pronoun marking was the exception —
+  also false, an artifact of a crude character set missing forms like `它`/`她`;
+  careful reading shows explicit marking is the majority outcome, dropped only when the
+  referent is already established or the phrase is idiomatic). No articles by default,
+  confirmed in a spot-check, with a precise recurring trigger for the demonstrative
+  branch: the fixed `יוֹם/עֵת הַהוּא` ("that day/time") idiom, not general anaphora.
+  Construct chains: `的` presence correlates with possessor type — pronominal-suffix
+  possessors usually get `的` (`他的僕人`), full-noun possessors (especially names/
+  geography) usually don't (`亞割谷`). Passive voice: unmarked/restructured-active is
+  still the majority, but `被` is real and clustered specifically around violent/
+  adversative events (capture, destruction, exile) in every sampled instance — a
+  cleaner confirmation of the adversative-connotation theory than the NT sample gave
+  (which had zero `被`). A `所`-nominalizer strategy appears here too, matching the NT
+  doc's finding. Infinitival constructions were not independently re-verified at the
+  same depth as the rest of this rebuild — flagged honestly as inherited by analogy.
+  **Draft — not yet reviewed by a native Mandarin speaker.**
+  Distilled from `docs/alignment-principles-ot.zht.md`.
 - `__init__.py` — re-exports the public API and imports all language modules to trigger
   registration.
 
@@ -213,12 +287,14 @@ compressed. Approximate token budget (all blocks assembled):
 | NT ind | ~5,234 |
 | NT hin | ~7,055 |
 | NT arb | ~15,958 |
+| NT zht | ~6,842 |
 | OT eng | ~3,031 |
 | OT por | ~3,789 |
 | OT spa | ~4,020 |
 | OT fra | ~5,072 |
 | OT ind | ~5,254 |
 | OT arb | ~7,187 |
+| OT zht | ~4,550 |
 
 NT ind/hin/arb and all OT figures use `tiktoken` (cl100k_base) on the fully-assembled
 prompt (all conditional blocks included), matching `cost_estimate.py`'s counting method
@@ -241,11 +317,14 @@ intentionally left as headroom for a future pass rather than pushed further in o
 sitting, to keep the diff reviewable and the typo risk from hand-editing dense
 Hebrew/Arabic text low.
 
-Current languages: eng, por, spa, fra, ind, hin, arb (arb is draft — not yet
-native-speaker/Arabist reviewed; see `docs/alignment-principles-nt.arb.md` and
-`docs/alignment-principles-ot.arb.md`).
-Planned: Chinese Simplified, Chinese Traditional, Gujarati, Nepali, Tok Pisin,
-Bislama, Lingala, Swahili.
+Current languages: eng, por, spa, fra, ind, hin, arb, zht (NT arb has been reviewed by
+a native Arabic speaker and confirmed "very good"; OT arb remains draft — not yet
+reviewed; both NT and OT zht have been rebuilt from raw text + reasoning — see
+`project_zht_alignment_paused` in the auto-memory system for the full history — with no
+alignment data used anywhere in either. Neither NT nor OT zht has had native-speaker
+review; see `docs/alignment-principles-nt.arb.md`, `docs/alignment-principles-ot.arb.md`,
+`docs/alignment-principles-nt.zht.md`, and `docs/alignment-principles-ot.zht.md`).
+Planned: Chinese Simplified, Gujarati, Nepali, Tok Pisin, Bislama, Lingala, Swahili.
 
 ## LLM providers (`refine/llm.py`)
 
@@ -878,6 +957,13 @@ The `alignment_suffix` is read from the config YAML; defaults to `LLM-REFINED`.
 Both scripts accept `--config <NAME>` (required), `--clear-root <path>` (default
 `~/git/Clear-Bible`), and `--dry-run`. Neither script invokes git or GHA.
 
+`<lang>` in every `alignments-<lang>` path above is `biblica_language` (falling back to
+`target_language`) — the config key that names Biblica's actual `alignments-*` repo,
+which only differs from `target_language` for Chinese today (Biblica groups zht/zhs
+under the macrolanguage code `cmn`; see `biblica_language` in `config.py`'s
+path-derivation docstring). Every other language's `biblica_language` coincides with
+`target_language`, so this is invisible unless a config sets it explicitly.
+
 ```bash
 python scripts/copy-to-gha.py  --config JFA11
 # ... git add / commit / push / trigger GHA ...
@@ -988,7 +1074,10 @@ basename, `.html` extension — so a custom `--output` path relocates the HTML d
 too), or give it an explicit path of its own.
 
 `biblica.py` builds an `AlignmentSet`/`AlignmentsReader` pointed at Biblica's own
-`~/git/Clear-Bible/alignments-{lang}/data/` tree (`{lang}` = `--target-language`)
+`~/git/Clear-Bible/alignments-{lang}/data/` tree (`{lang}` = `--biblica-language`,
+falling back to `--target-language` when unset — the two differ only for Chinese, where
+Biblica groups the zht/zhs scripts under the macrolanguage code `cmn`; see
+`biblica_language` in `config.py`'s path-derivation docstring)
 instead of writing a separate SB 0.3 parser — `AlignmentsReader._make_record` already
 calls `macula_unprefixer` on every source selector (Biblica keeps the `n`/`o` canon
 prefix we drop) and `read_alignments` already handles a flat, non-`groups`-wrapped

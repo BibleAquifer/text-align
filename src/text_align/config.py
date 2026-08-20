@@ -31,15 +31,26 @@ provided is derived automatically:
 
     source_tsv_dir       → <root>/alignments-<src_lang>/data/targets/<src_ed>
     source_alignment_dir → <root>/alignments-<src_lang>/data/alignments/<src_ed>
-    target_tsv_dir       → <root>/alignments-<trg_lang>/data/targets/<trg_ed>
-    targets_dir          → <root>/alignments-<trg_lang>/data/targets/<trg_ed>
-    lang_data_path       → <root>/alignments-<trg_lang>/data
-    output_dir           → <root>/alignments-<trg_lang>/exp/<trg_ed>/<output_suffix>
-                           (or <root>/alignments-<trg_lang>/<output_suffix> when
+    target_tsv_dir       → <root>/alignments-<biblica_lang>/data/targets/<trg_ed>
+    targets_dir          → <root>/alignments-<biblica_lang>/data/targets/<trg_ed>
+    lang_data_path       → <root>/alignments-<biblica_lang>/data
+    output_dir           → <root>/alignments-<biblica_lang>/exp/<trg_ed>/<output_suffix>
+                           (or <root>/alignments-<biblica_lang>/<output_suffix> when
                             output_in_exp=False, used by render-alignment)
-    alignment_dir        → <root>/alignments-<trg_lang>/exp/<trg_ed>/<alignment_suffix>
+    alignment_dir        → <root>/alignments-<biblica_lang>/exp/<trg_ed>/<alignment_suffix>
                            (only derived when ``alignment_suffix`` is set in the YAML;
                             used by render-alignment to point at a specific exp subdir)
+
+``<biblica_lang>`` is ``biblica_language`` if the config sets it, otherwise
+``target_language``/``alignment_lang`` (the common case — the two coincide for every
+language except Chinese, where Biblica groups the zht/zhs scripts under the
+macrolanguage code ``cmn``). Set ``biblica_language: cmn`` in a zht/zhs config so the
+``alignments-<code>`` repo paths resolve correctly while ``target_language`` stays
+``zht``/``zhs`` for prompt selection, RTL detection, and scoring — those never read
+``biblica_language``. ``derive_paths`` always writes a resolved ``biblica_language``
+back into the result (falling back to ``target_language``), so any tool that reads it
+via ``args.biblica_language`` gets a real value even when the config never sets it
+explicitly.
 
 Two additional paths are derived unconditionally from the repo root (``ROOT``),
 regardless of ``alignments_root``.  They assume all repos share a common git-root
@@ -137,6 +148,25 @@ def derive_paths(
     result.setdefault("acai_data_dir", _git_root / "BibleAquifer" / "ACAI")
     result.setdefault("trabina_dir",   _git_root / "BN-Content" / "trabina" / "data" / "weighted")
 
+    # render-alignment uses alignment_lang / alignment_edition instead of
+    # target_language / target_edition — resolve both and write both back so
+    # set_defaults works regardless of which key the YAML uses. Done ahead of
+    # the alignments_root check below so biblica_language still defaults even
+    # for configs that don't derive any paths.
+    trg_lang = config.get("target_language") or config.get("alignment_lang")
+    # biblica_language: the code Biblica/Clear-Bible uses for this target's
+    # alignments-<code> repo, when it differs from our own linguistic
+    # target_language. Falls back to target_language for every language where
+    # the two coincide (i.e. everything except Chinese today, where Biblica
+    # groups zht/zhs under the macrolanguage code cmn). Only ever used for
+    # constructing alignments-<code> paths (here, in copy-to-gha.py/
+    # copy-from-gha.py, and in compare-alignment's Biblica reference lookup) —
+    # never for prompt selection, RTL detection, or scoring, which stay keyed
+    # on target_language.
+    biblica_lang = config.get("biblica_language") or trg_lang
+    if biblica_lang:
+        result.setdefault("biblica_language", biblica_lang)
+
     root = config.get("alignments_root")
     if not root:
         return result
@@ -145,10 +175,6 @@ def derive_paths(
 
     src_lang = config.get("source_language")
     src_ed   = config.get("source_edition")
-    # render-alignment uses alignment_lang / alignment_edition instead of
-    # target_language / target_edition — resolve both and write both back so
-    # set_defaults works regardless of which key the YAML uses.
-    trg_lang = config.get("target_language") or config.get("alignment_lang")
     trg_ed   = config.get("target_edition")  or config.get("alignment_edition")
     if trg_lang:
         result.setdefault("alignment_lang", trg_lang)
@@ -162,8 +188,8 @@ def derive_paths(
         result.setdefault("source_tsv_dir",       src_repo / "data" / "targets"   / src_ed)
         result.setdefault("source_alignment_dir",  src_repo / "data" / "alignments" / src_ed)
 
-    if trg_lang and trg_ed:
-        trg_repo = root / f"alignments-{trg_lang}"
+    if biblica_lang and trg_ed:
+        trg_repo = root / f"alignments-{biblica_lang}"
         result.setdefault("target_tsv_dir",  trg_repo / "data" / "targets" / trg_ed)
         result.setdefault("targets_dir",     trg_repo / "data" / "targets" / trg_ed)
         result.setdefault("lang_data_path",  trg_repo / "data")

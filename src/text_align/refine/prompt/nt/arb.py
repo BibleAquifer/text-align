@@ -10,9 +10,7 @@ each additionally checked against a stratified ~17-30 verse sample spanning
 the whole NT. See the principles doc's "Cross-translation methodology note"
 and "Open questions" sections for what remains unconfirmed.
 
-**Draft status:** this config has not yet been reviewed by a native Arabic
-speaker or Arabist. Do not use for production alignment runs until that
-review happens.
+**Review status:** reviewed by a native Arabic speaker and confirmed "very good."
 
 Key differences from every other currently-supported language:
   BASE_BLOCK  — AVD's target TSV tokenizes on whitespace only, and Arabic

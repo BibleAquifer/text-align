@@ -84,6 +84,10 @@ def main() -> None:
     config = load_config(args.config)
 
     lang = config.get("target_language")
+    # See copy-to-gha.py: the alignments-<code> repo naming follows Biblica's
+    # convention (biblica_language), which only differs from target_language
+    # for Chinese today.
+    biblica_lang = config.get("biblica_language") or lang
     edition = config.get("target_edition")
     suffix = config.get("alignment_suffix") or _DEFAULT_SUFFIX
     if not lang or not edition:
@@ -94,24 +98,25 @@ def main() -> None:
 
     src_json_dir = (
         _REPO_ROOT / "data" / "alignments"
-        / f"alignments-{lang}" / "exp" / edition / suffix
+        / f"alignments-{biblica_lang}" / "exp" / edition / suffix
     )
-    dest_json_dir = clear_root / f"alignments-{lang}" / "exp" / edition / suffix
+    dest_json_dir = clear_root / f"alignments-{biblica_lang}" / "exp" / edition / suffix
 
     src_viz_dir = (
         _REPO_ROOT / "data" / "alignments"
-        / f"alignments-{lang}" / "viz" / edition
+        / f"alignments-{biblica_lang}" / "viz" / edition
     )
-    dest_viz_dir = clear_root / f"alignments-{lang}" / "viz" / edition
+    dest_viz_dir = clear_root / f"alignments-{biblica_lang}" / "viz" / edition
 
     src_tsv_dir = (
         _REPO_ROOT / "data" / "alignments"
-        / f"alignments-{lang}" / "data" / "targets" / edition
+        / f"alignments-{biblica_lang}" / "data" / "targets" / edition
     )
-    dest_tsv_dir = clear_root / f"alignments-{lang}" / "data" / "targets" / edition
+    dest_tsv_dir = clear_root / f"alignments-{biblica_lang}" / "data" / "targets" / edition
 
     tag = "[dry-run] " if args.dry_run else ""
-    print(f"copy-from-gha: {lang}/{edition}  suffix={suffix}")
+    label = lang if lang == biblica_lang else f"{lang} (biblica_language={biblica_lang})"
+    print(f"copy-from-gha: {label}/{edition}  suffix={suffix}")
     print()
 
     # --- Alignment JSON files ---
@@ -181,7 +186,7 @@ def main() -> None:
     _patch_yaml(config_path, clear_root_str, args.dry_run)
 
     # --- Cleanup staged data ---
-    staged_root = _REPO_ROOT / "data" / "alignments" / f"alignments-{lang}"
+    staged_root = _REPO_ROOT / "data" / "alignments" / f"alignments-{biblica_lang}"
     cleanup_dirs = [
         staged_root / "data" / "targets" / edition,
         staged_root / "exp" / edition,
@@ -204,7 +209,7 @@ def main() -> None:
         print("Done.")
         print()
         print("Next steps (in Clear repo):")
-        print(f"  cd {clear_root / f'alignments-{lang}'}")
+        print(f"  cd {clear_root / f'alignments-{biblica_lang}'}")
         print(f"  git add exp/{edition}/{suffix}/")
         if has_viz:
             print(f"  git add viz/{edition}/")
