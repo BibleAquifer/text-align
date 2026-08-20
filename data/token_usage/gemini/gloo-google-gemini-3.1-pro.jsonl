@@ -50,3 +50,4 @@
 {"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 4881, "completion_tokens": 6067}
 {"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 8084, "completion_tokens": 4052}
 {"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 8768, "completion_tokens": 5754}
+{"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 8224, "completion_tokens": 7077}
