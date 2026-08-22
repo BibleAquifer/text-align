@@ -171,8 +171,9 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   config (not derived from this one) and will get its own doc/code once real Simplified
   target data is available — see `docs/alignment-principles-nt.zht.md`.
 - `ot/eng.py` — OT English config.
-- `ot/arb.py` — OT Arabic (Van Dyck). **Draft — not yet reviewed by a native Arabic
-  speaker/Arabist; do not use for production runs.** Follows `nt/arb.py`'s mechanics:
+- `ot/arb.py` — OT Arabic (Van Dyck). **Reviewed by a native Arabic speaker and
+  confirmed "very good,"** matching the review `nt/arb.py` received earlier this week.
+  Follows `nt/arb.py`'s mechanics:
   whitespace-only AVD target tokenization plus fused conjunctions/prepositions/article/
   suffixes means N:1 records dominate, same as NT. Built in two passes: Pass 1 was a
   ~15-verse spot-check; Pass 2 re-verified every item flagged as an open question after
@@ -317,9 +318,9 @@ intentionally left as headroom for a future pass rather than pushed further in o
 sitting, to keep the diff reviewable and the typo risk from hand-editing dense
 Hebrew/Arabic text low.
 
-Current languages: eng, por, spa, fra, ind, hin, arb, zht (NT arb has been reviewed by
-a native Arabic speaker and confirmed "very good"; OT arb remains draft — not yet
-reviewed; both NT and OT zht have been rebuilt from raw text + reasoning — see
+Current languages: eng, por, spa, fra, ind, hin, arb, zht (both NT arb and OT arb have
+been reviewed by a native Arabic speaker and confirmed "very good"; both NT and OT zht
+have been rebuilt from raw text + reasoning — see
 `project_zht_alignment_paused` in the auto-memory system for the full history — with no
 alignment data used anywhere in either. Neither NT nor OT zht has had native-speaker
 review; see `docs/alignment-principles-nt.arb.md`, `docs/alignment-principles-ot.arb.md`,
