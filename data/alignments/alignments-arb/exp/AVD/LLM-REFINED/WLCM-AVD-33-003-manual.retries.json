@@ -1,0 +1,10 @@
+{
+  "edition": "AVD",
+  "chapter_id": "33003",
+  "passes": 1,
+  "retried_verses": [
+    "33003002",
+    "33003005",
+    "33003012"
+  ]
+}
