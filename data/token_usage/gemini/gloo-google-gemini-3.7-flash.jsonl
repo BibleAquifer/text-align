@@ -182,3 +182,13 @@
 {"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 10197, "completion_tokens": 3572}
 {"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 6679, "completion_tokens": 5203}
 {"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 5744, "completion_tokens": 6377}
+{"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 5836, "completion_tokens": 5713}
+{"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 13097, "completion_tokens": 5342}
+{"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 9889, "completion_tokens": 9723}
+{"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 10082, "completion_tokens": 11538}
+{"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 3505, "completion_tokens": 1068}
+{"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 9590, "completion_tokens": 6610}
+{"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 8745, "completion_tokens": 4819}
+{"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 6378, "completion_tokens": 8715}
+{"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 17235, "completion_tokens": 6801}
+{"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 8321, "completion_tokens": 3827}
