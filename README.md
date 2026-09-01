@@ -321,7 +321,7 @@ Requires the appropriate credentials in the environment:
 - `ANTHROPIC_API_KEY` for Anthropic models
 - `GEMINI_API_KEY` for Google Gemini models
 - `OPENROUTER_API_KEY` for OpenRouter (access to Qwen, Kimi, GLM, Mistral, and 200+ other models via a single account)
-- `GLOO_CLIENT_ID` + `GLOO_CLIENT_SECRET` for Gloo AI Studio (routes to Anthropic/OpenAI/Google)
+- `GLOO_API_KEY` for Gloo AI Studio (routes to Anthropic/OpenAI/Google)
 - No credentials required for Ollama (local); set `OLLAMA_BASE_URL` to override the default `http://localhost:11434/v1`
 
 ```
@@ -400,7 +400,7 @@ refine-alignment --config OENGB --chapter 41003 \
 
 ##### Gloo AI Studio (sync only)
 
-[Gloo AI Studio](https://studio.ai.gloo.com) is a faith-oriented AI platform that routes to Anthropic, OpenAI, and Google models through a single API. Authentication uses OAuth2 client credentials (1-hour token, auto-refreshed). Set `GLOO_CLIENT_ID` and `GLOO_CLIENT_SECRET` and pass `--llm-provider gloo` with a full Gloo model ID.
+[Gloo AI Studio](https://studio.ai.gloo.com) is a faith-oriented AI platform that routes to Anthropic, OpenAI, and Google models through a single API. Authentication uses an API key sent as a bearer token. Set `GLOO_API_KEY` and pass `--llm-provider gloo` with a full Gloo model ID.
 
 Gloo routes through Cloudflare, which enforces a ~100 s timeout on the first response byte. To avoid 504 gateway errors on longer generations, the Gloo provider uses **SSE streaming** — responses are received as a stream of chunks rather than a single response, so the connection stays alive throughout generation. `ChunkedEncodingError` (server drops stream mid-generation) is retried automatically with exponential backoff. If a multi-verse batch exhausts all retries, the tool falls back to submitting each verse individually rather than aborting the chapter.
 

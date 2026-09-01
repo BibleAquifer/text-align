@@ -337,7 +337,7 @@ Planned: Chinese Simplified, Gujarati, Nepali, Tok Pisin, Bislama, Lingala, Swah
 | `anthropic` | `ANTHROPIC_API_KEY` | Extended thinking via `thinking` block |
 | `google` | `GEMINI_API_KEY` | Gemini 3+ `thinkingLevel` via `ThinkingConfig` |
 | `openrouter` | `OPENROUTER_API_KEY` | OpenAI-compatible proxy to 200+ models (Qwen, Kimi, GLM, …); sync-only; per-call cost tracked in `LLMClient.session_cost` |
-| `gloo` | `GLOO_CLIENT_ID`, `GLOO_CLIENT_SECRET` | Gloo AI Studio; OAuth2 bearer token (1-hr TTL, auto-refreshed); SSE streaming via `requests`; routes to Anthropic/OpenAI/Google; sync-only; no reasoning_effort; model IDs like `gloo-anthropic-claude-sonnet-4.5` |
+| `gloo` | `GLOO_API_KEY` | Gloo AI Studio; API key sent as bearer token; SSE streaming via `requests`; routes to Anthropic/OpenAI/Google; sync-only; no reasoning_effort; model IDs like `gloo-anthropic-claude-sonnet-4.5` |
 | `ollama` | `OLLAMA_BASE_URL` (optional) | Local inference via Ollama's OpenAI-compatible API; default base URL `http://localhost:11434/v1`; sync-only; no reasoning_effort; no async batch |
 
 `reasoning_effort` (none/minimal/low/medium/high) maps to `reasoning_effort` for OpenAI
@@ -367,10 +367,9 @@ call, as those suffixes conflict with explicit provider ordering.
 
 ## Gloo AI provider (`refine/llm.py`)
 
-`_GlooAuth` handles OAuth2 client-credentials auth for Gloo AI Studio.  Tokens have a
-1-hour TTL; `_GlooAuth._token()` auto-refreshes 60 s before expiry so long-running jobs
-never hit an expired-token error.  Credentials are read from `GLOO_CLIENT_ID` /
-`GLOO_CLIENT_SECRET`.
+`_GlooAuth` handles API-key auth for Gloo AI Studio.  The key is read from `GLOO_API_KEY`
+and sent directly as an `Authorization: Bearer` token — no token exchange (the former
+OAuth2 client-credentials flow is deprecated).
 
 `_call_gloo` uses the OpenAI-compatible chat completions format with SSE streaming
 (`"stream": True`).  `_GlooAuth.post(payload, stream=True)` returns a raw
@@ -414,7 +413,7 @@ explanation rather than just the HTTP status line.
 `load_dotenv()` is called at module import time, so a `.env` file in the project root
 is loaded automatically before any provider client is initialised. All provider env vars
 (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`,
-`GLOO_CLIENT_ID`, `GLOO_CLIENT_SECRET`) can be set there. `.env.example` in the repo
+`GLOO_API_KEY`) can be set there. `.env.example` in the repo
 root documents all supported variables. `.env` is gitignored.
 
 ## Model names
