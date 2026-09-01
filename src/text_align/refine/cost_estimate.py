@@ -40,6 +40,7 @@ stale cache (or "unknown") if the endpoint is unreachable.
 from __future__ import annotations
 
 import json
+import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -115,7 +116,9 @@ def fetch_gloo_rates(
 
     try:
         import requests
-        resp = requests.get(_GLOO_MODELS_URL, timeout=timeout)
+        key = os.environ.get("GLOO_API_KEY", "")
+        headers = {"Authorization": f"Bearer {key}"} if key else {}
+        resp = requests.get(_GLOO_MODELS_URL, headers=headers, timeout=timeout)
         resp.raise_for_status()
         data = resp.json()
         rates: dict[str, dict[str, float]] = {}

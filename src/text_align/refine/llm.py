@@ -9,12 +9,10 @@ Environment variables:
     ANTHROPIC_API_KEY     — required when provider is "anthropic"
     GEMINI_API_KEY        — required when provider is "google"
     OPENROUTER_API_KEY    — required when provider is "openrouter"
-    GLOO_CLIENT_ID        — required when provider is "gloo"
-    GLOO_CLIENT_SECRET    — required when provider is "gloo"
+    GLOO_API_KEY          — required when provider is "gloo"
     OLLAMA_BASE_URL       — base URL for provider "ollama" (default: http://localhost:11434/v1)
 """
 
-import base64
 import json
 import os
 import random
@@ -155,49 +153,25 @@ def _gemini_tool_schema(neutral: dict):
 
 
 # ---------------------------------------------------------------------------
-# Gloo OAuth2 auth
+# Gloo API-key auth
 # ---------------------------------------------------------------------------
 
-_GLOO_TOKEN_URL = "https://platform.ai.gloo.com/oauth2/token"
 _GLOO_COMPLETIONS_URL = "https://platform.ai.gloo.com/ai/v2/chat/completions"
 
 
 class _GlooAuth:
-    """OAuth2 client-credentials token manager for the Gloo AI platform.
+    """API-key bearer auth for the Gloo AI platform.
 
-    Tokens have a 1-hour TTL; the token is refreshed automatically 60 s before
-    expiry so long-running alignment jobs never hit an expired-token error.
+    Gloo AI Studio API keys are used directly as bearer tokens — no token
+    exchange. (The former OAuth2 client-credentials flow is deprecated.)
     """
 
-    def __init__(self, client_id: str, client_secret: str) -> None:
-        self._client_id = client_id
-        self._client_secret = client_secret
-        self._access_token: str | None = None
-        self._expires_at: float = 0.0
+    def __init__(self, api_key: str) -> None:
+        self._api_key = api_key
         self._session = requests.Session()
 
-    def _fetch_token(self) -> None:
-        auth = base64.b64encode(
-            f"{self._client_id}:{self._client_secret}".encode()
-        ).decode()
-        resp = self._session.post(
-            _GLOO_TOKEN_URL,
-            headers={
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization": f"Basic {auth}",
-            },
-            data={"grant_type": "client_credentials", "scope": "api/access"},
-            timeout=30,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        self._access_token = data["access_token"]
-        self._expires_at = time.time() + data["expires_in"]
-
     def _token(self) -> str:
-        if not self._access_token or time.time() > (self._expires_at - 60):
-            self._fetch_token()
-        return self._access_token  # type: ignore[return-value]
+        return self._api_key
 
     def post(
         self,
@@ -661,13 +635,12 @@ class LLMClient:
                 import requests  # noqa: F401 — verify requests is available
             except ImportError:
                 raise ImportError("Install the requests package: poetry add requests")
-            client_id = os.environ.get("GLOO_CLIENT_ID", "")
-            client_secret = os.environ.get("GLOO_CLIENT_SECRET", "")
-            if not client_id or not client_secret:
+            api_key = os.environ.get("GLOO_API_KEY", "")
+            if not api_key:
                 raise EnvironmentError(
-                    "GLOO_CLIENT_ID and GLOO_CLIENT_SECRET must be set for provider 'gloo'."
+                    "GLOO_API_KEY must be set for provider 'gloo'."
                 )
-            return _GlooAuth(client_id, client_secret)
+            return _GlooAuth(api_key)
         elif self.provider == "ollama":
             try:
                 import openai
@@ -1310,7 +1283,7 @@ class LLMClient:
         verse_token_maps: dict[str, tuple[dict[int, str], dict[int, str]]] | None,
         max_retries: int,
     ) -> tuple[dict[str, list[dict]], list[str], list[str]]:
-        """Gloo AI completions — OpenAI-compatible format, OAuth2 auth via _GlooAuth."""
+        """Gloo AI completions — OpenAI-compatible format, API-key bearer auth via _GlooAuth."""
         messages: list[dict] = [
             {"role": "system", "content": system_prompt},
             {"role": "user",   "content": user_message},
