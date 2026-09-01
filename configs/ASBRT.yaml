@@ -2,7 +2,7 @@
 #
 # Invoke any tool with:  --config ASBRT
 
-alignments_root: ~/git/Clear-Bible
+alignments_root: ./data/alignments
 
 # ---------------------------------------------------------------------------
 # Identity
@@ -25,7 +25,7 @@ batch-size: 4
 # Gloo
 llm_provider: gloo
 reasoning_effort: high
-llm_model: gloo-google-gemini-3.5-flash # decent (better than not bad)
+llm_model: gloo-google-gemini-3.7-flash # decent (better than not bad)
 
 # ---------------------------------------------------------------------------
 # retry-alignment settings
@@ -39,7 +39,8 @@ fallback_threshold: 0.30
 # model for the retry pass than the initial refine pass.
 retry_reasoning_effort: high
 retry_llm_provider: gloo
-retry_llm_model: gloo-anthropic-claude-opus-4.7
+retry_llm_model: gloo-google-gemini-3.1-pro
+#retry_llm_model: gloo-anthropic-claude-opus-4.7
 
 # Alignment quality scoring threshold for retry-alignment and score-alignment.
 # Verses with a composite penalty score above this value are flagged for retry.
