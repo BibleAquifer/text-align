@@ -117,6 +117,12 @@ def reverse_map_records(
         new_rec["target"] = _lookup(rec.get("target") or [], target_map, "target", label)
 
         meta = rec.get("meta") or {}
+        if meta and not isinstance(meta, dict):
+            errors.append(
+                f"{label}: meta is {type(meta).__name__!r}, expected object; ignoring"
+            )
+            meta = {}
+            new_rec["meta"] = meta
         secondary = meta.get("secondary") or {}
         if secondary and not isinstance(secondary, dict):
             errors.append(
