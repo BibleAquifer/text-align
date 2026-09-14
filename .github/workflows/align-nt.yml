@@ -30,7 +30,7 @@ on:
       max-retry-passes:
         description: Max retry loop iterations per chapter
         required: false
-        default: '2'
+        default: '1'
         type: string
       skip-existing:
         description: Skip chapters whose output file already exists (uncheck to force re-run)
@@ -162,7 +162,7 @@ jobs:
             $EXTRA
       - name: Retry loop
         run: |
-          MAX_PASSES=${{ inputs.max-retry-passes || 2 }}
+          MAX_PASSES=${{ inputs.max-retry-passes || 1 }}
           for i in $(seq 1 "$MAX_PASSES"); do
             rc=0
             poetry run retry-alignment \
