@@ -170,6 +170,48 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   reviewed by a native Mandarin speaker.** Simplified Chinese (zhs) is a fully separate
   config (not derived from this one) and will get its own doc/code once real Simplified
   target data is available — see `docs/alignment-principles-nt.zht.md`.
+- `nt/hau.py` — Hausa (Chadic, Afroasiatic). Built entirely from raw text +
+  reasoning (OHCB target TSV joined to SBLGNT, full-corpus or large-random-sample
+  checks per construction) after an existing UBS manual alignment
+  (`alignments-hau/alignments/OHCB/SBLGNT-OHCB-manual.json`) was examined and
+  rejected — same failure pattern that sank zht's first draft (9.4% of negation
+  particles aligned, 0.1% of pronouns, 0% of articles, plus a confirmed wrong link
+  in a spot-check) — see `docs/alignment-principles-nt.hau.md`'s Cross-translation
+  methodology note. No second complete Hausa NT was available for cross-checking,
+  unlike fra/ind/hin/arb — the single biggest methodological gap relative to those
+  configs. Person-Aspect Complex (PAC): a preverbal particle fuses subject pronoun
+  + tense/aspect/mood into one word (`ya`/`muka`/`zai`/`ana`/`an`); it aligns
+  secondary to the verb when Greek marks person only via verb morphology (the same
+  rule `alignment-principles-nt.md` §8.1/§8.4 already gives for English's "subject
+  pronoun from verb ending"), but primary in its own record when Greek has an
+  explicit nominative pronoun — generalizing the generous-alignment principle
+  rather than defaulting explicit pronouns to NEQ. Definiteness is a fused `-n`/`-r`
+  suffix with two functions sharing one form: plain definiteness, or an obligatory
+  construct/"linked" state before any following complement (genitive noun,
+  possessive suffix, even a relative clause) — parallel to OT Arabic's ʾiḍāfa,
+  confirmed to interact directly with genitive marking (fused `-n`/`-r` majority,
+  free `na`/`ta` for complex heads or partitive genitives, prepositional `ga` for
+  objective genitives, plus five real restructuring strategies keyed to the
+  genitive's semantic type). Passive voice has eight coexisting strategies with no
+  majority (impersonal `an`/`aka`/`ana`/`ake` largest at ≤48% of verses; a light-verb
+  `yi`/`sha`+abstract-noun pattern confirmed as a major strategy for psych/
+  relational verbs, not a one-verb quirk; agent promotion including a supplied
+  `Allah` for implicit divine passives). Substantive participles split nine ways;
+  the second most common — a `da`-relative clause attached to an overt head word,
+  versus the headless `wanda`-pronoun strategy — was not anticipated at all and
+  tracks phrasing choice, not the Greek. No infinitive; purpose infinitives of every
+  syntactic type, ἵνα-purpose, and causal ὅτι all unify into one `don`/`domin`/
+  `saboda`/`gama` word family — a bigger unification than any other supported
+  language's reason/purpose/result system. Conditionals: εἰ has four distinct
+  functions (real conditional, interrogative "whether," the εἰ μή/ἐὰν μή exceptive
+  idiom, and counterfactual `da`) that must not be conflated with a single
+  Greek-form-to-Hausa-word mapping. Comparison runs on one verb, `fi` ("exceed"),
+  realized four different ways by function (predicative, attributive, explicit
+  "than," superlative-among-a-group). A five-way copula system (`ne`/`ce` identity,
+  `akwai`/`babu` existence, bare relative-continuous `yake`/`suke` location,
+  `zama`/`kasance` future, `wato` for the ὅ ἐστιν gloss idiom) is split by function,
+  not by whether Greek's own εἰμί is morphologically present. **Draft — not yet
+  reviewed by a native Hausa speaker.**
 - `ot/eng.py` — OT English config.
 - `ot/arb.py` — OT Arabic (Van Dyck). **Reviewed by a native Arabic speaker and
   confirmed "very good,"** matching the review `nt/arb.py` received earlier this week.
@@ -289,6 +331,7 @@ compressed. Approximate token budget (all blocks assembled):
 | NT hin | ~7,055 |
 | NT arb | ~15,958 |
 | NT zht | ~6,842 |
+| NT hau | ~11,663 |
 | OT eng | ~3,031 |
 | OT por | ~3,789 |
 | OT spa | ~4,020 |
@@ -301,11 +344,15 @@ NT ind/hin/arb and all OT figures use `tiktoken` (cl100k_base) on the fully-asse
 prompt (all conditional blocks included), matching `cost_estimate.py`'s counting method
 — only the NT eng/por/spa/fra figures predate that measurement approach and have not
 been recomputed; the rest are freshly recomputed against the current file contents, not
-carried forward from whenever each config was first measured. NT arb is still far
+carried forward from whenever each config was first measured. NT hau uses `tiktoken` too, computed the same way. NT arb is still far
 larger than the rest because every one of its 11
-conditional blocks is Arabic-specific (none still import `eng.py` unchanged, unlike
-every other language) — expect the highest per-verse prompt cost of any
-currently-supported NT config. OT arb grew well past OT ind's size across two rounds of
+conditional blocks is Arabic-specific (none still import `eng.py` unchanged) — expect
+the highest per-verse prompt cost of any currently-supported NT config. NT hau is the
+second-largest NT config, importing only AUTOS and VERBAL_ASPECT unchanged from
+`eng.py` (every other block is Hausa-specific), reflecting how many distinct
+alignment-relevant strategies (PAC, fused definiteness/genitive, an eight-way passive
+system, a nine-way substantive-participle split, four εἰ functions, a six-way
+comparison system) were confirmed for it. OT arb grew well past OT ind's size across two rounds of
 corpus-scale verification despite the OT block set being much smaller than NT's (4
 conditional blocks vs. 11) — still the largest OT config.
 
@@ -318,13 +365,16 @@ intentionally left as headroom for a future pass rather than pushed further in o
 sitting, to keep the diff reviewable and the typo risk from hand-editing dense
 Hebrew/Arabic text low.
 
-Current languages: eng, por, spa, fra, ind, hin, arb, zht (both NT arb and OT arb have
-been reviewed by a native Arabic speaker and confirmed "very good"; both NT and OT zht
-have been rebuilt from raw text + reasoning — see
+Current languages: eng, por, spa, fra, ind, hin, arb, zht, hau (NT only) (both NT arb and
+OT arb have been reviewed by a native Arabic speaker and confirmed "very good"; both NT
+and OT zht have been rebuilt from raw text + reasoning — see
 `project_zht_alignment_paused` in the auto-memory system for the full history — with no
-alignment data used anywhere in either. Neither NT nor OT zht has had native-speaker
-review; see `docs/alignment-principles-nt.arb.md`, `docs/alignment-principles-ot.arb.md`,
-`docs/alignment-principles-nt.zht.md`, and `docs/alignment-principles-ot.zht.md`).
+alignment data used anywhere in either; NT hau was likewise built from raw text +
+reasoning with no alignment data used, after an existing UBS manual alignment was
+examined and rejected on the same grounds as zht's retracted draft. Neither NT nor OT
+zht, nor NT hau, has had native-speaker review; see `docs/alignment-principles-nt.arb.md`,
+`docs/alignment-principles-ot.arb.md`, `docs/alignment-principles-nt.zht.md`,
+`docs/alignment-principles-ot.zht.md`, and `docs/alignment-principles-nt.hau.md`).
 Planned: Chinese Simplified, Gujarati, Nepali, Tok Pisin, Bislama, Lingala, Swahili.
 
 ## LLM providers (`refine/llm.py`)
