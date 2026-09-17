@@ -75,6 +75,22 @@ _CORE: dict[str, frozenset[str]] = {
         "नहीं", "न", "मत",
         "भी", "तो", "ही", "एक", "साथ",
     }),
+    "swh": frozenset({
+        # associative/genitive "-a" linker, one form per noun class
+        "wa", "cha", "ya", "la", "za", "pa",
+        "na",  # "and" / comitative "with" / passive-agent "by" / "have"
+        "kwa",  # "for/to/by/with" preposition; also "kwa kuwa" = "because"
+        "kwenye", "katika",  # locative "at/in"
+        "kwamba", "kuwa",  # content-clause complementizers ("that"); kuwa also infinitive "to be"
+        "ni", "si",  # identity copula / negative copula
+        "kama", "ikiwa",  # "if"
+        "ili",  # purpose conjunction "so that"
+        "lakini", "bali", "wala", "au",  # "but" / "but rather" / "nor" / "or"
+        "hata",  # "even" / "until"
+        "tena", "pia",  # "again" / "also"
+        "bila",  # "without"
+        "basi", "hivyo",  # discourse "so" / "thus"
+    }),
 }
 
 # ISO 639-3 → ISO 639-1 for stopwordsiso
@@ -89,7 +105,8 @@ _ISO3_TO_ISO1: dict[str, str] = {
     "hin": "hi",
     "guj": "gu",
     "nep": "ne",
-    "swa": "sw",
+    "swh": "sw",  # Kiswahili (individual language) — stopwordsiso has no separate
+                  # code for it, so it shares "sw" with the "swa" macrolanguage
 }
 
 @functools.lru_cache(maxsize=None)
