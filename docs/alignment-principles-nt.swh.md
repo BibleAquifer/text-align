@@ -183,14 +183,33 @@ determines this mechanically — needs checking in step 2, not assumed.
 
 ## ARTICLES AND DEFINITENESS — [swh]
 
-**Hypothesis, not yet verified at scale:** Swahili has no article morpheme of
-any kind — no equivalent even to Hausa's fused `-n`/`-r` suffix or
-Indonesian's itu/ini defaults. The Greek article (definite or absent) should
-generally have **no direct Swahili correspondent to align to** — likely the
-majority NEQ case among all Swahili-specific phenomena, more absolute than
-any other currently-supported language's "no articles" finding, since even
-Indonesian's itu/ini or Hausa's fused suffix provide *some* definiteness
-marking to align against some of the time.
+**Corrected after real refined-alignment output surfaced a bug: the default
+is SECONDARY, not NEQ.** The original proposal below said the Greek article
+"should generally have no direct Swahili correspondent to align to" and
+called this "likely the majority NEQ case" — that phrasing made it into
+`prompt/nt/swh.py` as an explicit instruction to default the article to NEQ,
+and running `score-alignment` against the real ONEN LLM-REFINED output for
+Titus 1–3 and 3 John 1 (59 verses, already produced before this was caught)
+showed exactly that: 14 of 21 NEQ'd source tokens in Titus 1 alone were
+plain articles (`det` POS), and `article_neq` alone was driving 30 of 39
+retry flags corpuswide (51% of all verses). This is wrong — "no separate
+word for the article" is the ORDINARY case every other supported language
+already handles by folding the article into the noun's own record as a
+**secondary** source token (English's unmarked article, Hausa's fused-suffix
+generalization, etc.) — never NEQ merely because the target language has no
+article word. NEQ is for genuine no-correspondence cases (the noun phrase
+itself dropped/restructured away), which should be rare, not the ~14% of
+all Greek NT tokens that are articles. `prompt/nt/swh.py` has been corrected
+to default to secondary; this document is corrected to match, and stands as
+a cautionary note about phrasing a "no direct correspondent" hypothesis in
+terms that read as license to NEQ rather than the ordinary secondary
+treatment.
+
+Swahili has no article morpheme of any kind — no equivalent even to Hausa's
+fused `-n`/`-r` suffix or Indonesian's itu/ini defaults. The Greek article
+(definite or absent) should generally have no direct Swahili correspondent
+to align to, but that means **secondary to the noun**, the same default
+every other supported language uses, not NEQ.
 
 Two exceptions worth checking specifically in step 2, both visible in the
 sample verses above:
