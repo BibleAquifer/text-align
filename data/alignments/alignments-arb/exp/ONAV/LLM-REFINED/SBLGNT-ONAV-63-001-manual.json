@@ -1,4 +1,4 @@
-{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-google-gemini-3.7-flash", "reasoning_effort": "low"}, "retry_llm": {"provider": "gloo", "model": "gloo-google-gemini-3.1-pro", "reasoning_effort": "low"}, "nonEquivalent": {"source": ["63001006001", "63001013005"], "target": ["63001013007"]}}, "documents": [{"scheme": "BCVWP", "docid": "SBLGNT"},
+{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-google-gemini-3.7-flash", "reasoning_effort": "low"}, "retry_llm": {"provider": "gloo", "model": "gloo-google-gemini-3.1-pro", "reasoning_effort": "low"}, "nonEquivalent": {"source": ["63001006001", "63001013005", "63001010006"], "target": ["63001013007"]}}, "documents": [{"scheme": "BCVWP", "docid": "SBLGNT"},
 {"scheme": "BCVWP", "docid": "ONAV"}], "roles": ["source", "target"], 
 "records": [{"source": ["63001001001", "63001001002"], "target": ["63001001003"]},
 {"source": ["63001001003"], "target": ["63001001007", "63001001008"]},
@@ -161,9 +161,9 @@
 {"source": ["63001005018"], "target": ["63001005026"]},
 {"source": ["63001005019"], "target": ["63001005027", "63001005028"]},
 {"source": ["63001010001"], "target": ["63001010001"]},
-{"source": ["63001010002"], "target": ["63001010003"]},
 {"source": ["63001010003", "63001010004", "63001010005"], "target": ["63001010002"]},
-{"source": ["63001010006", "63001010010", "63001010011"], "target": ["63001010004"], "meta": {"is_idiom": true}},
+{"source": ["63001010002"], "target": ["63001010003"]},
+{"source": ["63001010010", "63001010011"], "target": ["63001010004"], "meta": {"is_idiom": true}},
 {"source": ["63001010007"], "target": ["63001010005"]},
 {"source": ["63001010008", "63001010009"], "target": ["63001010006"]},
 {"source": ["63001010012"], "target": ["63001010008"]},
@@ -171,5 +171,5 @@
 {"source": ["63001010015"], "target": ["63001010010"]},
 {"source": ["63001010016"], "target": ["63001010011"]},
 {"source": ["63001010017", "63001010020"], "target": ["63001010013"]},
-{"source": ["63001010018"], "target": ["63001010015"]},
-{"source": ["63001010019", "63001010021"], "target": ["63001010014"]}]}]}
+{"source": ["63001010019", "63001010021"], "target": ["63001010014"]},
+{"source": ["63001010018"], "target": ["63001010015"]}]}]}
