@@ -212,6 +212,59 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   `zama`/`kasance` future, `wato` for the ὅ ἐστιν gloss idiom) is split by function,
   not by whether Greek's own εἰμί is morphologically present. **Draft — not yet
   reviewed by a native Hausa speaker.**
+- `nt/swh.py` — Swahili (Kiswahili, Bantu). Built from raw text + reasoning against
+  ONEN (the primary edition, first translation aligned; ONEN's own existing
+  alignment is suspected sparse/statistical and was not used), cross-checked
+  against ONMM (a close sibling translation) and SRUV06 (consult-only — not openly
+  licensed, never used as an alignment-data source). No articles at all — the
+  Greek article defaults to NEQ more absolutely than any other supported
+  language's own "no articles" finding. The finite verb fuses subject marker +
+  tense/aspect + optional object marker + root + extensions + final vowel into one
+  UNSPACED word (closer to Arabic's proclitic fusion than to Hausa's
+  space-preserving PAC particle). Object marking can double an explicit object
+  noun already in the clause — confirmed conditioned by discourse
+  topicality/givenness (demonstrative, possessive, or anaphora), not by mere
+  noun-presence: brand-new/indefinite objects get no object marker, established
+  ones get object-marker-secondary + noun-primary; a distinct, near-categorical
+  doubling pattern applies when the Greek object is itself a pronoun (both the
+  object marker and an independent pronoun primary); ditransitive/applicative
+  object marking tracks the recipient, not the theme, regardless of Greek case.
+  `na` covers four distinct functions sharing one word — "and," comitative "with,"
+  the passive-agent marker "by," and the "have" construction — confirmed via a
+  real instance where the passive-agent function must not be mis-read as "and."
+  Five copula/"be"/"have" strategies split by complement type (locative/
+  circumstantial vs. nominal/adjectival), not a deep identity-vs-existence
+  distinction, revising an initial Hausa-style hypothesis after a direct
+  cross-translation contrast caught a translator restructuring a clause
+  specifically to move its locative element into its own copula. Relative
+  clauses (covering Greek's substantive/attributive participles too, since
+  Swahili has no participle morphology) split three ways, all common at corpus
+  scale: an infixed relative concord, an invariable particle `amba-` (confirmed
+  as common as the infixed strategy, not a minor alternative, with one clean
+  predictor — Greek relative adverbs ὅπου/ὅθεν trigger `amba-` locative forms
+  where an ordinary relative pronoun in the same sentence gets infixed), and the
+  "having/possessing" relative `-enye`, confirmed keyed to a semantic frame
+  ("characterized by/having X") rather than to Greek's own surface part of
+  speech — `-enye` wins even when Greek encodes the same sense as a genuine
+  finite relative clause built on ἔχω. Swahili has a true infinitive (class 15
+  `ku-`), the first currently-supported non-European, non-Romance language with
+  one. No synthetic comparative/superlative morphology; `kuliko` ("than") is the
+  universal comparison particle, sometimes paired with an optional analytic
+  intensifier `zaidi` ("more"); superlative is the same `kuliko` construction with
+  "all" as the standard, not a separate form. Three coexisting ὅτι-content-clause
+  complementizers (`kwamba` majority, `ya kwamba`, and a minority bare `kuwa`) that
+  must be disambiguated from the unrelated, more frequent causal idiom `kwa kuwa`
+  ("because") sharing the same string. Three coexisting real-conditional strategies
+  and two counterfactual strategies (`-nge-`/`-ngeli-` and `-ngali-`) confirmed to
+  render the identical unreal-past condition in different editions of the same
+  verse — free stylistic variation, not a present-vs-past split as an early
+  hypothesis assumed. Negation is TAM-conditioned and largely fused/circumfixal
+  (a negative subject-marker set plus tense-specific post-marking, a distinct
+  subjunctive/purpose-clause negation infix `-si-`, and a separate invariant
+  copula-negation word `si`). Distilled from `docs/alignment-principles-nt.swh.md`,
+  which records the full evidence trail (corpus counts, cross-translation
+  comparisons, several hypotheses overturned along the way) — see that document's
+  "Resolved" sections. **Draft — not yet reviewed by a native Swahili speaker.**
 - `ot/eng.py` — OT English config.
 - `ot/arb.py` — OT Arabic (Van Dyck). **Reviewed by a native Arabic speaker and
   confirmed "very good,"** matching the review `nt/arb.py` received earlier this week.
@@ -332,6 +385,7 @@ compressed. Approximate token budget (all blocks assembled):
 | NT arb | ~15,958 |
 | NT zht | ~6,842 |
 | NT hau | ~11,663 |
+| NT swh | ~7,925 |
 | OT eng | ~3,031 |
 | OT por | ~3,789 |
 | OT spa | ~4,020 |
@@ -344,7 +398,8 @@ NT ind/hin/arb and all OT figures use `tiktoken` (cl100k_base) on the fully-asse
 prompt (all conditional blocks included), matching `cost_estimate.py`'s counting method
 — only the NT eng/por/spa/fra figures predate that measurement approach and have not
 been recomputed; the rest are freshly recomputed against the current file contents, not
-carried forward from whenever each config was first measured. NT hau uses `tiktoken` too, computed the same way. NT arb is still far
+carried forward from whenever each config was first measured. NT hau and NT swh use
+`tiktoken` too, computed the same way. NT arb is still far
 larger than the rest because every one of its 11
 conditional blocks is Arabic-specific (none still import `eng.py` unchanged) — expect
 the highest per-verse prompt cost of any currently-supported NT config. NT hau is the
@@ -352,7 +407,12 @@ second-largest NT config, importing only AUTOS and VERBAL_ASPECT unchanged from
 `eng.py` (every other block is Hausa-specific), reflecting how many distinct
 alignment-relevant strategies (PAC, fused definiteness/genitive, an eight-way passive
 system, a nine-way substantive-participle split, four εἰ functions, a six-way
-comparison system) were confirmed for it. OT arb grew well past OT ind's size across two rounds of
+comparison system) were confirmed for it. NT swh imports only VERBAL_ASPECT unchanged
+from `eng.py` (even AUTOS is Swahili-specific, given the object-marker-plus-independent-
+pronoun doubling rule), landing between NT hin and NT hau in size — reflecting a rich but
+less fragmented rule set than Hausa's (three relative-clause strategies and five copula
+strategies rather than Hausa's nine and five-way splits, and a cleaner passive system).
+OT arb grew well past OT ind's size across two rounds of
 corpus-scale verification despite the OT block set being much smaller than NT's (4
 conditional blocks vs. 11) — still the largest OT config.
 
@@ -365,17 +425,23 @@ intentionally left as headroom for a future pass rather than pushed further in o
 sitting, to keep the diff reviewable and the typo risk from hand-editing dense
 Hebrew/Arabic text low.
 
-Current languages: eng, por, spa, fra, ind, hin, arb, zht, hau (NT only) (both NT arb and
+Current languages: eng, por, spa, fra, ind, hin, arb, zht, hau (NT only), swh (NT only)
+(both NT arb and
 OT arb have been reviewed by a native Arabic speaker and confirmed "very good"; both NT
 and OT zht have been rebuilt from raw text + reasoning — see
 `project_zht_alignment_paused` in the auto-memory system for the full history — with no
 alignment data used anywhere in either; NT hau was likewise built from raw text +
 reasoning with no alignment data used, after an existing UBS manual alignment was
-examined and rejected on the same grounds as zht's retracted draft. Neither NT nor OT
-zht, nor NT hau, has had native-speaker review; see `docs/alignment-principles-nt.arb.md`,
+examined and rejected on the same grounds as zht's retracted draft; NT swh was built
+from raw text + reasoning against ONEN (the primary/first-aligned edition), with
+ONEN's own existing alignment suspected sparse/statistical and not used, cross-checked
+against ONMM and the unlicensed-for-alignment-data SRUV06 (consult-only). Neither NT
+nor OT zht, nor NT hau, nor NT swh, has had native-speaker review; see
+`docs/alignment-principles-nt.arb.md`,
 `docs/alignment-principles-ot.arb.md`, `docs/alignment-principles-nt.zht.md`,
-`docs/alignment-principles-ot.zht.md`, and `docs/alignment-principles-nt.hau.md`).
-Planned: Chinese Simplified, Gujarati, Nepali, Tok Pisin, Bislama, Lingala, Swahili.
+`docs/alignment-principles-ot.zht.md`, `docs/alignment-principles-nt.hau.md`, and
+`docs/alignment-principles-nt.swh.md`).
+Planned: Chinese Simplified, Gujarati, Nepali, Tok Pisin, Bislama, Lingala.
 
 ## LLM providers (`refine/llm.py`)
 
