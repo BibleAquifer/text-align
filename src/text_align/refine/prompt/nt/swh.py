@@ -27,9 +27,10 @@ Key differences from every currently-supported language:
                   gets OM (secondary) + noun (primary) in the same record.
                   Ditransitive/applicative OM tracks the recipient, not the
                   theme, regardless of which Greek case the recipient
-                  carries. No articles of any kind — the Greek article is
-                  the majority NEQ case in this language, more absolute than
-                  Hausa's or Indonesian's own "no articles" findings. The
+                  carries. No articles of any kind — the Greek article
+                  defaults to SECONDARY within the noun's own record, same
+                  as every other supported language's unmarked-article case
+                  (never NEQ merely because Swahili has no article word). The
                   associative "-a" genitive linker (wa/cha/ya/la/za...) is a
                   close typological match to genitive case — low-risk,
                   secondary to the possessed noun. Five copula/"be"/"have"
@@ -205,9 +206,10 @@ In double-object constructions (give/tell/divide X to Y), the OM consistently cr
 Fold into the noun's own record — not a separately alignable token, same treatment as a fused article.
 
 ## ARTICLES AND DEFINITENESS
-No article of any kind exists in Swahili — not even a fused suffix like Hausa's. The Greek article (definite or absent) has NO direct Swahili correspondent to align to in the overwhelming majority of cases — default to NEQ for the Greek article unless one of the two exceptions below applies.
-- A demonstrative (huyo, hii, hivi...) sometimes tracks anaphoric definiteness — when present, align it per its own sense (often closer to English "the"/"that" than to the bare article); when absent, do not force one.
-- The OM-doubling pattern above sometimes does real definiteness work — do not treat OM presence as tracking the Greek article; it is conditioned by Swahili-internal topicality, not by the Greek article's presence.
+No article of any kind exists in Swahili — not even a fused suffix like Hausa's. The Greek article (definite or absent) has NO direct Swahili correspondent to align to in the overwhelming majority of cases. This means SECONDARY, not NEQ — exactly the same treatment every other supported language gives an unmarked article (English "articular noun, no 'the'"; Hausa's fused-suffix generalization): fold the article into the noun's own record as a secondary source token, with the noun itself carrying the primary link. NEQ is reserved for genuine no-correspondence cases — e.g. the noun phrase itself is dropped/restructured away entirely — not the ordinary case of "no separate word exists for this article." Do NOT default to NEQ merely because Swahili has no article word; that default is wrong and will inflate NEQ counts across nearly every verse (Greek articles are ~14% of all NT tokens).
+  ὁ λόγος → "Neno": source=[ὁ, λόγος], target=["Neno"] — primary: "Neno"; secondary.source: [ὁ]
+- A demonstrative (huyo, hii, hivi...) sometimes tracks anaphoric definiteness — when present, align it per its own sense (often closer to English "the"/"that" than to the bare article, likely primary); when absent, the ordinary secondary-to-noun treatment above still applies — do not force a demonstrative that isn't there.
+- The OM-doubling pattern above sometimes does real definiteness work — do not treat OM presence as tracking the Greek article; it is conditioned by Swahili-internal topicality, not by the Greek article's presence. The article is still secondary to the noun regardless of whether OM doubling is also present in that clause.
 
 ## GENITIVE / ASSOCIATIVE "-a"
 The connector "-a" (surfacing as wa/cha/ya/la/za/pa... depending on the possessed noun's class) is Swahili's all-purpose genitive/associative linker — a close typological match to Greek's genitive case and to English's case-implied "of". SECONDARY, folded into the possessed noun's record; the possessor noun gets a separate primary record. The concord prefix choice (which class the -a agrees with) needs zero alignment attention — fully mechanical.
@@ -229,7 +231,7 @@ NEQ = positive claim that no correspondence exists. Never use as fallback for un
 Unrecorded = correspondence not determined (normal). NEQ records must not include meta.secondary.
 - Certain no correspondent → NEQ (source or target empty, meta.rel: "NEQ")
 - Uncertain → leave unrecorded
-The Greek article defaults to NEQ (see ARTICLES above) — this is the majority NEQ case in this language. A pure translator-supplied relative clause with no Greek relative word at all (see PARTICIPLE) is also legitimate NEQ/secondary-material territory.
+The Greek article defaults to SECONDARY, not NEQ (see ARTICLES above) — the ordinary "no separate word for this" case, exactly like every other supported language. Do NOT NEQ the Greek article just because Swahili has no article word. A pure translator-supplied relative clause with no Greek relative word at all (see PARTICIPLE) is legitimate NEQ/secondary-material territory.
 
 ## SURFACE FORM DIFFERENCES
 Tense, voice, number, and aspect differences do not prevent alignment. Align on lexical/semantic correspondence, not surface form.

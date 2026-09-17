@@ -217,8 +217,11 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   alignment is suspected sparse/statistical and was not used), cross-checked
   against ONMM (a close sibling translation) and SRUV06 (consult-only — not openly
   licensed, never used as an alignment-data source). No articles at all — the
-  Greek article defaults to NEQ more absolutely than any other supported
-  language's own "no articles" finding. The finite verb fuses subject marker +
+  Greek article defaults to secondary within the noun's own record, the same
+  as every other supported language's unmarked-article case (an earlier draft
+  said NEQ, which turned out to be a real bug — real ONEN alignment output
+  showed articles driving 51% of all verses into forced retry before this was
+  caught and fixed). The finite verb fuses subject marker +
   tense/aspect + optional object marker + root + extensions + final vowel into one
   UNSPACED word (closer to Arabic's proclitic fusion than to Hausa's
   space-preserving PAC particle). Object marking can double an explicit object
