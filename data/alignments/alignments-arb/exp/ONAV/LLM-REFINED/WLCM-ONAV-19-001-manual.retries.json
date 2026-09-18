@@ -1,0 +1,10 @@
+{
+  "edition": "ONAV",
+  "chapter_id": "19001",
+  "passes": 1,
+  "retried_verses": [
+    "19001004",
+    "19001005",
+    "19001006"
+  ]
+}
