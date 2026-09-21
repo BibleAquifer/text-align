@@ -2,14 +2,19 @@
 
 Distilled from `docs/alignment-principles-nt.hin.md`. Examples grounded in the
 Indian Revised Version Hindi (IRVHin) and checked against the actual target
-TSV, then cross-checked against two further Hindi NT translations — HSB
-(Hindi Standard Bible) and OHCV (Open Hindi Contemporary Version) — to
+TSV, then cross-checked against three further Hindi NT translations — HSB
+(Hindi Standard Bible), OHCV (Open Hindi Contemporary Version), and GLT
+(unfoldingWord Gateway Literal Translation Hindi, partial NT coverage) — to
 separate general Hindi grammar from IRVHin's individual stylistic choices.
-See the principles doc's "Cross-translation methodology note" for what that
-check changed; corrections from it are already folded into the blocks below
-(e.g. the emphatic-negation and ἵνα-clause blocks list several coexisting
-strategies rather than one fixed rule, because that is what survived the
-cross-check).
+A subsequent full-corpus (not just anchor-verse) frequency-count pass was
+also run against IRVHin alone, to check whether "majority/default/most
+common" claims held up at scale, not just across a handful of translations.
+See the principles doc's "Cross-translation methodology note" for what both
+checks changed; corrections from them are already folded into the blocks
+below (e.g. the emphatic-negation and ἵνα-clause blocks list several
+coexisting strategies rather than one fixed rule, and न/नहीं and जो/वाला are
+now described as roughly co-equal rather than one dominating the other,
+because that is what the checks actually found).
 
 **Draft status:** this config has not yet been reviewed by a native Hindi
 speaker. Portuguese, Spanish, and French configs were validated this way
@@ -27,51 +32,65 @@ Key differences from the Romance-language and Indonesian configs:
                 direct object. Finite verbs are almost always periphrastic
                 (participle + copula) as the DEFAULT paradigm, not optional
                 style the way Portuguese/Spanish periphrasis is. Light verbs
-                (noun + करना/होना/देना/रखना) and vector verbs (V1 + a
+                (noun + करना/होना/देना/रखना/खाना) and vector verbs (V1 + a
                 semantically bleached V2 marking aspect) are both pervasive
                 and easily confused — light verbs are N:1 both primary,
                 vector verbs are V1 primary / V2 secondary.
-  PASSIVE_BLOCK — at least six coexisting strategies (true periphrastic
-                passive with जाना is the actual default, not one option
-                among equals; a narrow स्थिर-perfect exception for "it is
-                written"; adjectival resultative for change-of-state
-                passives; Hindi's own transitive/intransitive verb pairs
-                absorbing many passives with no voice marking at all;
-                light-verb/noun+होना idioms for passives of experience; and
-                active-voice conversion). Identify which is in play per
-                verse rather than assuming one.
-  PARTICIPLE_BLOCK — जो is the true majority default for substantive
-                participles (tracks nothing about genericity); वाला is
-                reserved for participles that compress into a stable,
-                lexicalized role-label, not for generic vs. specific
-                referents; a plain already-lexicalized noun can bypass the
-                choice entirely.
+  PASSIVE_BLOCK — at least eight coexisting strategies. True periphrastic
+                passive with जाना dominates in narrative/concrete-verb
+                contexts; adjectival-resultative (होना/बनना/ठहरना) and
+                light-verb+होना dominate in doctrinal/exhortation epistles
+                with abstract-quality predicates — genre-conditioned, not a
+                single flat ranking. Also: a narrow स्थिर-perfect exception
+                for "it is written"; Hindi's own transitive/intransitive
+                verb pairs absorbing many passives with no voice marking at
+                all; and active-voice conversion. Identify which is in play
+                per verse rather than assuming one.
+  PARTICIPLE_BLOCK — जो and वाला for substantive participles are roughly
+                co-equal in frequency (not जो-dominant, despite an earlier
+                "true majority default" claim that a fresh corpus sample did
+                not support); वाला is reserved for participles that compress
+                into a stable, lexicalized role-label, जो covers a broader
+                range including generic/conditional referents; a plain
+                already-lexicalized noun can bypass the choice entirely.
   HINA_BLOCK  — कि/ताकि/जिससे are free stylistic variants of the same
                 conjunction (not markers of different constructions or
-                genres); के लिये/को both mark purpose infinitives; a
-                dedicated idiom ("ऐसा न हो कि") covers negative purpose.
-  NEGATION_BLOCK — नहीं/न are free variants for ordinary negation (न is not
-                restricted to subjunctive/prohibitive contexts); न is also
-                the dedicated correlative form for "neither...nor" lists,
-                aligning 1:1 to each Greek οὐδέ/οὔτε; मत is the true
+                genres); के लिये/को both mark purpose infinitives, but a
+                finite कि-clause with no infinitive at all is also a live,
+                translation-dependent alternative; a dedicated idiom
+                ("ऐसा न हो कि") covers negative purpose.
+  NEGATION_BLOCK — नहीं/न are free variants for ordinary negation, roughly
+                co-equal in raw frequency (न is not restricted to
+                subjunctive/prohibitive contexts, and is not a minor variant
+                of नहीं — it simply covers more distinct functions); न is
+                also the dedicated correlative form for "neither...nor"
+                lists, aligning 1:1 to each Greek οὐδέ/οὔτε; मत is the true
                 colloquial prohibitive; emphatic negation (οὐ μή) has no
                 single dedicated construction, just an optional reinforcing
-                intensifier; and "जब तक...न" ("until") is a false-friend trap
-                whose न has no Greek correspondent at all.
+                intensifier (कभी/कदापि/अनन्तकाल तक/किसी रीति से/निश्चय ही);
+                and "जब तक...न" ("until") is a false-friend trap whose न has
+                no Greek correspondent at all.
+  COMPARATIVE_BLOCK / CONDITIONAL_BLOCK — previously imported unchanged from
+                `eng.py` on the untested assumption that Hindi's mechanics
+                paralleled English/Portuguese closely enough; a corpus check
+                found real Hindi-specific mechanics for both (से as the
+                comparative standard-of-comparison postposition; a केवल+
+                relative-clause exceptive strategy and a कि...है कि नहीं
+                indirect-question strategy for conditionals), so both are
+                now Hindi-specific blocks defined in this file.
 
-`AUTOS_BLOCK`, `COMPARATIVE_BLOCK`, `CONDITIONAL_BLOCK`, `HOTI_BLOCK`,
-`IMPERSONAL_BLOCK`, and `VERBAL_ASPECT_BLOCK` are imported unchanged from
-`eng.py` — no Hindi-specific mechanics were identified for these during
-principles-doc research; confirm with a native speaker before assuming this
-holds.
+`AUTOS_BLOCK`, `HOTI_BLOCK`, `IMPERSONAL_BLOCK`, and `VERBAL_ASPECT_BLOCK`
+are imported unchanged from `eng.py`. HOTI is corpus-confirmed to transfer
+cleanly. AUTOS is confirmed for its majority third-person-pronoun use, but
+its intensive/reflexive use (स्वयं/खुद) was never actually caught in a
+corpus sample and remains an untested assumption, not a confirmed one —
+confirm with a native speaker before relying on it.
 """
 
 from text_align.refine.prompt.common import LanguagePromptConfig
 from .core import register_nt_language
 from .eng import (
     AUTOS_BLOCK,
-    COMPARATIVE_BLOCK,
-    CONDITIONAL_BLOCK,
     BLOCK_ORDER,
     FORCED_INCLUSIONS,
     HOTI_BLOCK,
@@ -112,9 +131,10 @@ Common secondary cases:
 - Periphrastic finite verb (participle + copula) — the DEFAULT paradigm for present, imperfect, and several other tenses, not optional style the way Portuguese "estava fazendo" is. Participle (agrees gender/number) primary; copula (agrees person) secondary.
   ἀποστέλλω → "भेजता हूँ": "भेजता" primary; "हूँ" secondary
 
-- Light verb (noun/adjective + करना/होना/देना/रखना) — a Sanskrit/Persian/Arabic-derived noun supplies the verbal slot for a Greek verb with no simple Hindi verbal root. Both words primary, N:1 against the single Greek verb — not secondary-marker treatment.
+- Light verb (noun/adjective + करना/होना/देना/रखना/खाना) — a Sanskrit/Persian/Arabic-derived noun supplies the verbal slot for a Greek verb with no simple Hindi verbal root. Both words primary, N:1 against the single Greek verb — not secondary-marker treatment. खाना beyond its literal "eat" sense also supports experiential idioms this way (ठोकर खाना "stumble," भय खाना "fear").
   σώσει → "उद्धार करेगा" (will save): both primary
   κηρύσσων → "प्रचार करता" (preaches): both primary
+  σκανδαλίζεται-type construction → "ठोकर खाता है" (stumbles): both primary
 
 - Vector/compound verb (V1 main verb + V2 aspectual auxiliary from a small closed set — देना, लेना, जाना, डालना, बैठना, पड़ना) — V1 primary; V2 secondary (marks completion/suddenness/benefit, no independent lexical content in this use). Distinct from a light verb: the test is whether V2 is a semantically bleached native verb adding aspectual nuance to a fully verbal V1, not a borrowed noun's supporting verb.
   ἔδωκεν → "दे दिया" (gave): "दे" primary; "दिया" secondary
@@ -177,18 +197,20 @@ No Greek article, and no Hindi indefinite article by default — bare noun, no s
 - No correspondent → NEQ.
 - Content word vs. conjunction/particle ambiguity → content word takes priority.
 कि also introduces indirect discourse and direct-speech content clauses in addition to purpose/result — see ὅτι and ἵνα CLAUSES for its overlapping functions.
+γάρ → क्योंकि and ἀλλά → परन्तु/पर are near-categorical 1:1 defaults. δέ is genuinely variable (और/परन्तु/तो/अब, or sometimes absorbed with no separate word at all) — expect real NEQ-vs-correspondent judgment calls to concentrate on δέ, not γάρ/ἀλλά.
 
 ## IDIOMS
 meta.is_idiom: true when phrase-level correspondence has no token-level equivalent. All tokens implicitly primary; meta.secondary does not apply.
-Last resort — prefer the light-verb/vector-verb treatment (TOKEN ROLES) over idiom marking whenever the construction is a recognized light or vector verb rather than a genuinely non-compositional phrase. Function-word-only source records (POS C-*, X-*, prepositions) are never idioms.\
+Last resort — prefer the light-verb/vector-verb treatment (TOKEN ROLES) over idiom marking whenever the construction is a recognized light or vector verb rather than a genuinely non-compositional phrase. Function-word-only source records (POS C-*, X-*, prepositions) are never idioms.
+μὴ γένοιτο → "कदापि नहीं" ("by no means!") in almost every SBLGNT instance — is_idiom: true, both Greek words primary, no token-level split. A minority variant uses "ऐसा न हो" instead (same idiom already used for ἵνα μή negative-purpose clauses — see ἵνα CLAUSES).\
 """
 
 PASSIVE_BLOCK = """\
 ## PASSIVE VOICE
 
-Several strategies coexist — identify which one applies to a given verse rather than assuming.
+Several strategies coexist — identify which one applies to a given verse rather than assuming. Distribution looks genre-conditioned: जाना-periphrastic dominates narrative/concrete-verb contexts (Gospels, Acts), while adjectival-resultative and light-verb+होना dominate doctrinal/exhortation epistles with abstract-quality predicates — check genre, not just verb.
 
-### True periphrastic passive (participle/vector-compound + जाना) — the default for ordinary transitive verbs
+### True periphrastic passive (participle/vector-compound + जाना) — the default for ordinary narrative/concrete-verb transitives
 Spans every tense/mood, simple verbs, causatives, light verbs, and vector-compounds alike. Participle/light-verb-noun primary; जाना (in whatever tense/mood, plus any perfect है layered on top) secondary.
   κηρυχθήσεται → "प्रचार किया जाएगा" (will be proclaimed): "प्रचार" primary; "किया जाएगा" secondary
   a causative passive → "पकड़वाया जाता है" (is betrayed): "पकड़वाया" primary; "जाता है" secondary
@@ -201,6 +223,7 @@ Reserved for the recurring "it is written" scripture-citation formula. Do not ex
 For passives describing a change of state or quality, no verbal passive marking anywhere in the clause. Adjective/noun primary; होना/बनना secondary.
   ἰαθήσεται → "चंगा हो जाएगा" (will be healed): "चंगा" primary; "हो जाएगा" secondary
   πληρόω/τελέω-type passive → "पूरा"/"परिपूर्ण" + होना (be fulfilled/completed): same pattern, a very stable mapping
+A third auxiliary, ठहरना ("be held/considered to be"), joins होना/बनना specifically for declarative/legal-verdict passives (δικαιόω, κληθήσεται-type): δικαιοῦται → "धर्मी ठहरता है" (is justified) — same primary/secondary split.
 
 ### Dedicated intransitive/unaccusative verb — no voice marking at all
 Hindi has lexicalized transitive/intransitive verb pairs the way English has "open (something)"/"(something) opens": खोलना/खुलना (open), रोकना/रुकना (hinder), उठाना/उठना (raise/rise). The Greek passive verb corresponds to the single Hindi intransitive verb, primary alone — no periphrasis at all.
@@ -236,7 +259,7 @@ If the translation instead supplies an explicit conjunction alongside a non-क�
 Align each element to its correspondent; any supplied conjunction/adverb is secondary to the participle; supplied subject is secondary if introducing/switching subject (see TOKEN ROLES).
 
 ### Substantive — जो / वाला / plain-noun
-जो + finite verb is the true majority default, used for both generic and specific referents alike — it does not track genericity. वाला (verb stem + वाला/वाली/वाले) is reserved for participles that compress into a stable, lexicalized agent-noun or role label — a verb forming what functions almost like a title or class name; it is attested on specific individuals too, not just generic classes. Light-verb-based participles (जय पाना "to overcome," प्रेम रखना "to love") more often resist वाला-compounding and get जो instead, even in a fixed recurring refrain. When Hindi already has a plain, already-lexicalized noun for the role (पाठक "reader," किसान "farmer"), that noun can bypass the जो/वाला choice entirely — check for one before defaulting to a participial construction.
+जो + finite verb and वाला are roughly co-equal in frequency (a fresh corpus sample found them running 8-to-8, not जो-dominant as an earlier draft claimed). जो covers both generic and specific referents alike — it does not track genericity, and it reads as the more general-purpose strategy, taking generic/conditional referents that वाला rarely does. वाला (verb stem + वाला/वाली/वाले) is reserved for participles that compress into a stable, lexicalized agent-noun or role label — a verb forming what functions almost like a title or class name; it is attested on specific individuals too, not just generic classes. Light-verb-based participles (जय पाना "to overcome," प्रेम रखना "to love") more often resist वाला-compounding and get जो instead, even in a fixed recurring refrain. When Hindi already has a plain, already-lexicalized noun for the role (पाठक "reader," किसान "farmer"), that noun can bypass the जो/वाला choice entirely — check for one before defaulting to a participial construction.
   ὁ ἔχων-type generic construction → "जिसके...हों वह...ले" (whoever has...): जो-based
   a Pauline generic-conditional participle → "जो...मानता है" (whoever esteems...): जो
   τοὺς διώκοντας → "सतानेवालों" (persecutors): वाला, a stable role-label
@@ -267,7 +290,7 @@ HINA_BLOCK = """\
 - कि / ताकि / जिससे — free stylistic variants of the same purpose/result conjunction, translator-dependent; treat identically (all primary). Do not expect genre or clause-position to predict which one appears.
   ...प्रेम रखा कि जो कोई... — "कि" primary
 - इसलिए...कि — a correlative construction where इसलिए ("for this [reason]") anticipates the purpose and कि introduces it. Treat as a single primary unit against ἵνα, both words primary.
-- के लिये / को + oblique infinitive — the bare purpose-infinitive strategy (see INFINITIVAL CONSTRUCTIONS): के लिये/को primary to ἵνα, not secondary to the infinitive.
+- के लिये / को + oblique infinitive — the bare purpose-infinitive strategy (see INFINITIVAL CONSTRUCTIONS): के लिये/को primary to ἵνα, not secondary to the infinitive. Not translation-universal: some translations use a finite कि-clause instead of any infinitive construction at all for the same purpose sense — check before assuming a postposition+infinitive strategy is in play.
 - Negative purpose (ἵνα μή / μήποτε-type "lest") — a dedicated idiom: "ऐसा न हो कि" or the shortened "न हो कि." Both particles (ἵνα + μή) are primary to this idiom as a single unit. When the idiom is absent (a bare कि/यदि + negated verb instead), treat the plain negator as the correspondent.
 - No correspondent → NEQ source (only when certain no element expresses purpose/result force; occasionally the whole clause is recast as an independent coordinated main clause with no subordinating marker at all — check the Greek before defaulting to NEQ).\
 """
@@ -275,7 +298,7 @@ HINA_BLOCK = """\
 NEGATION_BLOCK = """\
 ## NEGATION
 
-नहीं and न are free stylistic variants for ordinary negation, usable with almost any verb form — indicative, future, or modal. Do NOT treat न as restricted to subjunctive or prohibitive contexts; it appears just as often with plain indicative forms. नहीं is the more common default. Copula ellipsis after नहीं is normal in predicate-nominal/adjectival clauses ("योग्य नहीं [है]") — not a gap to fill.
+नहीं and न are free stylistic variants for ordinary negation, usable with almost any verb form — indicative, future, or modal. Do NOT treat न as restricted to subjunctive or prohibitive contexts; it appears just as often with plain indicative forms. Corpus-wide they are roughly co-equal in raw frequency — न is not a minor/rarer variant of नहीं, it simply spans more distinct functions (plain negator, correlative list, negative-purpose, emphatic-negation reinforcement) while नहीं is mostly limited to the first. Copula ellipsis after नहीं is a real, recurring pattern in predicate-nominal/adjectival clauses ("योग्य नहीं [है]") — not a gap to fill — but translation-dependent; not every Hindi edition drops the copula there.
   ἔγνω (negated) → "नहीं पहचाना" (did not recognize): "नहीं" primary 1:1; "पहचाना" primary in its own record
 
 न is also the dedicated form for correlative "neither...nor" lists (न...न... / न तो...न ही), aligning 1:1 to each Greek οὐδέ/οὔτε in the list — the single most reliable use of न.
@@ -288,6 +311,7 @@ No single dedicated construction — one of several reinforcement strategies lay
 - कभी / कदापि ("ever") + न/नहीं — the most common "never" strategy; कभी and कदापि are free variants.
 - अनन्तकाल तक ("forever") + न — a durative-flavored strategy common in "whoever believes/drinks..." formula sayings.
 - किसी रीति से / किसी प्रकार से ("by no means") + न — a modal-flavored reinforcement.
+- निश्चय ही ("certainly/surely") + negator — a recurring reinforcement in at least one translation, stacked on top of नहीं or अनन्तकाल तक; check whether the translation in use follows this house style.
 - Bare न/नहीं, no reinforcement — a legitimate, attested choice; do not force a reinforcing word that is not present in the text.
 Both Greek particles (οὐ + μή) are primary in a single record against whatever Hindi words carry the emphasis — the negator plus any reinforcing word when present.
 
@@ -297,6 +321,27 @@ Expect multi-word renderings rather than a single fused lexeme in most cases: ο
 ### False-friend trap — जब तक...न ("until...not")
 Hindi idiomatically expresses "until X happens" as "जब तक X न हो" (literally "as long as X does not happen, then..."). This न has NO Greek source correspondent when the Greek ἕως/ἄχρι clause carries no negative particle of its own — NEQ target, not aligned to any Greek particle. Some verses contain BOTH this idiomatic न AND a separate, genuine emphatic-negation rendering in the same sentence — do not conflate them.
   "जब तक आकाश और पृथ्वी टल न जाएँ" (idiomatic "until," न → NEQ target) "...नहीं टलेगा" (the actual οὐ μὴ παρέλθῃ rendering, नहीं primary)\
+"""
+
+COMPARATIVE_BLOCK = """\
+## COMPARATIVES AND SUPERLATIVES
+
+से is the load-bearing element: a postposition marking the standard of comparison ("than X"), secondary to the noun/pronoun it governs — like a case-implied postposition elsewhere in this document. Two live patterns:
+- X से + बड़ा/अधिक-type comparative adjective (analytic) — से secondary; adjective primary.
+  μείζων-type comparative → "भविष्यद्वक्ता से भी बड़े" (greater than a prophet): "से" secondary to भविष्यद्वक्ता; "बड़े" primary
+- X से + बढ़कर (participial "exceeding X") — an equally live, not-minor alternative; same primary/secondary split. Check which pattern a given verse/translation uses.
+  μείζων-type comparative → "मुझ से बढ़कर शक्तिशाली" (mightier than I): "से" secondary; "बढ़कर" primary alongside the adjective
+Superlatives have not been separately investigated — treat cautiously, confirm with a native speaker.\
+"""
+
+CONDITIONAL_BLOCK = """\
+## CONDITIONAL CONSTRUCTIONS
+
+- यदि/अगर...तो — the ordinary real/hypothetical conditional: यदि marks the protasis, तो the apodosis. तो is NEQ target when supplied with no Greek apodotic-particle correspondent, or primary if one exists (ἄρα/οὖν in apodosis position).
+- Exceptive εἰ μή → केवल + relative clause, not a literal "if not": केवल ("only") and the जिसका-type relative jointly correspond to εἰ μή as a single primary unit — do not split into εἰ (NEQ/secondary) + μή (negation) separately.
+  εἰ μή-type exceptive → "केवल वह जिसका..." (only the one who...): केवल + relative, primary as a unit
+- Indirect-question εἰ ("whether") → कि...है कि नहीं: कि नहीं ("or not") as a unit corresponds to this εἰ, distinct from the ordinary conditional function — do not force it into the यदि...तो template.
+  an indirect-question εἰ → "...है कि नहीं" (whether... or not): कि नहीं primary as a unit to εἰ\
 """
 
 
