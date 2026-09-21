@@ -847,7 +847,12 @@ doesn't apply. Two toggles exist:
 suffix onto the adjacent word, making N:1 records the structural norm rather than the
 occasional over-grouping signal 4 is designed to catch, and Arabic legitimately NEQs the
 article before a bare transliterated proper name (Arabic never fuses al- onto one) — see
-`docs/alignment-principles-nt.arb.md`. No other language has an override yet. Explicit
+`docs/alignment-principles-nt.arb.md`. `swh` sets `disable_signal_4` only: ONEN's finite
+verb fuses subject marker + TAM + optional object marker + root + extensions into one
+unspaced word, and object marking can legitimately double an explicit object noun in the
+same clause (discourse-topicality-conditioned) — see `nt/swh.py` and
+`docs/alignment-principles-nt.swh.md`; no documented article-NEQ exception for Swahili, so
+`check_article_neq` stays at its default. No other language has an override yet. Explicit
 kwargs (`retry_threshold`, `neq_baseline`, `semantic_model`, `semantic_threshold`) always
 take precedence over a language's static overrides.
 
@@ -867,11 +872,19 @@ regardless. Revisit only alongside a diacritic-normalization pass if this become
 doing.
 
 **`ScoringConfig`** holds signal weights (w1–w5), NEQ baseline, adjacency multiplier,
-smear forced-retry threshold, deviation k, and retry threshold. All overridable; defaults
-work for NT English. Default weights: w1=0.25, w2=0.20, w3=0.15, w4=0.40, w5=0.00.
+smear forced-retry threshold, deviation k, and retry threshold. Default weights: w1=0.25,
+w2=0.20, w3=0.15, w4=0.40, w5=0.00.
 
-YAML config keys: `score_retry_threshold` (default 0.25), `smear_forced_retry_threshold`
-(default 0.22). Weights are code defaults; adjust via `ScoringConfig` if needed.
+Only `retry_threshold`, `neq_baseline`, `semantic_model`, and `semantic_threshold` are
+actually wired through to `build_scoring_config()` from CLI/YAML — `score_retry_threshold`
+(default 0.25, CLI `--score-retry-threshold` / YAML `score_retry_threshold`) sets
+`retry_threshold`; `neq_baseline` is resolved separately via `resolve_neq_baseline()`.
+`smear_forced_retry_threshold` (default 0.22), `adjacency_multiplier`, and the raw
+`w1`–`w5` weights have **no CLI or YAML exposure** — despite an earlier version of this
+doc claiming `smear_forced_retry_threshold` was a YAML key, neither `retry_cli.py` nor
+`score_alignments.py` passes it through. The only way to change them per language today is
+a code edit: either `_LANGUAGE_SCORING_OVERRIDES` (see above) or `ScoringConfig`'s
+dataclass defaults directly.
 
 ## clean-alignments (`refine/clean.py`, `refine/clean_cli.py`)
 

@@ -301,6 +301,13 @@ _LANGUAGE_SCORING_OVERRIDES: dict[str, dict[str, Any]] = {
     # the article before a bare transliterated proper name (Arabic never fuses
     # al- onto one) — see docs/alignment-principles-nt.arb.md.
     "arb": {"disable_signal_4": True, "check_article_neq": False},
+    # ONEN's finite verb fuses subject marker + tense/aspect + optional object
+    # marker + root + extensions + final vowel into one unspaced word, and object
+    # marking can legitimately double an explicit object noun in the same clause
+    # (discourse-topicality-conditioned, not over-grouping) — see nt/swh.py and
+    # docs/alignment-principles-nt.swh.md. No documented article-NEQ exception,
+    # so check_article_neq stays at its default (True).
+    "swh": {"disable_signal_4": True},
 }
 
 
