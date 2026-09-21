@@ -11,10 +11,14 @@ Examples are grounded in IRVHin and checked against the actual target TSV
 (`nt_IRVHin.tsv`: John 1:1, John 3:16, Matthew 1:21, Mark 1:2–9) rather than
 constructed from general knowledge alone. The major structural sections (negation,
 ἵνα clauses, passive voice, substantive participles) were additionally cross-checked
-against two other Hindi NT translations — HSB (`data/targets/HSB/nt_HSB.tsv`) and OHCV
-(`data/targets/OHCV/OHCV_hindi_20240610.tsv`) — to separate general Hindi grammar from
-IRVHin's individual stylistic choices; see the Cross-translation methodology note near
-the end of this document for what that check changed.
+against three other Hindi NT translations — HSB (`data/targets/HSB/nt_HSB.tsv`), OHCV
+(`data/targets/OHCV/OHCV_hindi_20240610.tsv`), and GLT
+(`data/targets/GLT/nt_GLT.tsv`, unfoldingWord Gateway Literal Translation Hindi, partial
+NT coverage) — to separate general Hindi grammar from IRVHin's individual stylistic
+choices, and a full-corpus (not just anchor-verse) frequency-count pass was run against
+IRVHin alone to check whether "majority/default/most common" claims actually hold at
+scale; see the Cross-translation methodology note near the end of this document for
+what both checks changed.
 
 Source files (to be created): `src/text_align/refine/prompt/nt/hin.py`,
 `src/text_align/refine/prompt/nt/eng.py`
@@ -53,9 +57,12 @@ real alignment runs.
 - Substantive participles have (at least) four attested strategies, checked
   systematically against all 1,339 SBLGNT article+participle sequences and
   cross-checked against HSB and OHCV to guard against IRVHin-specific overfitting:
-  जो + finite verb (secondary जो, the same role as yang/qui/que/che elsewhere) is the
-  true majority default, covering both generic and specific referents alike; verb-stem
-  + वाला/वाली/वाले (a productive agentive nominalizer — 473 of 7,957 IRVHin NT verses
+  जो + finite verb (secondary जो, the same role as yang/qui/que/che elsewhere) covers
+  both generic and specific referents alike and was originally described as "the true
+  majority default" over वाला — **a fresh 25-verse corpus-scale re-sample found जो and
+  वाला running almost exactly even (8 instances each)**, so treat the two as roughly
+  co-equal in frequency, not जो-dominant, though जो still reads as more general-purpose
+  while वाला/वाली/वाले (a productive agentive nominalizer — 473 of 7,957 IRVHin NT verses
   contain it) is reserved for participles that compress into a stable, lexicalized
   agent-noun/role label ("सतानेवाले" persecutors, "रहनेवाले" dwellers — both robustly
   confirmed across all three translations); a plain, already-lexicalized noun (पाठक
@@ -95,10 +102,15 @@ real alignment runs.
   baptized") remains common beyond baptism verbs specifically. See PASSIVE VOICE for
   the full breakdown — check which strategy a given verse uses rather than assuming.
 
-`AUTOS`, `COMPARATIVE`, `CONDITIONAL`, and `HOTI` blocks are expected to import largely
-unchanged from `eng.py` with example substitution only — Hindi's mechanics for these
-constructions parallel English/Portuguese closely enough that no separate rule branch is
-anticipated. This should be confirmed once native-speaker review begins.
+`AUTOS` and `HOTI` blocks are expected to import largely unchanged from `eng.py` with
+example substitution only, now with a first corpus pass behind them (see the Shared
+sections below) — `HOTI` is fully confirmed; `AUTOS`'s ordinary pronoun majority use is
+confirmed but its intensive/reflexive sub-case is still an open gap. `COMPARATIVE` and
+`CONDITIONAL`, previously assumed to transfer unchanged, turned out to need real
+Hindi-specific rules once corpus-checked (से as the comparative standard-marker; a
+केवल+relative exceptive strategy and a कि...है कि नहीं indirect-question strategy for
+conditionals) — see the COMPARATIVE AND SUPERLATIVE and CONDITIONAL sections. Native-
+speaker review should still confirm all four.
 
 ---
 
@@ -258,6 +270,15 @@ the noun's own record with no target word required. This is the majority case.
 also the ordinary 3rd-person pronoun) sometimes renders an anaphoric Greek article —
 primary 1:1, noun in its own record.
 
+**Corpus-scale check**: a stratified sample (6 verses/book × 27 books, 418 article
+tokens out of SBLGNT's 19,796 total) put attributive demonstrative-for-article at ≤7.7%
+(restricted to the oblique attributive forms इस/उस/इन/उन, which typically premodify a
+noun) — i.e. bare-noun is the correspondent for ≥92% of articles, solid quantitative
+support for "the majority case" above. **Methodological caveat**: वह/वे are also the
+ordinary 3rd-person pronoun with no relation to any article, so word-counting alone
+can't cleanly separate demonstrative-for-article uses from plain pronoun uses — treat
+this as an upper-bound estimate, not a precise percentage.
+
 ### Article rendered as a demonstrative
 
 Example (first mention, no demonstrative): ὁ λόγος → "वचन" (John 1:1) — no
@@ -335,6 +356,12 @@ it is purely a requirement of Hindi's own verb-agreement system.
 exactly like a case-implied preposition, except that "the case" originates entirely in
 Hindi grammar rather than in the Greek source.
 
+**Corpus scale**: ने appears in 1,597 of 7,959 NT verses (20%), 1,757 tokens total — a
+15-verse random sample confirmed the postposed-immediately-after-the-subject pattern
+with no counter-example. को is far more frequent (2,690 tokens), consistent with its
+four overloaded functions below versus ने's single function; splitting को's raw count
+by function would need real token alignment, not word-counting, to do reliably.
+
 Example (John 3:16): θεός (subject of ἠγάπησεν, a Greek finite verb with no separate
 ergative-triggering morphology) → "परमेश्वर ने": source=[θεός], target=["परमेश्वर", "ने"]
 — primary: "परमेश्वर"; secondary: "ने".
@@ -383,6 +410,13 @@ phrase and therefore secondary, not NEQ).
 purpose clause) and, distinctly, to introduce direct or reported speech, parallel to
 ὅτι's dual function (see ὅτι below). Apply the same disambiguation test.
 
+**Stability varies sharply by particle**, checked against a fresh cross-book sample:
+γάρ → क्योंकि ("because") and ἀλλά → परन्तु/पर ("but") are both near-categorical 1:1
+defaults (6/6 in each sample). **δέ is genuinely variable** — the same particle surfaces
+as और, परन्तु, तो, or अब depending on context, and is sometimes absorbed into the
+surrounding clause's connective sense with no separately identifiable word at all. Expect
+the real NEQ-vs-correspondent judgment calls to concentrate on δέ, not γάρ/ἀλλά.
+
 ---
 
 ## IDIOMS **[hin]**
@@ -396,9 +430,12 @@ construction is a recognized light or vector verb rather than a genuinely
 non-compositional phrase. Function-word-only source records (POS C-*, X-*,
 prepositions) are never idioms.
 
-μὴ γένοιτο-type fixed expressions with no plausible token-level Hindi mapping are the
-clearest candidate for `is_idiom: true` — pending native-speaker confirmation of the
-actual IRVHin rendering.
+μὴ γένοιτο — checked against all 13 SBLGNT occurrences (Romans/1 Corinthians/Galatians).
+**12 of 13 render identically as "कदापि नहीं!"** ("by no means!"), a fixed idiom with no
+token-level correspondence to μή or γένοιτο individually — `is_idiom: true`, both Greek
+words primary. The one outlier, Gal 6:14, uses "ऐसा न हो" instead — the same idiom
+already documented under NEGATION/ἵνα CLAUSES for negative-purpose clauses, so treat it
+identically there rather than as a separate μὴ γένοιτο-specific rendering.
 
 ---
 
@@ -413,11 +450,26 @@ follows held up well — the true periphrastic passive, the stative-perfect exce
 "it is written," and the intransitive-verb-pair strategy are all confirmed, sometimes
 with word-for-word identical renderings across all three translations. One example
 (§7 below) did not hold up and has been corrected. **The earlier three-strategy picture
-in this document undersold the real range** — IRVHin uses at least six distinct
-strategies, and a plain periphrastic passive (participle + जाना) turned out to be the
-single most common one,
-not one option among equals. Identify which strategy is in play verse by verse before
-assigning primary/secondary roles; do not assume.
+in this document undersold the real range** — IRVHin uses at least eight distinct
+strategies.
+
+**A follow-up corpus check qualifies the "single most common strategy" claim**: a fresh
+33-instance sample deliberately drawn from books the original 50-verse sample barely
+touched (Luke, John, Acts, 2 Corinthians, Galatians, Ephesians, Philippians, James,
+1–2 Peter, Jude) found Strategy 3 (adjectival/nominal resultative) and Strategy 5
+(light-verb + होना) as the *largest* categories there, not Strategy 1. The pattern looks
+**genre-conditioned**: Strategy 1 (periphrastic जाना) dominates in narrative/concrete-verb
+contexts (Gospels, Acts, 1 Corinthians — where the original sample concentrated), while
+Strategy 3/5 dominate in doctrinal/exhortation epistles with abstract-quality predicates
+(Ephesians, Philippians, James, Peter, Jude). Treat "which strategy is most common" as a
+question to ask per genre, not a fixed corpus-wide ranking — identify which strategy is
+in play verse by verse before assigning primary/secondary roles either way.
+
+**Methodological caveat**: the `morph[3]=='P'` filter used to enumerate the 3,014
+passive-voice forms also catches deponent middle/passive-form verbs (γίνομαι,
+ἐνυπνιάζομαι, ὑπεραίρομαι, and John 13:4's middle ἐγείρω) that are not real semantic
+passives. These don't test translation strategy the way genuine passives do and should
+be excluded (or separately tagged) in any further sampling from this set.
 
 ### 1. True periphrastic passive (participle/vector-compound + जाना) — the default for ordinary transitive verbs
 
@@ -465,6 +517,13 @@ passives — but expect the specific adjective to vary (IRVHin चंगा vs. 
 for "healed"; IRVHin/HSB पूरा vs. OHCV's abstract-noun variant पूर्ति for "fulfilled,"
 Rev 17:17). The **structural strategy** (state predicate + होना) is what is
 translation-independent, not the specific lexical item.
+
+**A third auxiliary, ठहरना ("be held/considered to be"), joins होना/बनना for
+declarative/legal-verdict passives** — confirmed independently three times: Luke 2:23
+(κληθήσεται → "पवित्र ठहरेगा," "will be called/considered holy"), James 2:24 (δικαιοῦται
+→ "धर्मी ठहरता है," "is justified"), James 2:25 (δικαιωθεῖσα → "धार्मिक न ठहरी," "was
+[not] justified"). Same primary/secondary treatment as होना/बनना — the state-word is
+primary, ठहरना secondary.
 
 ### 4. Dedicated intransitive/unaccusative verb — no voice marking at all
 
@@ -568,11 +627,22 @@ confused:
 - **Vector verb** (V1 main verb + V2 aspectual auxiliary from a small closed set —
   देना, लेना, जाना, डालना, बैठना, पड़ना): V1 primary, V2 secondary. दे दिया (John 3:16),
   खा लिया-type "ate up," आ गया-type "arrived" (completive).
+- **खाना as a light-verb support verb** — beyond its literal "eat" sense, खाना also
+  supplies the verbal slot for a small set of experiential/relational idioms, confirmed
+  independently twice against GLT (`data/targets/GLT/nt_GLT.tsv`): "ठोकर खाता है"
+  (stumbles, 1 Cor 8:13) and "भय खाता है" (fears, 1 John 4:18). Treat like करना/होना/
+  देना/रखना — the noun (ठोकर, भय) is primary, खाना secondary, N:1 against the Greek verb.
 
 The practical test: is the second element a Sanskrit/Persian/Arabic noun's supporting
 verb with no aspectual nuance of its own (light verb, both primary), or a semantically
 bleached native verb adding completive/benefactive/sudden nuance to a fully verbal V1
 (vector verb, V2 secondary)?
+
+**Corpus scale**: light-verb nouns are far more pervasive than the handful of examples
+above suggest — NT-wide occurrence counts include विश्वास 471, प्रेम 250, आज्ञा 209,
+राज्य 189, प्रार्थना 134, विनती 120, उद्धार 98, प्रचार 80, क्षमा 80, चंगा 64. This is a
+high-frequency, structural pattern in IRVHin, not an occasional idiom — expect it
+constantly, not just in the handful of illustrated verses.
 
 ---
 
@@ -595,8 +665,12 @@ when present, or secondary to the infinitive when the purpose sense is already c
 by the Greek verb alone. Apply the same test as Portuguese "para"/Indonesian "untuk."
 को can also mark a purpose infinitive (करने को, John 10:31 "पथराव करने को," Rev 8:6
 "फूँकने को") — a real but IRVHin-leaning choice; HSB and OHCV both use के लिये on the
-same verses, so के लिये is the safer default when the specific translation's practice
-is unknown. Apply the same primary/secondary test either way.
+same verses. **A 4th translation, GLT, uses neither on this verse** — "यहूदियों ने फिर
+से पत्थर उठा लिए **कि** उसे पत्थरवाह **करें**," a finite कि-clause with no purpose-
+infinitive construction at all — so treat के लिये as the safer default among the
+postposition strategies specifically, not as a translation-independent universal; a
+finite कि-clause is a live fourth option (see ἵνα CLAUSES). Apply the same primary/
+secondary test either way.
 See ἵνα CLAUSES for the fuller breakdown of purpose-clause strategies.
 
 ### Indirect discourse
@@ -614,9 +688,11 @@ Matthew, Mark, Luke, John, Acts, Romans, 1 Corinthians, 2 Corinthians, and Revel
 `data/targets/HSB/nt_HSB.tsv`; OHCV — Open Hindi Contemporary Version,
 `data/targets/OHCV/OHCV_hindi_20240610.tsv`) to guard against overfitting the whole
 document to IRVHin's specific stylistic choices. Result: कि dominates and के लिये +
-infinitive is solid across all three translations; two of the other renderings
+infinitive is solid across those three translations; two of the other renderings
 originally documented here turned out to be IRVHin-specific rather than general Hindi
-strategies — see the corrections below.
+strategies — see the corrections below. **A spot-check against a 4th translation, GLT
+(`data/targets/GLT/nt_GLT.tsv`), shows के लिये + infinitive is not translation-universal
+either** — see the के लिये + oblique infinitive entry below.
 
 - **कि** — the default, general-purpose marker, covering purpose, result, *and* plain
   content clauses ("said that...," "wanted that...") without distinction. By far the
@@ -634,18 +710,27 @@ strategies — see the corrections below.
 - **इसलिए...कि** — a correlative construction where इसलिए ("for this [reason]")
   anticipates the purpose and कि introduces it. **Confirmed robustly**: identical
   इसलिए...कि wording across IRVHin, HSB, and OHCV for Mark 4:21 (translations rarely
-  agree word-for-word, so this is a strong signal). Treat as a single primary unit
-  against ἵνα, both words primary.
-- **के लिये + oblique infinitive** — the bare purpose-infinitive strategy. **Confirmed
-  robustly** across all three translations for John 6:38 ("पूरी करने के लिये," identical
-  in IRVHin and HSB, near-identical in OHCV) and John 10:31 (all three use के लिये here,
-  see को correction below): के लिये primary to ἵνα, not secondary to the infinitive.
+  agree word-for-word, so this is a strong signal); **a 4th translation, GLT, also uses
+  इसलिए/इसीलिए...कि twice in this same verse** — now confirmed across four independent
+  translations, the strongest cross-translation signal in this document. Treat as a
+  single primary unit against ἵνα, both words primary.
+- **के लिये + oblique infinitive** — a common purpose-infinitive strategy, confirmed
+  across IRVHin, HSB, and OHCV for John 6:38 ("पूरी करने के लिये," identical in IRVHin
+  and HSB, near-identical in OHCV) and John 10:31 (all three use के लिये here, see को
+  correction below): के लिये primary to ἵνα, not secondary to the infinitive. **Not
+  translation-universal, though**: GLT renders both of these same verses with a finite
+  कि-clause instead of an infinitive at all — John 6:38 "मैं...इसलिए नहीं उतरा हूँ, कि
+  अपनी इच्छा को पूरा करूँ" (no के लिये, no infinitive), John 10:31 "...कि उसे पत्थरवाह
+  करें." Treat के लिये as the safer default *among the postposition+infinitive
+  strategies*, not as the single Hindi-wide answer — a plain finite कि-clause (see कि
+  above) is a live fourth option some translations prefer outright.
 - **को + oblique infinitive** — **correction:** originally documented as a second
   purpose-infinitive marker (John 10:31 "पथराव करने को"). Checking HSB and OHCV on the
   same verse shows both use "पथराव करने **के लिये**" instead — को here was IRVHin's
   individual choice, not a shared strategy. को *can* mark a purpose infinitive in
-  Hindi generally, but के लिये is the translation-independent default; do not expect को
-  on this function elsewhere without checking.
+  Hindi generally, but के लिये is the safer default among the postposition strategies
+  when a translation's practice is unknown; do not expect को on this function elsewhere
+  without checking.
 - **जिससे** ("by which") — **correction:** originally documented as a marker reserved
   for a secondary/consequential purpose clause layered onto a primary one. Checking the
   same verse (Rom 15:16) across translations disproves the "reserved" framing: HSB uses
@@ -680,20 +765,35 @@ indicative forms, including future ("क्यों **न** देगा" — R
 and modal/compound verbs ("**न** कर सकी" — Rom 8:3, "could not do"; "**न** रख छोड़ा" —
 Rom 8:32, "did not withhold"). The real split is by **discourse function**:
 
+**Full-corpus token counts (all 27 books each particle appears in): नहीं = 1,611, न =
+1,747, मत = 72.** न is not a minor variant of नहीं by frequency — it is in fact
+marginally *more* common. Of न's occurrences, roughly 59% are single-न verses (plain
+ordinary negation, not a correlative list) and roughly 41% are in verses with 2+ न
+tokens (the correlative-list pattern). **Treat नहीं and न as co-equal in raw frequency,
+just split across more distinct functions** (plain negator, correlative list,
+negative-purpose, emphatic-negation reinforcement — न covers all four; नहीं is
+essentially limited to the first) — न is not "the rarer/secondary particle," it simply
+does more jobs.
+
 - **नहीं** — the default, general-purpose negator, usable with almost any verb form.
   Typically immediately precedes the finite verb complex (contiguous, unlike French's
   discontinuous ne…pas).
   Example: John 1:10, ἔγνω (negated) → "**नहीं** पहचाना" ("did not recognize"): "नहीं"
   primary 1:1; "पहचाना" primary in its own record.
 
-  **Copula ellipsis after नहीं is common, not a marginal case.** Predicate-nominal and
-  predicate-adjectival clauses regularly drop है/हूँ/हैं when नहीं is present: John 1:47
-  "इसमें कपट **नहीं** [है]," John 1:27 "खोलने के योग्य **नहीं** [हूँ]," Rom 8:1 "दण्ड की
-  आज्ञा **नहीं** [है]," Rom 8:9 "उसका जन **नहीं** [है]," Rom 8:12 "कर्जदार **नहीं** [हैं]."
-  The elided copula, if the Greek has an explicit εἶναι token, is NEQ per the base
-  copula-ellipsis rule; the ellipsis itself needs no special marking. (The copula is not
-  always dropped — Rom 8:18 "कुछ भी नहीं **हैं**" keeps it — so check each verse rather
-  than assuming ellipsis.)
+  **Copula ellipsis after नहीं is a real, recurring IRVHin pattern, but check each
+  translation rather than assuming it's Hindi-general.** Predicate-nominal and
+  predicate-adjectival clauses in IRVHin regularly drop है/हूँ/हैं when नहीं is present:
+  John 1:47 "इसमें कपट **नहीं** [है]," John 1:27 "खोलने के योग्य **नहीं** [हूँ]," Rom 8:1
+  "दण्ड की आज्ञा **नहीं** [है]," Rom 8:9 "उसका जन **नहीं** [है]," Rom 8:12 "कर्जदार
+  **नहीं** [हैं]." **A 4th translation, GLT, keeps है explicit in both John 1:27 and John
+  1:47** ("मैं इतना योग्य भी नहीं **हूँ**"; "जिसमें कोई छल नहीं **है**") — the two verses
+  cited above as the flagship illustration — so ellipsis-after-नहीं should be treated as
+  a genuine but translation/register-dependent stylistic option, not a default to expect
+  across editions. The elided copula, when it does occur and the Greek has an explicit
+  εἶναι token, is NEQ per the base copula-ellipsis rule; the ellipsis itself needs no
+  special marking. (Even within IRVHin the copula is not always dropped — Rom 8:18
+  "कुछ भी नहीं **हैं**" keeps it — so check each verse rather than assuming ellipsis.)
 
 - **न** — has two distinct attested uses, neither conditioned by subjunctive mood:
   1. **Interchangeable literary variant of नहीं** for ordinary negation, confirmed by a
@@ -734,7 +834,7 @@ guidelines' general pattern (§9.7.2 in `alignment-principles-nt.md`).
 Checked against all 85 οὐ μή occurrences in SBLGNT (`data/sources/SBLGNT.tsv`) and a
 spread of the corresponding IRVHin verses across Matthew, Mark, John, Hebrews, and
 Revelation. **IRVHin has no single dedicated emphatic-negation construction** — it uses
-one of at least four reinforcement strategies layered onto ordinary न/नहीं, chosen for
+one of at least five reinforcement strategies layered onto ordinary न/नहीं, chosen for
 the specific semantic flavor of the emphasis, or sometimes no reinforcement at all:
 
 - **कभी / कदापि ("ever") + न or नहीं** — the most common strategy, for a "never"
@@ -773,6 +873,12 @@ the specific semantic flavor of the emphasis, or sometimes no reinforcement at a
   than reinforcing the verb. So किसी (भी) रीति से is a real, attested Hindi strategy for
   emphatic negation, but it was IRVHin's specific choice for Rev 21:27 — do not assume
   it is the standard rendering for that verse across translations.
+- **निश्चय ही ("certainly/surely") + negator** — not attested in IRVHin/HSB/OHCV, but a
+  consistent house-style pattern in a 4th translation, GLT: stacked on top of नहीं or
+  अनन्तकाल तक in essentially every οὐ μή instance checked (John 6:37, 8:51, 8:52, 10:28,
+  11:26). Five independent verses converging on the same reinforcement word within one
+  translation is a real, recurring strategy for that edition — check whether the
+  translation in use follows this pattern rather than assuming it applies universally.
 - **Bare न or नहीं, no reinforcement at all** — attested within the very same verse as
   a reinforced instance, showing reinforcement is a translator choice, not a rule: John
   10:28's second clause ("कोई उन्हें मेरे हाथ से छीन **न** लेगा," "no one will snatch
@@ -781,7 +887,7 @@ the specific semantic flavor of the emphasis, or sometimes no reinforcement at a
 
 **Alignment treatment:** both Greek particles (οὐ + μή) are primary in a single record
 against whatever Hindi words carry the emphasis — the negator (न/नहीं) plus any
-reinforcing word (कभी/कदापि/अनन्तकाल तक/किसी रीति से) when present. When no
+reinforcing word (कभी/कदापि/अनन्तकाल तक/किसी रीति से/निश्चय ही) when present. When no
 reinforcement is present, both particles are still primary to the ordinary negator
 alone — the absolute force is understood from context, and this is a legitimate,
 attested translation choice, not a gap to fill in.
@@ -844,12 +950,19 @@ this check and has been corrected below (the "coming one" epithet); the rest hel
 reasonably well, with OHCV showing a distinct, translation-wide preference worth
 flagging on its own.
 
-**जो + finite verb is the true majority default**, used for both generic and specific
+**जो + finite verb is a highly productive strategy**, used for both generic and specific
 referents alike, including cases that look as generic as anything gets: "जिसके कान हों
 वह सुन ले" (ὁ ἔχων ὦτα, "he who has ears, let him hear," Matt 13:9 — identical जो-based
 wording in all three translations) and Paul's "जो किसी दिन को मानता है...जो खाता
 है...जो नहीं खाता" (Rom 14:6 — three generic-conditional participles, all जो in all
-three translations, none वाला).
+three translations, none वाला). **Correction — not clearly the "majority default" over
+वाला**: an earlier version of this document called जो "the true majority default." A
+fresh, non-overlapping 25-verse sample (across Thessalonians, 1 Cor, Acts, Matthew,
+Mark, Luke, John, Galatians, Philippians, Hebrews, James, 2 Peter, Revelation) found जो
+and वाला running almost exactly even, 8 instances each. Treat the two as roughly
+co-equal, general-purpose strategies rather than जो-as-default/वाला-as-exception — जो
+still covers a broader range of referent types (including the generic/conditional cases
+above, which वाला rarely takes), but "majority" overstated the actual balance.
 
 **वाला is used when the participle compresses cleanly into a single stable, lexicalized
 agent-noun or role label.** The strongest, most reliable confirmations — identical or
@@ -951,6 +1064,52 @@ certain no element in the surrounding clause carries its force.
 
 ---
 
+## COMPARATIVE AND SUPERLATIVE **[hin]**
+
+Previously a placeholder assumed to parallel Portuguese's analytic "mais + base"
+pattern with no real Hindi-specific investigation. A first corpus pass (12 of 300
+SBLGNT comparative-adjective forms, `morph` A-*-C, sampled against IRVHin) shows the
+load-bearing element is **से**, a postposition marking the standard of comparison
+("than X") — secondary to the noun/pronoun it governs, parallel to how genitive-case
+postpositions are treated elsewhere in this document:
+
+- **X से + बड़ा/अधिक/दृढ़-type adjective** — the dominant analytic pattern: "भविष्यद्वक्ता
+  **से** भी बड़े" (Matt 11:9/Luke 7:26, "greater than a prophet"), "अपने **से** किसी बड़े"
+  (Heb 6:16, "someone greater than himself"), "उस**से**...बड़ा" (1 John 4:4). से secondary
+  to the noun it marks; the comparative adjective is primary, both words primary to the
+  comparative-morphology-bearing Greek adjective as a whole.
+- **X से + बढ़कर** (participial, "exceeding X") — a second live pattern, corpus-confirmed
+  independently in IRVHin itself (से बढ़कर, 27 occurrences NT-wide) and in GLT (Mark 1:7
+  "वह मुझ से **बढ़कर** शक्तिशाली है," "he is mightier than I"). से अधिक (analytic) is more
+  frequent overall (30 occurrences) but से बढ़कर is not a minor variant — treat both as
+  live options and check which a given verse/translation uses; same primary/secondary
+  split (से secondary to the noun; बढ़कर/अधिक carries the comparative sense alongside the
+  adjective, both primary).
+
+Superlatives were not separately investigated in this pass — flag as still open.
+
+## CONDITIONAL **[hin]**
+
+Previously a placeholder assuming यदि/अगर...तो parallels εἰ/ἐάν...(apodosis) with no
+Hindi-specific investigation. A first corpus pass (12 of 833 εἰ/ἐάν instances) confirms
+the basic structure but surfaces two real Hindi-specific wrinkles:
+
+- **यदि...तो (ordinary real/hypothetical conditional)** — the dominant pattern,
+  confirming the base assumption: यदि (or अगर) marks the protasis, तो the apodosis.
+  तो is NEQ when supplied with no Greek apodotic particle correspondent, or primary if
+  one exists (ἄρα, οὖν in apodosis position) — apply the same test as other
+  supplied-conjunction cases in this document.
+- **Exceptive εἰ μή → केवल + relative clause**, not a literal "if not": 1 John 5:5
+  "संसार पर जय पानेवाला कौन है? **केवल** वह **जिसका** विश्वास है..." ("who overcomes the
+  world? Only the one who believes..."). केवल ("only") and the जिसका-relative jointly
+  correspond to εἰ μή — treat as a unit primary to εἰ μή, not as εἰ (NEQ/secondary) + μή
+  (negation) separately.
+- **Indirect-question εἰ ("whether") → कि...है कि नहीं**: Mark 3:2 "देखें कि वह सब्त के
+  दिन चंगा करता है **कि नहीं**" ("[they watched] whether he would heal on the Sabbath").
+  This is a distinct function from the ordinary conditional and should not be forced
+  into the यदि...तो template — कि नहीं ("or not") as a unit corresponds to the
+  indirect-question εἰ.
+
 ## Shared sections (expected to import largely unchanged from English)
 
 Pending native-speaker review, the following blocks are not expected to need
@@ -959,15 +1118,16 @@ constructions parallels English/Portuguese closely:
 
 - **αὐτός (AUTOS)** — third-person pronoun uses render via वह/उसने/उसका/उसे etc.
   following the ordinary case-marking rules above (ने/को/का as applicable); intensive
-  use ("himself") via स्वयं/खुद; reflexive similarly. Confirm with native speaker.
-- **COMPARATIVES AND SUPERLATIVES** — Hindi analytic comparatives (ज़्यादा/अधिक + base
-  form) likely parallel Portuguese's "mais + base" pattern (both words primary). Confirm.
-- **CONDITIONAL CONSTRUCTIONS** — यदि/अगर...तो parallels εἰ/ἐάν...(apodosis). Confirm
-  apodosis-marker treatment (तो as NEQ when supplied, or primary if a Greek apodotic
-  particle exists) once real examples are reviewed.
+  use ("himself") via स्वयं/खुद; reflexive similarly. **A 10-instance corpus sample
+  confirms the ordinary third-person-pronoun majority use** (उसके, उसका, उसे, तुम्हारा,
+  etc. inflecting normally, no complication found) — but the sample happened not to
+  catch any intensive or reflexive instance, so that specific sub-case remains an
+  actual gap, not just an unconfirmed assumption. Confirm with native speaker.
 - **ὅτι (HOTI)** — कि serves both the conjunction and (with punctuation/quotation marks)
-  recitativum functions, directly parallel to ὅτι. See CONJUNCTIONS AND PARTICLES above
-  for the disambiguation test.
+  recitativum functions, directly parallel to ὅτι. **Confirmed at corpus scale** (12 of
+  1,294 ὅτι instances sampled): कि dominates both functions with no separate dedicated
+  recitativum marker found. See CONJUNCTIONS AND PARTICLES above for the disambiguation
+  test.
 
 ---
 
@@ -1010,6 +1170,38 @@ covered, apply the same discipline**: derive from IRVHin, then check at least on
 translation on the same verses before writing a claim as general Hindi grammar rather
 than "this is what IRVHin does here."
 
+**A 4th translation, GLT** (`data/targets/GLT/nt_GLT.tsv`, unfoldingWord Gateway Literal
+Translation Hindi), was spot-checked broadly across every major section above.
+Coverage caveat: GLT's TSV covers only Mark, Luke, John, 1–2 Corinthians, and the
+shorter epistles — it has no Matthew, Acts, Romans, Galatians, Hebrews, or Revelation,
+so several of this document's anchor verses could not be re-checked against it. Where
+GLT was checkable, it mostly reinforced the three-way findings above (ने ergative,
+न...न...न correlative, अनन्तकाल तक, इसलिए...कि now confirmed across all four), but it
+broke two claims that had been called "robust across all three translations" — के लिये
++ infinitive for ἵνα (John 6:38, John 10:31: GLT uses a finite कि-clause instead) and
+copula ellipsis after नहीं as the expected default (John 1:27, 1:47: GLT keeps है) —
+both now corrected above to scope the claim to the three translations actually checked.
+It also surfaced two additions (खाना as a light-verb support verb, निश्चय ही as an
+emphatic-negation reinforcement) and several single-instance observations not yet
+folded into the document proper — see the open questions below.
+
+**A subsequent, IRVHin-only corpus-scale re-verification pass** (not translation-count
+comparison this time, but full-corpus joins/counts against SBLGNT.tsv, to check claims
+against real frequency data rather than a handful of anchor verses) covered every
+section of this document. It resolved the COMPARATIVE gap (से बढ़कर confirmed as
+IRVHin-native, 27 occurrences, not GLT-specific) and wrote real content for COMPARATIVE
+and CONDITIONAL for the first time; it softened two "majority/dominant" claims that
+frequency counts didn't support as strongly as stated (न vs. नहीं: 1,747 vs. 1,611
+tokens, not नहीं-dominant; जो vs. वाला: 8-8 in a fresh 25-verse sample, not जो-dominant);
+it qualified passive Strategy 1's "single most common" claim as genre-conditioned rather
+than a flat ranking; and it added a third passive auxiliary (ठहरना), a δέ-variability
+note, and resolved the μὴ γένοιτο idiom placeholder with real data (12/13 SBLGNT
+instances → कदापि नहीं). **The lesson for any future extension of this document**: even
+claims backed by a real cross-translation check can still overstate frequency/dominance
+if the underlying sample was small — a corpus-scale count is worth running before
+calling something "the default" or "the most common," not just before generalizing
+across translations.
+
 ## Open questions for native-speaker review
 
 - Confirm whether को-as-DOM is applied consistently enough across IRVHin, HSB, and OHCV
@@ -1023,3 +1215,32 @@ than "this is what IRVHin does here."
   confirm case by case?
 - Confirm the semantic-scorer register effect described earlier once real
   score-alignment runs are available for an IRVHin epistle chapter.
+- **Resolved by the follow-up corpus-scale pass** (previously listed here as
+  single-instance GLT observations): the COMPARATIVE gap is resolved — से बढ़कर turned
+  out to be an IRVHin-native pattern (27 corpus-wide occurrences), not GLT-specific, and
+  both COMPARATIVE AND SUPERLATIVE and CONDITIONAL now have real sections above instead
+  of being unchecked eng.py-import placeholders. ठहरना as a passive-naming auxiliary is
+  also resolved — a 2nd corpus pass independently found it twice more (James 2:24,
+  2:25), now documented as a 3rd Strategy-3 auxiliary in PASSIVE VOICE.
+- **Still open, single-instance, needs a native speaker or a further targeted look**:
+  (1) John 3:16's Greek has both ὥστε (result) and ἵνα (purpose); GLT is the only one of
+  the four translations to mark them with two distinct Hindi conjunctions (कि for ὥστε,
+  ताकि for ἵνα) rather than collapsing both under one कि — worth checking whether this
+  generalizes as a useful disambiguation signal. (2) A possible ने-drop inconsistency:
+  Mark 1:5's plural subject before a perfective transitive verb has no ने ("यरूशलेम के
+  सब रहनेवाले...उससे बपतिस्मा लिया"), while Mark 1:9's singular subject in the identical
+  construction does ("उसने...बपतिस्मा लिया") — may be a genuine grammatical wrinkle
+  (register, or ergative marking sensitivity to the specific verb/subject type) rather
+  than free variation; needs a native speaker's opinion rather than being written into
+  ERGATIVE ने as a rule.
+- **New from the wider corpus-scale re-verification pass**: (3) AUTOS's intensive/
+  reflexive sub-case (स्वयं/खुद) remains genuinely unchecked against real text — the
+  corpus sample that confirmed the ordinary-pronoun majority use happened not to catch
+  any intensive/reflexive instance. (4) COMPARATIVE's superlative constructions were not
+  investigated in the corpus pass that resolved the comparative side — still open.
+  (5) Splitting को's 2,690 raw NT-wide tokens by function (dative / DOM / experiencer /
+  purpose-infinitive) would need real token-level alignment data, not word-counting, to
+  do reliably — flagged for whenever enough scored IRVHin alignment data exists to check
+  against. (6) ही/तो/भी are pervasive Hindi discourse particles with weak/variable Greek
+  triggers (γε, emphatic καί, topic-shift) that CONJUNCTIONS AND PARTICLES doesn't cover
+  at all — a real gap, not yet investigated at corpus scale.

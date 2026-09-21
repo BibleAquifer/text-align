@@ -89,18 +89,28 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
 - `nt/hin.py` — Hindi. No articles; split-ergative ने and DOM/dative को have partial or no
   Greek trigger; genitive का/की/के agrees with the possessed noun, not the possessor. Finite
   verbs are almost always periphrastic (participle + copula) by default, not stylistic
-  choice. Light verbs (noun + करना/होना) vs. vector verbs (V1 + bleached V2) are easily
-  confused — N:1 both primary vs. V1 primary/V2 secondary respectively. At least six
-  coexisting passive-voice strategies (true periphrastic passive with जाना is the actual
-  default). Substantive participles: जो is the majority default regardless of genericity;
-  वाला is reserved for lexicalized role-labels, not generic vs. specific referents. कि/ताकि/
-  जिससे are free variants for ἵνα, not distinct constructions. नहीं/न are free variants for
-  ordinary negation; न is also the dedicated correlative form for "neither...nor" (aligns
-  1:1 to each οὐδέ/οὔτε); मत is the true prohibitive; emphatic negation (οὐ μή) has no single
-  construction, just an optional reinforcing intensifier. Distilled from
-  `docs/alignment-principles-nt.hin.md`, which was cross-checked against two further Hindi
-  NT translations (HSB, OHCV) to separate general Hindi grammar from one translation's
-  stylistic choices — see that document's "Cross-translation methodology note".
+  choice. Light verbs (noun + करना/होना/देना/रखना/खाना) vs. vector verbs (V1 + bleached V2)
+  are easily confused — N:1 both primary vs. V1 primary/V2 secondary respectively. At least
+  eight coexisting passive-voice strategies, genre-conditioned rather than one flat ranking
+  (जाना-periphrastic dominates narrative; adjectival-resultative/light-verb+होना dominate
+  doctrinal epistles). Substantive participles: जो and वाला are roughly co-equal in
+  frequency (an earlier "जो is the majority default" claim did not survive a corpus-scale
+  re-sample); वाला is reserved for lexicalized role-labels, जो covers a broader range
+  including generic/conditional referents. कि/ताकि/जिससे are free variants for ἵνα, not
+  distinct constructions, though a finite कि-clause with no infinitive is also a live
+  alternative to के लिये/को + infinitive. नहीं/न are free variants for ordinary negation,
+  roughly co-equal in raw corpus frequency (न is not a rarer/secondary particle, it just
+  spans more functions); न is also the dedicated correlative form for "neither...nor"
+  (aligns 1:1 to each οὐδέ/οὔτε); मत is the true prohibitive; emphatic negation (οὐ μή) has
+  no single construction, just an optional reinforcing intensifier. COMPARATIVE (से as the
+  standard-of-comparison postposition) and CONDITIONAL (केवल+relative for exceptive εἰ μή;
+  कि...है कि नहीं for indirect-question εἰ) both turned out to need real Hindi-specific
+  blocks rather than importing unchanged from `eng.py`, as originally assumed. Distilled
+  from `docs/alignment-principles-nt.hin.md`, which was cross-checked against three further
+  Hindi NT translations (HSB, OHCV, GLT) to separate general Hindi grammar from one
+  translation's stylistic choices, then re-verified with full-corpus frequency counts
+  against IRVHin alone to check whether "majority/default" claims held at scale — see that
+  document's "Cross-translation methodology note".
 - `nt/arb.py` — Arabic (Van Dyck). **Reviewed by a native Arabic speaker and confirmed
   "very good."** Target TSV tokenizes on
   whitespace only, and Arabic orthography fuses conjunctions (وَ/فَ), prepositions
@@ -384,7 +394,7 @@ compressed. Approximate token budget (all blocks assembled):
 | NT spa | 3,599 |
 | NT fra | 4,488 |
 | NT ind | ~5,234 |
-| NT hin | ~7,055 |
+| NT hin | ~8,095 |
 | NT arb | ~15,958 |
 | NT zht | ~6,842 |
 | NT hau | ~11,663 |
@@ -412,9 +422,14 @@ alignment-relevant strategies (PAC, fused definiteness/genitive, an eight-way pa
 system, a nine-way substantive-participle split, four εἰ functions, a six-way
 comparison system) were confirmed for it. NT swh imports only VERBAL_ASPECT unchanged
 from `eng.py` (even AUTOS is Swahili-specific, given the object-marker-plus-independent-
-pronoun doubling rule), landing between NT hin and NT hau in size — reflecting a rich but
-less fragmented rule set than Hausa's (three relative-clause strategies and five copula
+pronoun doubling rule), landing just below NT hau in size — reflecting a rich but less
+fragmented rule set than Hausa's (three relative-clause strategies and five copula
 strategies rather than Hausa's nine and five-way splits, and a cleaner passive system).
+NT hin grew past NT swh (~8,095 vs. ~7,925) after a corpus-scale re-verification pass
+gave COMPARATIVE and CONDITIONAL real Hindi-specific blocks (previously unchanged
+`eng.py` imports) and added supporting detail (genre-conditioned passive strategies, a
+third passive auxiliary, softened frequency claims) across several other blocks — it
+now imports only AUTOS, HOTI, IMPERSONAL, and VERBAL_ASPECT unchanged from `eng.py`.
 OT arb grew well past OT ind's size across two rounds of
 corpus-scale verification despite the OT block set being much smaller than NT's (4
 conditional blocks vs. 11) — still the largest OT config.
