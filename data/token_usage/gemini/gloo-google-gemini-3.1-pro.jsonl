@@ -75,3 +75,11 @@
 {"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 7237, "completion_tokens": 6141}
 {"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 11579, "completion_tokens": 7847}
 {"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 4644, "completion_tokens": 2265}
+{"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 5951, "completion_tokens": 6943}
+{"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 7300, "completion_tokens": 18197}
+{"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 8503, "completion_tokens": 3257}
+{"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 5589, "completion_tokens": 12243}
+{"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 6379, "completion_tokens": 4079}
+{"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 8331, "completion_tokens": 12072}
+{"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 10088, "completion_tokens": 3136}
+{"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 6294, "completion_tokens": 12169}
