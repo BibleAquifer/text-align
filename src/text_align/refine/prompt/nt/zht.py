@@ -19,16 +19,20 @@ TSVs), and CU2010T's alignment was confirmed unreliable for word-level verificat
 containing a negator in every sampled verse — it was built for a different purpose).
 See the principles doc's "Methodology" section for the full account.
 
-**Consequence for precision:** this rebuild has real, independently-verifiable worked
-examples for every claim, but no exact corpus-wide percentages — every number below is
-either a small hand-verified sample size (e.g. "19 of 25 sampled passives") or an
-unconditioned whole-corpus character count (not conditioned on a specific Greek
-construction). Treat percentages carried over from the earlier alignment-based draft
-(now removed from this docstring) as unconfirmed estimates, not settled numbers.
+**Consequence for precision, updated:** six sections (orthographic variants, the
+BA-construction, `為...所` passive, the passive-voice strategy split, articles, and
+reflexive `自己`) have since been re-verified at full-corpus scale by programmatically
+joining SBLGNT's `pos`/`morph`/`lemma` tags to both target editions' text — real,
+exact or tightly-bounded percentages now back those six, not small hand-verified
+samples. Pro-drop was scaled to a 40-verse hand-classified sample (94% drop rate for
+same-subject continuation specifically). The remaining sections (copula, `的`,
+classifiers, light-verb compounds, locative postpositions, participles) are still at
+their original 12–25-verse spot-check stage. See `docs/alignment-principles-nt.zht.md`
+for the full numbers, methodology, and — for articles specifically — an honestly-flagged
+limitation in the correction method itself, not just the sample size.
 
 **Draft status:** not yet reviewed by a native Mandarin speaker — the same caveat the
-other non-Romance configs (`ind`, `hin`, `arb`) carried before their own review, on top
-of the smaller sample sizes noted above.
+other non-Romance configs (`ind`, `hin`, `arb`) carried before their own review.
 
 **Orthography note:** CUV consistently uses the older variant characters `着` (not
 `著`) and `裏` (not `裡`) — confirmed directly in the target TSV. All worked examples
@@ -40,8 +44,12 @@ Simplified Chinese (zhs) is a fully separate config, not derived from this one �
 doc and code once real Simplified target data is available.
 
 Key differences from the other supported languages:
-  BASE_BLOCK  — no articles at all (like Indonesian/Hindi; a 20-verse spot-check found
-                no target correspondent for the large majority of Greek articles). `的`
+  BASE_BLOCK  — no articles at all (like Indonesian/Hindi). Full-corpus-bounded: the
+                demonstrative-rendering minority branch (這/那) is roughly 3-4% of all
+                Greek articles (CUV), tightened down from a naive 20% raw-character
+                upper bound by subtracting genuine demonstrative-pronoun-driven and
+                idiomatic-noise instances — the true rate is a small single-digit
+                minority, smaller than the original spot-check implied. `的`
                 is the hardest-working function word in the language, covering
                 genitive marker, attributive linker, substantive-participle
                 nominalizer (see PARTICIPLE_BLOCK), and a temporal-clause marker
@@ -50,46 +58,62 @@ Key differences from the other supported languages:
                 repeatedly alongside `的`, especially for patient-oriented/passive
                 senses — not documented in the earlier draft at all. The disposal
                 construction (`將`/`把`) fronts a definite object with a marker that
-                carries no lexical content of its own; genuinely polysemous, though —
-                `將` also means "about to" (adverb) and appears in the fixed noun
-                `將來` ("future"), neither of which is the disposal construction, so
-                raw character counts overcount the true rate. Copula εἰμί splits at
-                least four ways (existential `有`, comitative `同在`, identity
-                `是`/`就是`, locative `在`); `就是` is real and appears independently in
-                BOTH CUV and BOCCB2023T at different verses — directly refuting an
-                earlier retracted claim that it was CUV-specific. Classifiers
-                (個/位/etc.) ride secondary inside the counted noun's own record, not
-                as unaligned filler. Locative words trail their noun (postpositional)
-                rather than preceding it, and the common ones (裏/上/中/內) have
-                distinct dominant senses, not interchangeable defaults. Pro-drop is
-                discourse-driven like Indonesian, confirmed qualitatively throughout
-                every sample (no precise rate re-derived without alignment data).
-  PASSIVE_BLOCK — an UNMARKED verb (no passive morphology at all) is the clear
-                majority strategy in a 25-verse spot-check (~19 of ~30 verb tokens).
-                `被` did not appear at all in CUV's own text across that sample (though
-                BOCCB2023T used it twice at verses where CUV didn't), consistent with
-                but not proof of it being rare. `受`/`得`/`蒙` "receive/undergo NOUN" is
-                real but a genuine minority (1 clear instance in the sample). A
-                genuinely new finding this pass surfaced that the earlier
-                alignment-based draft missed entirely (it only searched for
-                `被`/`受`/`得`/`蒙` characters): a classical/literary passive marker,
-                `為...所`/`所...的`, distinct from `被`. Also newly surfaced: a
-                reflexive/self-directed active conversion (Greek passive recast with a
-                reflexive object, e.g. `敗壞了自己` "ruin themselves").
+                carries no lexical content of its own; full-corpus token-boundary
+                filtering (standalone `將`/`把` tokens, excluding fused compounds like
+                `將要`/`將來`/`把手`/`火把`) cleans up most of the earlier character-count
+                overcount (~1-2% residual false-positive rate). A genuinely new
+                full-corpus finding: BOCCB2023T's `將`+`被`+verb is a distinct
+                future-passive adverb pattern (~10% of its standalone `將`, "will be
+                [verb]ed"), essentially absent in CUV — not disposal at all; `將`
+                immediately followed by `被` should be treated as a tense/aspect marker
+                secondary to the verb, with `被` handled under PASSIVE_BLOCK. Copula
+                εἰμί splits at least four ways (existential `有`, comitative `同在`,
+                identity `是`/`就是`, locative `在`); `就是` is real and appears
+                independently in BOTH CUV and BOCCB2023T at different verses — directly
+                refuting an earlier retracted claim that it was CUV-specific.
+                Classifiers (個/位/etc.) ride secondary inside the counted noun's own
+                record, not as unaligned filler. Locative words trail their noun
+                (postpositional) rather than preceding it, and the common ones
+                (裏/上/中/內) have distinct dominant senses, not interchangeable
+                defaults. Pro-drop is discourse-driven like Indonesian: a 40-verse
+                hand-classified sample found a ~94% pronoun-drop rate specifically for
+                clauses continuing an already-established same subject (near-
+                categorical — treat a dropped pronoun as the strong expectation, not
+                just "possible"), while subject introduction/re-establishment reliably
+                gets an explicit pronoun.
+  PASSIVE_BLOCK — full-corpus-quantified against every SBLGNT passive-tagged verb
+                (2,012 tokens / 1,662 verses): UNMARKED (no passive morphology at all)
+                is the clear majority strategy at ~75-77% (CUV) / ~72-75% (BOCCB2023T).
+                `被` is real and not rare — 13.7%/16.9%, the second most common
+                strategy, correcting the original 25-verse sample's "zero CUV
+                instances" finding (too small a sample to be representative). `受`/
+                `得`/`蒙` "receive/undergo NOUN" is a genuine second-tier minority at
+                ~9-11% both editions (note: `得` alone is heavily confounded with its
+                ordinary use as a verb-complement particle unrelated to passive
+                marking — always check the actual clause). The classical/literary
+                `為...所`/`所...的` marker, missed entirely by the earlier
+                alignment-based draft, is real but the smallest strategy at 0.3-0.5%.
+                Also present: a reflexive/self-directed active conversion (Greek
+                passive recast with a reflexive object, e.g. `敗壞了自己` "ruin
+                themselves").
   PARTICIPLE_BLOCK — only the substantive (nominalizing) case has real evidence: `的`
                 nominalizes a Greek participle, confirmed repeatedly including a
                 Romans 12:8-style chain of bare `的`-nominalized participles with no
                 separate pronoun/head-noun needed. Adverbial/genitive-absolute
                 participle handling was not specifically researched for Chinese;
                 falls back to the general TOKEN ROLES guidance.
-  AUTOS_BLOCK — the reflexive `自己` is confirmed genuinely narrow in a 15-verse
-                spot-check of αὐτός instances: only 1 showed the coreference-driven
-                substitution pattern (a plain Greek pronoun replaced by `自己` because
-                its referent circles back to the clause's own subject); the other 14
-                were ordinary non-reflexive pronoun translations. The split between
-                "direct correspondence to an already-reflexive Greek word" and "genuine
-                substitution" from the earlier alignment-based draft is a plausible but
-                unconfirmed estimate at this sample size.
+  AUTOS_BLOCK — full-corpus-quantified against SBLGNT's reflexive-pronoun lemmas
+                (ἑαυτοῦ/σεαυτοῦ/ἐμαυτοῦ, 903 tokens) vs. plain αὐτός (4,982 tokens):
+                genuine substitution of `自己` for a plain (non-reflexive) Greek
+                pronoun is confirmed real but narrow, ~2-3% net above a measured
+                idiomatic baseline — matching the original 15-verse spot-check's shape.
+                A genuinely new finding: even a GENUINE Greek reflexive pronoun
+                (ἑαυτοῦ family) only renders as `自己` a minority of the time
+                (~21-27%) — most instances (~93% of the remainder) use an ordinary
+                plain pronoun or repeated noun with no distinct reflexivity marker at
+                all (e.g. "her own father" → just `她父親`, no `自己` needed), not a
+                competing marked strategy. Do not treat a Greek reflexive pronoun as
+                requiring `自己` in the target — its absence is the more common outcome.
   VERBAL_ASPECT_BLOCK — `了` (perfective, telic/punctual events) and `過` (experiential,
                 anterior reference) are both real and confirmed in a 12-verse
                 spot-check of Greek perfect-tense verbs, but `過` is NOT obligatory even
@@ -158,8 +182,9 @@ Common secondary cases:
 - 所 as a related nominalizer, often paired with 的 (所...的) or 為 (為...所) — a more literary strategy for the same nominalizing role, especially for patient-oriented/passive senses. τὸ ὅραμα ὃ εἶδεν → "所看見的異象": 所 and 的 both secondary, framing the verb 看見.
 - 的時候 temporal-clause marker — a temporal preposition (ἐν/ἐπί/ἐφ᾽) triggers "...的時候" ("the time when..."); both 的 and 時候 secondary to the preposition.
   ἐπὶ τῆς μετοικεσίας Βαβυλῶνος → "百姓被遷到巴比倫的時候": 的 and 時候 secondary to ἐπί
-- BA/JIANG disposal marker (將/把) — pure grammatical device that fronts a definite direct object; no independent lexical content, secondary to the fronted object noun phrase, not to the verb. A genuine but not overwhelming minority construction — do not expect it by default. CAUTION: 將 is polysemous — it also means "about to" (a future/imminent-aspect adverb, e.g. 那七日將完 "those seven days were about to end") and appears in the fixed noun 將來 ("the future"). Neither of those is the disposal construction. Disambiguate by checking whether 將/把 is immediately followed by a definite noun phrase + verb (disposal) rather than a bare verb or the noun 來.
+- BA/JIANG disposal marker (將/把) — pure grammatical device that fronts a definite direct object; no independent lexical content, secondary to the fronted object noun phrase, not to the verb. A genuine but not overwhelming minority construction — do not expect it by default. CAUTION: 將 is polysemous — it also means "about to" (a future/imminent-aspect adverb, e.g. 那七日將完 "those seven days were about to end") and appears in the fixed noun 將來 ("the future"). Neither of those is the disposal construction. Disambiguate by checking whether 將/把 is immediately followed by a definite noun phrase + verb (disposal) rather than a bare verb or the noun 來. SPECIAL CASE: 將 immediately followed by 被 (將被 + verb, "will be [verb]ed") is a future-tense/prospective adverb fronting an explicit passive clause — not disposal at all. Treat 將 there as secondary to the verb (tense/aspect marking) and handle 被 under PASSIVE VOICE.
   ἀπήλασεν αὐτοὺς ἀπὸ τοῦ βήματος → "就把他們攆出公堂": 把 secondary to the fronted object 他們; 攆出 primary to ἀπήλασεν
+  παραδοθήσεται (will be delivered up) → "將被交在人手中": 將 secondary to παραδοθήσεται (future-tense marker); 被 secondary (passive marker); 交 primary
 - Copula εἰμί — splits across several target verbs depending on clause type; do not assume one lexeme covers all εἰμί. Existential "there is/was" → 有. Comitative "was with" → a fused compound verb like 同在 (real but low-frequency; plain 在 is far more common for ordinary locative "be at"). Predicate-nominal identity (the majority) → 是, optionally intensified 就是 ("is precisely") — 就是 is real and not rare, and appears independently in multiple different Chinese Bible translations, not just one; align 就 as secondary to εἰμί when present. Locative "to be at/in" → 在.
   Ἐν ἀρχῇ ἦν ὁ λόγος → "太初有道": ἦν primary to 有
   ὁ λόγος ἦν πρὸς τὸν θεόν → "道與上帝同在": ἦν and πρὸς both primary, sharing 同在
@@ -168,7 +193,7 @@ Common secondary cases:
 - Classifier (個/位/隻/座/etc.) — secondary to the counted noun, sharing its record; required by Mandarin's obligatory numeral+classifier+noun grammar, no independent Greek word.
   υἱόν → "一個兒子": 個 secondary to υἱόν
   ἡγούμενος → "一位君王": 位 secondary (a person-classifier, selected for a person of status — the choice of classifier carries no independent translatable content)
-- Pro-drop / topic continuity — subject pronoun supplied on a new/switched subject → secondary; dropped on a coordinate clause continuing the same topic → none expected, leave unrecorded. Absence of an explicit pronoun is the ordinary default, not a gap to fill.
+- Pro-drop / topic continuity — subject pronoun supplied on a new/switched subject → secondary; dropped on a coordinate clause continuing the same topic → none expected, leave unrecorded. Absence of an explicit pronoun is the strong default for same-subject continuation (~94% of the time, confirmed at scale) — do not go looking for a missing pronoun to align in a continuing coordinate clause; it is meant to be absent.
 - Locative postposition (裏/上/中/內) — Mandarin places location words after the noun (postpositional), unlike Greek's prepositions. Preposition + locative word both realize the same Greek preposition (a discontinuous target span). Each locative has its own dominant sense, not interchangeable: 裏 = general containment (ἐν/εἰς/ἐκ); 上 = surface contact (ἐπί/ἐν); 中 = "amid/among" (ἐν/ἐκ; also the fixed dream/vision idiom 夢中 for κατ᾽ ὄναρ); 內 = rare synonym of 裏.
   ἀπὸ τῶν ἁμαρτιῶν αὐτῶν → "從罪惡裏": 從 primary to ἀπό; 裏 secondary to ἀπό as well
 
@@ -193,8 +218,8 @@ Automated suggestions — no secondary classification, no idiom flags, some wron
 ## ARTICLES
 
 Chinese has no article system at all. For every Greek article (POS T-*): does the translation supply a distinct correspondent (a demonstrative)?
-DEFAULT → Branch B: no separate word at all — the large majority case. The noun stands bare, article secondary to the noun's own record, no target word required.
-MINORITY → Branch A: 這/那 (demonstrative/anaphoric reference) — real, but the exact choice is a translator decision, not a mechanical rule (different Chinese Bible translations sometimes diverge on the very same Greek article — one supplies a demonstrative, another doesn't). Primary 1:1; noun in its own record.
+DEFAULT → Branch B: no separate word at all — the large majority case (~96-97% of articles, full-corpus-bounded). The noun stands bare, article secondary to the noun's own record, no target word required.
+MINORITY → Branch A: 這/那 (demonstrative/anaphoric reference) — real but small (~3-4% of articles), and the exact choice is a translator decision, not a mechanical rule (different Chinese Bible translations sometimes diverge on the very same Greek article — one supplies a demonstrative, another doesn't). Primary 1:1; noun in its own record.
 
 ### Branch A — article has a distinct correspondent
   ὁ (anaphoric/demonstrative) → "這"/"那": primary 1:1
@@ -223,27 +248,27 @@ Last resort — prefer the light-verb/resultative-compound or classifier treatme
 PASSIVE_BLOCK = """\
 ## PASSIVE VOICE
 
-Do not assume any particular marking strategy for a Greek passive verb. An UNMARKED verb — no passive morphology of any kind — is the majority strategy, not 被. 被 does occur but is not a safe default assumption. 受/得/蒙 "receive/undergo NOUN" and the more literary 為...所/所...的 construction are both real minority strategies. Which (if any) marker appears is not predictable from Greek voice morphology alone — check the actual target text.
+Do not assume any particular marking strategy for a Greek passive verb. An UNMARKED verb — no passive morphology of any kind — is the majority strategy (~75-77% of passive verbs) but not the only one — 被 is real and not rare (~14-17%), a genuine second-most-common strategy, not a fallback. 受/得/蒙 "receive/undergo NOUN" (~9-11%) and the more literary 為...所/所...的 construction (~0.3-0.5%, rarer but real) round out the strategies. Which (if any) marker appears is not predictable from Greek voice morphology alone — check the actual target text.
 
-### Unmarked — the majority default
+### Unmarked — the majority default (~75-77%)
 The target verb carries no passive morphology at all; many Mandarin verbs are ambitransitive/inchoative (usable both agentively and as "undergo X" with no formal change), or the whole clause is restructured as active voice with a real or generic agent supplied. Primary alone to the Greek passive verb.
   γεγέννημαι (I have been born) → "我生來就是": primary alone
   ἀπεκτάνθησαν (were killed) → "因地震而死的" (recast as an intransitive death-event, "died because of the earthquake"): primary alone
   κηρυχθῆναι (is to be proclaimed) → "人要...傳...道" (recast fully active, "people will proclaim..."): primary alone
   δεδωρημένης (having been given) → "已將...賜給我們" (recast fully active with the agent as subject, using the BA-construction to front the gift): primary alone
 
-### 為...所 / 所...的 — a literary passive-marking construction, distinct from 被
+### 為...所 / 所...的 — a literary passive-marking construction, distinct from 被 (rarest strategy, ~0.3-0.5%)
 Frames the verb with 所 (and often 為ᴀɢᴇɴᴛ before it), nominalizing the passive event. Secondary to the passive verb, framing it rather than replacing it as primary.
   ἀγνοούμενοι (unknown) → "不為人所知" ("not known by people"): 知 primary; 為, 人 (agent), 所 secondary
   ἐπιγινωσκόμενοι (well known) → "人所共知的" ("commonly known by people"): 知 primary; 所, 的 secondary
 
-### 受/得/蒙 receive-construction — a real minority strategy
-The patient (grammatical subject of the Chinese clause) surfaces as the subject of 受/得/蒙 ("receive"); the deep-structure agent surfaces as a possessor inside the nominalized object, not as a separate agent phrase. 受/得/蒙 primary to the passive verb; the possessor noun/pronoun primary to the ὑπό-agent phrase's object.
+### 受/得/蒙 receive-construction — a real second-tier minority strategy (~9-11%)
+The patient (grammatical subject of the Chinese clause) surfaces as the subject of 受/得/蒙 ("receive"); the deep-structure agent surfaces as a possessor inside the nominalized object, not as a separate agent phrase. 受/得/蒙 primary to the passive verb; the possessor noun/pronoun primary to the ὑπό-agent phrase's object. CAUTION: 得 alone is also the ordinary verb-complement particle (e.g. 害怕得很 "very afraid") with no passive sense at all — check the actual clause, don't assume every 得 marks a passive.
   ἐβαπτίσθη ὑπὸ Ἰωάννου (was baptized by John) → "受了約翰的洗": 受 primary to ἐβαπτίσθη; 了 secondary; 約翰 primary to Ἰωάννου
   παιδευόμενοι (disciplined) → "受責罰": 受 primary
 
-### 被-marked passive — real but not the default; do not assume it
-被 secondary to the passive verb (the verb itself, not 被, carries the primary lexical link). Confirmed present in the language but was not the strategy chosen for any of a 25-verse spot-check of passive-stem Greek verbs in CUV's own text — treat it as a real option, not a fallback.
+### 被-marked passive — real and not rare (~14-17%); the second most common strategy
+被 secondary to the passive verb (the verb itself, not 被, carries the primary lexical link). A genuine live option for either edition, not a fallback — which specific verses get it is a per-translator choice, not predictable from Greek voice morphology.
   λεγόμενοι (so-called) → "被稱為神明的" (an independent Chinese translation's choice for this verse; CUV instead used the unmarked "稱為神的" for the same Greek): 被 secondary when present
 
 ### Reflexive/self-directed active conversion
@@ -270,21 +295,22 @@ Not separately researched for Chinese — apply the general TOKEN ROLES guidance
 AUTOS_BLOCK = """\
 ## αὐτός / REFLEXIVE 自己
 
-Two distinct categories — both align 自己 as primary either way; the distinction is about why 自己 was chosen, not the primary/secondary call. The genuine-substitution category is confirmed genuinely narrow (in a spot-check of random αὐτός instances, only a small minority triggered it) — do not treat 自己 as a general pronoun-rendering default; it is conditioned specifically on the referent circling back to the clause's own subject.
+Two distinct categories where 自己 IS present — both align 自己 as primary either way; the distinction is about why 自己 was chosen, not the primary/secondary call. Both are confirmed genuinely narrow at full-corpus scale — do not treat 自己 as a general pronoun-rendering default; it is conditioned specifically on the referent circling back to the clause's own subject. IMPORTANT: even when Greek uses a genuine reflexive pronoun (ἑαυτοῦ/σεαυτοῦ/ἐμαυτοῦ), 自己 is ABSENT from the target a majority of the time (~73-79%) — do not go looking for a missing 自己 to align; a plain pronoun or repeated noun with no reflexivity marker at all is the more common, fully expected outcome (see "No 自己 present" below).
 
 ### Direct correspondence — ordinary translation, not a special case
-Greek itself already uses a reflexive/self-referential word: ἑαυτοῦ/σεαυτοῦ/ἐμαυτοῦ (reflexive pronouns) or ἴδιος ("one's own"). Plain primary translation.
+Greek itself already uses a reflexive/self-referential word: ἑαυτοῦ/σεαυτοῦ/ἐμαυτοῦ (reflexive pronouns) or ἴδιος ("one's own"). When 自己 IS present, plain primary translation.
   μὴ εἴπητε ἐν ἑαυτοῖς → "不要自己心裏說": 自己 primary to ἑαυτοῖς
 
-### Genuine substitution — a real, narrowly-conditioned coreference-driven translation choice
+### Genuine substitution — a real, narrowly-conditioned coreference-driven translation choice (~2-3% net)
 Greek uses a plain personal pronoun (αὐτός/σύ/ἐγώ), but Chinese substitutes the reflexive 自己 specifically because the referent is coreferential with the clause subject. Still primary to that plain pronoun. This condition must actually hold — most plain third-person pronouns in a verse do NOT refer back to the clause's own subject, and get ordinary pronoun treatment instead (see below).
   σώσει τὸν λαὸν αὐτοῦ (subject = Jesus, αὐτοῦ = his own people) → "將自己的百姓...救": 自己 primary to αὐτοῦ; 的 secondary (see 的 in TOKEN ROLES)
   οἱ οἰκιακοὶ αὐτοῦ (his household members) → "自己家裏的人": 自己 primary to αὐτοῦ
   καθὼς ἠθέλησεν (an implicit-subject "as [God] willed") → "隨自己的意思" (自己 reinforces the implicit subject-coreference, even with no separate Greek pronoun token present): 自己 secondary, anchored to the verb's own subject
 
-### Ordinary (non-reflexive) third-person uses of αὐτός — the majority case
-Follow standard pronoun translation (他/她/它/他們/牠 etc.) — no special treatment. This is what most αὐτός instances get.
+### No 自己 present — the common outcome, including for genuine Greek reflexives
+Ordinary pronoun translation (他/她/它/他們/牠 etc.) or a repeated/plain noun, with no distinct reflexivity marker at all — this is what most αὐτός instances get, AND what most genuine ἑαυτοῦ-family instances get too (~73-79% of them). Follow standard pronoun/noun translation; no special treatment, no 自己 to look for.
   Translation substitutes proper name: name primary; additionally supplied subject pronoun secondary.
+  τοῦ πατρὸς ἑαυτοῦ (his own father, reflexive-marked in Greek) → "他父親": 他 primary to ἑαυτοῦ, no 自己 needed — Chinese doesn't require extra reflexivity marking when the antecedent is already unambiguous.
 
 ### No correspondent
 → NEQ source (only when certain).\
