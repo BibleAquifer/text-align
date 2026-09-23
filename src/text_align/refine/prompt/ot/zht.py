@@ -26,10 +26,15 @@ drop explicit pronoun marking — also false, an artifact of a crude character s
 missed pronoun forms like `它`/`她`; careful reading shows explicit marking is the
 majority outcome.
 
-**Consequence for precision:** no exact corpus-wide percentages (every number below is
-either a small hand-verified sample size or an unconditioned whole-corpus count).
-Treat any percentage carried over from the earlier alignment-based draft (now removed)
-as unconfirmed.
+**Consequence for precision, updated:** PASSIVE VOICE has since been re-verified at
+full-corpus scale (every WLCM niphal/pual/hophal verb token, 5,024 tokens / 4,100
+verses, joined to both editions' text) with real percentages, not a small sample.
+INFINITIVAL CONSTRUCTIONS has been independently re-verified with a 35-verse sample
+(previously inherited by analogy from NT and explicitly flagged as unconfirmed) and
+found infinitive absolute is NOT unmarked, contrary to the inherited assumption. The
+remaining blocks (articles, construct chains, copula, pronominal suffixes, negation,
+participles) are still at their original 14-20-verse spot-check stage. See
+`docs/alignment-principles-ot.zht.md` for exact numbers and methodology.
 
 **Draft status:** not yet reviewed by a native Mandarin speaker — the same caveat
 `nt/zht.py` carries, on top of these smaller sample sizes.
@@ -49,13 +54,19 @@ where they transfer, with real OT-specific findings where they don't:
                 pattern (supplied `是`/`有`/`在` with no Hebrew verb behind it → NEQ).
                 Passive voice (folded into BASE_BLOCK since OT's shared tag set has no
                 dedicated PASSIVE conditional, matching `ot/arb.py`'s approach):
-                unmarked/restructured-active is the clear majority in a 20-verse
-                spot-check, but `被` is real and NOT rare — it clustered specifically
-                around violent/adversative events (capture, destruction, burning,
-                exile) in every sampled instance, a cleaner confirmation of the
-                adversative-connotation theory than the NT sample gave (which had zero
-                `被` in CUV's own text). A `所`-nominalizer strategy also appears,
-                matching the NT doc's `為...所`/`所...的` finding.
+                full-corpus-quantified against every WLCM niphal/pual/hophal verb
+                (5,024 tokens / 4,100 verses). Unmarked/restructured-active is still
+                the majority but by a smaller margin than the raw counts suggest
+                (~67%, corrected). `被` is real and NOT rare (12.5% exact count) — it
+                clustered specifically around violent/adversative events (capture,
+                destruction, burning, exile), a cleaner confirmation of the
+                adversative-connotation theory than the NT sample gave. `受`/`得`/`蒙`
+                receive-construction is real and, after correcting for sample-size
+                noise, genuinely HIGHER in OT than NT — ~20% vs. NT's ~9-11% —
+                reversing the earlier 20-verse sample's "zero instances" finding, which
+                was simply too small a sample. A `所`-nominalizer strategy also
+                appears (0.7%), matching the NT doc's `為...所`/`所...的` finding, plus
+                a related bare `為`+agent+verb variant with no `所` at all.
   PRONOMINAL_SUFFIX_BLOCK — REVERSED from the earlier draft: explicit Chinese pronoun
                 marking (的+pronoun for noun hosts, bare pronoun for verb/preposition-
                 governed objects) is confirmed the MAJORITY outcome in a 14-verse
@@ -73,10 +84,20 @@ where they transfer, with real OT-specific findings where they don't:
                 attributive → `的`, bare-nominalized or with a head noun), not
                 article-adjacency. Also newly surfaced: a `是...的` cleft-emphasis
                 strategy for a fronted/emphasized predicative participle.
-  INFINITIVE_BLOCK — NOT independently re-verified at the same depth as the rest of
-                this rebuild; the "plain verb, no marker" claim is inherited by
-                analogy from the NT finding and general knowledge, flagged honestly as
-                such rather than freshly spot-checked.
+  INFINITIVE_BLOCK — Independently re-verified with a 35-verse sample, overturning the
+                inherited "plain verb, no marker" assumption for infinitive absolute:
+                it consistently gets a Chinese modal/intensifying adverb
+                (必/必要/總要/大大) secondary to the paired finite verb, confirmed 4/4
+                in sample — not unmarked. Infinitive construct splits by function
+                rather than one uniform pattern: quotative לֵאמֹר ("saying") after a
+                speech verb is near-categorically bare 說; purpose (לְ + infinitive)
+                sometimes gets an explicit 為/為要 marker and sometimes doesn't (real
+                variation, not predictable from the construction alone); temporal
+                (preposition + infinitive) has THREE coexisting strategies
+                (的時候/後/一...就), not just the single 的時候 pattern documented
+                elsewhere; some infinitives are lexicalized into a plain noun
+                (居所, 家譜); the residual case still defaults to a bare marker-free
+                verb.
 
 Source files: `src/text_align/refine/prompt/ot/zht.py`, `src/text_align/refine/prompt/ot/eng.py`
 """
@@ -171,14 +192,18 @@ Hebrew has no overt copula in present-tense nominal/verbless clauses (subject an
 When Hebrew uses הָיָה ("to be," for past/future/emphatic contexts), it aligns normally, same COPULA STRATEGIES splits as NT Chinese (existential 有, identity 是, locative 在).
 
 ## PASSIVE VOICE
-Do not assume any particular marking strategy for a Hebrew passive-stem verb (Niphal, Pual, Hofal). Unmarked/restructured-active is the clear majority in a spot-check (either an inherently non-agentive positional/stative verb needing no marking, e.g. נִצָּב "standing" → 站, or the clause recast fully active with a generic/implied agent, e.g. יֵאָכֵל "it will be eaten" → 要...吃).
-被 is real and NOT rare — it clustered specifically around violent/adversative events (capture, destruction, burning, exile) in every sampled instance, a clean confirmation of Mandarin 被's known adversative connotation. Do not assume it by default, but do not treat it as absent either — check whether the event is a notable/adversative one.
+Do not assume any particular marking strategy for a Hebrew passive-stem verb (Niphal, Pual, Hofal). Unmarked/restructured-active is the majority (~67% of passive-tagged verbs, full-corpus-checked) but by a smaller margin than a raw character search suggests: either an inherently non-agentive positional/stative verb needing no marking, e.g. נִצָּב "standing" → 站, or the clause recast fully active with a generic/implied agent, e.g. יֵאָכֵל "it will be eaten" → 要...吃.
+被 is real and NOT rare (~12.5%) — it clustered specifically around violent/adversative events (capture, destruction, burning, exile) in every sampled instance, a clean confirmation of Mandarin 被's known adversative connotation. Do not assume it by default, but do not treat it as absent either — check whether the event is a notable/adversative one.
   נִּלְכָּד (caught) + יִשָּׂרֵף (he will be burned) → "被取的人...必被火焚燒": 被 secondary to each verb
   תִּבָּקַע (broken into) → "城被攻破": 被 secondary
   נִשְׁבָּה (taken captive) → "被擄去了": 被 secondary
-A 所-nominalizer strategy also occurs, framing the passive-oriented sense (secondary to the verb it frames, same pattern as the temporal/participle 所...的 construction).
+受/得/蒙 receive-construction is real and NOT rare (~20%, higher than NT's rate — check the actual verb, don't assume OT skips this strategy). CAUTION: 得 alone is also the ordinary verb-complement particle with no passive sense at all — check the clause.
+  נָצַל (be delivered, Niphal) → "得逃脫": 得 secondary
+  מוּל (he will be circumcised, Niphal) → "要受割禮": 受 secondary
+A 所-nominalizer strategy also occurs (~0.7%), framing the passive-oriented sense (secondary to the verb it frames, same pattern as the temporal/participle 所...的 construction), plus a related bare 為+agent+verb variant with no 所 at all.
   הַנִּמְצָא ("[that] found") → "所遇見的": 所, 的 secondary
-Expect no marking at all as the default outcome, but check for 被 specifically on notable/violent events before assuming it's absent.
+  וְנִבְנֽוּ ("it will be rebuilt," agent supplied without 所) → "這城必為耶和華建造": 為 secondary, marking the agent
+Check the actual target text — unmarked is the most likely outcome but far from the only real option.
 
 ## CONJUNCTIONS AND PARTICLES
 Align content words first; conjunctions and particles are residual.
@@ -258,18 +283,30 @@ When the subject is fronted for emphasis in Hebrew, a predicative participle can
 INFINITIVE_BLOCK = """\
 ## INFINITIVAL CONSTRUCTIONS
 
-Not independently spot-checked at the same depth as the rest of this config — inherited by analogy from the NT Chinese finding and general Hebrew/Mandarin knowledge, not freshly verified against raw text. Treat with more caution than the other blocks here until a dedicated check is done.
+Independently re-verified against a 35-verse sample. Infinitive construct and infinitive absolute behave differently — check which one you have before applying either rule.
 
-### Infinitive construct (bare verbal noun, usually governed by לְ)
-Expected to render as a plain Chinese verb, primary alone — no infinitive marker needed (matching NT Chinese's own no-infinitive-marking-word pattern). Separate לְ word-part (pos=preposition), when present: לְ → 為/以/使/當 or another connector, primary.
-  הַבְדִּיל ("to separate") → "分": primary alone
-  לְהֹדוֹת ("to give thanks") → a plain verb clause, e.g. "頌讚耶和華": primary alone
+### Infinitive absolute (cognate/emphatic construction — verb doubled for emphasis) — NOT unmarked
+Confirmed 4/4 in sample: consistently renders with a Chinese modal or intensifying adverb (必/必要/總要/大大) placed before the finite verb — secondary to the finite verb, not a separate lexical item, and not simply absorbed with no trace.
+  שׂוֹשׂ אָשִׂישׂ ("I will greatly rejoice") → "我...大大歡喜": 大大 secondary
+  הָיוֹ יִהְיֶה ("he will surely become") → "必要成為": 必要 secondary
+  הָשֵׁב תְּשִׁיבֶנּוּ ("you shall surely return it") → "總要牽回來": 總要 secondary
+  מוֹת יָמוּת ("he will surely die") → "必要死": 必要 secondary
 
-### Infinitive absolute (cognate/emphatic construction — verb doubled for emphasis)
-Whether Chinese marks the doubling explicitly or absorbs it silently appears to be LEXEME-CONDITIONED — check the specific verb before assuming a pattern (this claim rests on general knowledge, not a fresh spot-check in this rebuild):
-- Motion verbs (הָלוֹךְ "go"; יָצוֹא/שׁוֹב "go out"/"return") may get an ASPECTUAL/ITERATIVE gloss rather than emphasis: 逐漸/漸漸/繼續 ("gradually"/"continue").
-- Certainty/near-fixed-formula verbs (מוֹת "die") may get NO separate marking at all — the emphasis absorbed into the plain verb.
-  מוֹת תָּמוּת ("you shall surely die") → "你必定死" or "死" alone depending on the translation: infinitive absolute secondary to the finite verb, or NEQ if genuinely untranslated — check per instance.\
+### Infinitive construct (bare verbal noun, usually governed by a preposition) — splits by function
+- Quotative לֵאמֹר ("saying") after a verb of speech — near-categorical: bare 說, the redundant "saying" absorbed into the ordinary speech verb, no separate marking. Primary alone.
+  וַיֹּאמֶר...לֵאמֹר ("and he said, saying") → "...說": 說 primary alone, לֵאמֹר absorbed
+- Purpose (לְ + infinitive construct, "in order to X") — real variation: sometimes an explicit purpose marker 為/為要 is supplied (secondary, framing the verb), sometimes the bare verb alone carries the purpose sense with no marker. Check the actual text rather than assuming either.
+  לְהַטּוֹת ("to pervert") → "為要顛倒判斷": 為要 secondary
+  לְמַלֵּא נַפְשׁוֹ ("to satisfy his hunger") → "充飢": no separate marker, purpose absorbed into the bare compound verb
+- Temporal (preposition + infinitive construct, "when/after X") — THREE coexisting strategies, not just 的時候:
+  אַחֲרֵי לֶכְתָּם ("after they had gone") → "他們走後": 後 secondary
+  כְּהַזְכִּירוֹ ("as he mentioned") → "他一提...就": the 一...就 ("as soon as...then") construction
+  בְּרִבָם ("when they contended") → "...的時候": the same 的時候 pattern used elsewhere in this config
+- Lexicalized noun bypass — some infinitive constructs fossilize into a plain noun (parallel to PARTICIPIAL CONSTRUCTIONS' לַקֹּנֶה → 買主 finding).
+  שִׁבְתְּךָ ("your dwelling") → "你的居所": 居所 a plain noun, no infinitive marking needed
+  הִתְיַחְשָׂם ("their genealogy") → "他們的家譜": same pattern
+- Otherwise (direct object / embedded complement infinitives with none of the above functions) — the residual default: plain Chinese verb, primary alone, no separate marking.
+  הַבְדִּיל ("to separate") → "分": primary alone\
 """
 
 

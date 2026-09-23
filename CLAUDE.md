@@ -142,8 +142,9 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   reasoning, no alignment data anywhere — see `project_zht_alignment_paused` in the
   auto-memory system for the full history.** An earlier draft used Clear-Bible's
   `alignments-cmn` repo (Biblica's CUVMPS gold alignment, cross-checked against UBS's
-  CU2010T alignment) and was retracted by direction: CUVMPS was found to diverge from
-  our own CUV in more than script (a real `神`/`上帝` lexical difference, the
+  CU2010T alignment) and was retracted by direction: CUVMPS is itself a Simplified-script
+  edition (a categorical mismatch with this Traditional-script config) and was also
+  found to diverge from our own CUV lexically (a real `神`/`上帝` difference, the
   神版/上帝版 dual-edition tradition, plus an unexplained 85.4% verse-level token-count
   mismatch), and CU2010T's alignment was confirmed unreliable for word-level
   verification (98.8% of negation particles showed "unaligned" despite the Chinese
@@ -176,10 +177,30 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   `IMPERSONAL`, `INFINITIVE`, `HINA`, `COMPARATIVE`, `HOTI`, `CONDITIONAL`, and
   `NEGATION` blocks are imported unchanged from `eng.py` — out of scope for this
   research pass, unlike Hindi's negation/infinitive coverage; confirm with a native
-  speaker before assuming they transfer cleanly, especially negation. **Draft — not yet
-  reviewed by a native Mandarin speaker.** Simplified Chinese (zhs) is a fully separate
-  config (not derived from this one) and will get its own doc/code once real Simplified
-  target data is available — see `docs/alignment-principles-nt.zht.md`.
+  speaker before assuming they transfer cleanly, especially negation. **Six sections
+  re-verified 2026-09-23 at full-corpus scale** by programmatically joining SBLGNT's
+  `pos`/`morph`/`lemma` tags to both CUV's and BOCCB2023T's raw text (a verse-level/
+  pattern-level proxy, still not real token-level alignment): 著/着 and 裡/裏 orthography
+  is 100% categorical per edition, zero exceptions; the BA-construction's false-positive
+  rate drops to ~1-2% once fused compounds (將要/將來/把手/etc.) are excluded by token
+  boundary, and surfaced a new BOCCB2023T-specific `將`+`被`+verb future-passive pattern
+  absent from CUV; `為...所` passive scales from 2 instances to ~27 CUV/~18 BOCCB2023T
+  confirmed hits (still the rarest passive strategy, 0.3-0.5% of all passive verbs);
+  the passive-voice split now has real percentages (unmarked ~75-77%, `被` 13.7-16.9%,
+  受/得/蒙 ~9-11%); the article demonstrative-rendering branch is bounded to a small
+  single-digit percentage (~3-4% CUV), tighter than the original spot-check implied;
+  and reflexive `自己` substitution for a plain pronoun is confirmed narrow (~2-3% net)
+  while a genuinely new finding shows even a GENUINE Greek reflexive pronoun only gets
+  `自己` a minority of the time (~21-27%). Pro-drop was scaled to a 40-verse
+  hand-classified sample: ~94% pronoun-drop rate specifically for same-subject
+  coordinate continuation, resolving an apparent tension with the earlier retracted
+  76% figure (which likely mixed introduction and continuation populations together).
+  See `docs/alignment-principles-nt.zht.md`'s per-section notes for exact methodology,
+  and its ARTICLES section for an honestly-flagged limitation in that construction's
+  correction method itself. **Draft — not yet reviewed by a native Mandarin speaker.**
+  Simplified Chinese (zhs) is a fully separate config (not derived from this one) and
+  will get its own doc/code once real Simplified target data is available — see
+  `docs/alignment-principles-nt.zht.md`.
 - `nt/hau.py` — Hausa (Chadic, Afroasiatic). Built entirely from raw text +
   reasoning (OHCB target TSV joined to SBLGNT, full-corpus or large-random-sample
   checks per construction) after an existing UBS manual alignment
@@ -370,9 +391,19 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   adversative events (capture, destruction, exile) in every sampled instance — a
   cleaner confirmation of the adversative-connotation theory than the NT sample gave
   (which had zero `被`). A `所`-nominalizer strategy appears here too, matching the NT
-  doc's finding. Infinitival constructions were not independently re-verified at the
-  same depth as the rest of this rebuild — flagged honestly as inherited by analogy.
-  **Draft — not yet reviewed by a native Mandarin speaker.**
+  doc's finding. **Passive voice re-verified 2026-09-23 at full-corpus scale**
+  (every WLCM niphal/pual/hophal verb, 5,024 tokens / 4,100 verses, same method as the
+  NT doc): unmarked ~67%, `被` 12.5%, `為...所` 0.7% (all exact counts), and — the
+  headline reversal — `受`/`得`/`蒙` receive-construction is ~20%, genuinely *higher*
+  than NT's ~9-11%, not the near-absent minority a 20-verse sample had suggested (that
+  finding was simply too small a sample, not a real OT/NT difference). **Infinitival
+  constructions independently re-verified the same day** with a 35-verse sample,
+  overturning the inherited "plain verb, no marker" assumption for infinitive
+  absolute — it consistently takes a modal/intensifying adverb (必/必要/總要/大大),
+  confirmed 4/4 in sample — while infinitive construct splits by function (quotative
+  לֵאמֹר near-categorically bare 說; purpose sometimes 為/為要-marked, sometimes not;
+  temporal has three coexisting strategies 的時候/後/一...就; some lexicalized as plain
+  nouns). **Draft — not yet reviewed by a native Mandarin speaker.**
   Distilled from `docs/alignment-principles-ot.zht.md`.
 - `__init__.py` — re-exports the public API and imports all language modules to trigger
   registration.
@@ -396,7 +427,7 @@ compressed. Approximate token budget (all blocks assembled):
 | NT ind | ~5,234 |
 | NT hin | ~8,095 |
 | NT arb | ~15,958 |
-| NT zht | ~6,842 |
+| NT zht | ~7,310 |
 | NT hau | ~11,663 |
 | NT swh | ~7,925 |
 | OT eng | ~3,031 |
@@ -405,7 +436,7 @@ compressed. Approximate token budget (all blocks assembled):
 | OT fra | ~5,072 |
 | OT ind | ~5,254 |
 | OT arb | ~7,187 |
-| OT zht | ~4,550 |
+| OT zht | ~5,211 |
 
 NT ind/hin/arb and all OT figures use `tiktoken` (cl100k_base) on the fully-assembled
 prompt (all conditional blocks included), matching `cost_estimate.py`'s counting method

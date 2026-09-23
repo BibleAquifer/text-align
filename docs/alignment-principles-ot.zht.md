@@ -6,8 +6,12 @@ anywhere), matching `alignment-principles-nt.zht.md`'s rebuild and the `ind`/`hi
 `WLCM-CU2010T-manual.json` alignment; that version was retracted by direction — CU2010T
 was confirmed unreliable for word-level verification (98.8% of negation particles
 showed "unaligned" despite the Hebrew text plainly having a Chinese negation
-correspondent in every sampled verse — it was built for a different purpose). Not yet
-reviewed by a native Mandarin speaker.**
+correspondent in every sampled verse — it was built for a different purpose). Since the
+rebuild, PASSIVE VOICE has been re-verified at full-corpus scale (same
+`morph`-tag-joining method as the NT doc) and INFINITIVAL CONSTRUCTIONS has been
+independently re-verified with a 35-verse sample (previously inherited by analogy from
+NT, now genuinely checked and partially overturned — infinitive absolute is NOT
+unmarked). Not yet reviewed by a native Mandarin speaker.**
 
 Guidelines used by `refine-alignment` when aligning Bible translations into Traditional
 Chinese against the Hebrew Old Testament (WLCM, Westminster Leningrad Codex) source.
@@ -20,7 +24,7 @@ Target text: Chinese Union Version, Modern Punctuation, Traditional orthography 
 staged locally at `data/alignments/alignments-cmn/data/targets/CUV/`). Every worked
 example below is quoted directly from that data.
 
-Source files (not yet written): `src/text_align/refine/prompt/ot/zht.py`
+Source file: `src/text_align/refine/prompt/ot/zht.py`
 
 ---
 
@@ -194,9 +198,14 @@ Example (verbless clause): Ps 23:1 `יְהוָה רֹעִי` ("the LORD [is] my 
 ## PASSIVE VOICE **[zht]**
 
 Spot-checked against 20 randomly sampled passive-stem verbs (Niphal, Pual, Hofal),
-cross-checked against BOCCB2023T. **Unmarked/restructured-active remains the clear
-majority** (roughly 14 of 20 verses show no separate marking at all), but with a
-genuinely richer picture than the NT sample gave for `被`:
+cross-checked against BOCCB2023T, then **upgraded to a full-corpus check**: every WLCM
+verb token in a passive-capable stem (Niphal/Pual/Hophal, `morph[1]` in `N`/`P`/`H`,
+5,024 tokens across 4,100 distinct OT verses — the same population `ot/arb.py`'s own
+full-corpus passive pass used) was matched to CUV/BOCCB2023T verse text and scanned for
+`被` and the `為...所` pattern, with a 35-verse hand-resample of the unmarked-looking
+bucket to correct for `得`'s noise as an ordinary particle (same method as the NT doc's
+passive-voice upgrade). **Unmarked/restructured-active remains the majority but by a
+smaller margin than the raw counts suggest** (~67%, corrected — see below):
 
 **Unmarked — the majority default**, for two distinct reasons:
 - Inherently non-agentive positional/stative verbs need no marking at all: Gen 24:13
@@ -206,29 +215,53 @@ genuinely richer picture than the NT sample gave for `被`:
   `הֻכּוּ` ("they were struck") → CUV `生了痔瘡` ("they developed tumors," fully
   recast).
 
-**`被` — real and not rare, clustering around violent/adversative events**, a cleaner
-confirmation of the typological "adversative connotation" theory than the NT sample
-gave (which had zero `被` instances in CUV's own text): Josh 7:15 `נִּלְכָּד` ("caught")
-+ `יִשָּׂרֵף` ("he will be burned") → CUV `被取的人...必被火焚燒` (both `被`-marked);
-2 Kings 25:4 `תִּבָּקַע` ("broken into") → CUV `城被攻破`; Jer 13:17 `נִשְׁבָּה` ("taken
-captive") → CUV `被擄去了`; Dan 11:4 `תִנָּתֵשׁ` ("plucked up") → CUV `必被拔出`. Every
-`被` instance in this sample describes capture, destruction, burning, or exile — real
-evidence for the adversative-connotation pattern, not just a theoretical claim.
+**`被` — real and not rare (12.5% CUV / 13.8% BOCCB2023T, full-corpus exact counts),
+clustering around violent/adversative events**, a cleaner confirmation of the
+typological "adversative connotation" theory than the NT sample gave (which had zero
+`被` instances in CUV's own text): Josh 7:15 `נִּלְכָּד` ("caught") + `יִשָּׂרֵף` ("he
+will be burned") → CUV `被取的人...必被火焚燒` (both `被`-marked); 2 Kings 25:4
+`תִּבָּקַע` ("broken into") → CUV `城被攻破`; Jer 13:17 `נִשְׁבָּה` ("taken captive") →
+CUV `被擄去了`; Dan 11:4 `תִנָּתֵשׁ` ("plucked up") → CUV `必被拔出`. Every `被`
+instance in the original 20-verse sample described capture, destruction, burning, or
+exile — real evidence for the adversative-connotation pattern, not just a theoretical
+claim.
+
+**`為...所` — real but the rarest clean strategy (0.7% CUV / 0.4% BOCCB2023T)**, exact
+full-corpus counts, matching the NT doc's finding that this is the smallest of the
+marked strategies. A related, rarer variant surfaced in this pass: bare `為`+agent+verb
+with no `所` at all (Jer 33:7 `וְנִבְנֽוּ` "it will be rebuilt" → CUV `這城必為耶和華
+建造` "this city will be rebuilt BY the LORD") — an agent-marking strategy without the
+nominalizing `所`, distinct from both `為...所` and plain `被`.
 
 **`所`-nominalizer**, present but not `被`/`受`-marked: Judg 20:48 `הַנִּמְצָא`
 ("[that/those] found") → CUV `所遇見的` (`所...的` framing the passive-oriented sense,
 the same construction found in the NT doc's 1 Cor 4:9 example).
 
-**`受`/`得`/`蒙` receive-construction** — not observed in this 20-verse OT sample (in
-contrast to the NT sample, which had one clear instance). Whole-corpus unconditioned
-counts still confirm the characters exist in CUV's OT text generally; treat as a real
-but apparently rarer strategy in OT narrative than the sample volume here can
-confidently quantify.
+**`受`/`得`/`蒙` receive-construction — resolved: a real full-corpus rate, genuinely
+HIGHER than NT's, not lower.** The original 20-verse sample's "zero instances, unlike
+NT's one" finding was simply too small a sample — a 35-verse resample of the
+unmarked-looking bucket found 8/35 (22.9%) genuine receive-construction hits in CUV
+(受了割禮 "received circumcision," 蒙福 "were blessed," 得存留/得逃脫 "got to
+remain/escape," 得建立/得脫離 "got established/delivered"), correcting to an estimated
+**~20% of all passive-tagged verses** — well above NT's ~9-11%. The same 35 verses read
+in BOCCB2023T show marking (受/得/蒙/被/為...所 combined) in 10/35 (28.6%), slightly
+higher than CUV's rate on the identical verse set — consistent with the NT doc's
+finding that BOCCB2023T tends to mark passive voice somewhat more explicitly than CUV.
+This directly answers the open question from the earlier draft: the apparent OT/NT
+difference was sample variance, not a genuine typological gap — if anything OT CUV uses
+receive-construction *more* than NT CUV does.
 
-**Revised guidance**: as with NT, do not assume any particular marking strategy. Unlike
-the NT sample, `被` is genuinely well-attested in OT narrative — check whether the event
-described is a notable/adversative one (capture, destruction, exile) before assuming
-it will be unmarked.
+**Corrected full-corpus picture** (CUV): unmarked/restructured-active ~67%, `被` 12.5%,
+receive-construction (受/得/蒙) ~20%, `為...所` 0.7% — the unmarked share is smaller
+than the raw "neither 被 nor 為所" bucket (86.9%) suggested, since that raw bucket still
+contained the uncorrected 受/得/蒙 instances.
+
+**Revised guidance**: as with NT, do not assume any particular marking strategy. `被` is
+genuinely well-attested in OT narrative — check whether the event described is a
+notable/adversative one (capture, destruction, exile) before assuming it will be
+unmarked. `受`/`得`/`蒙` is likewise a real, non-trivial option — check the actual verb,
+not just morphology, and remember `得` specifically is heavily confounded with its
+ordinary non-passive use as a verb-complement particle.
 
 ---
 
@@ -281,13 +314,62 @@ ones do not.
 
 ## INFINITIVAL CONSTRUCTIONS **[zht]**
 
-Not independently re-verified at the same depth as the other sections in this rebuild
-— the general pattern observed in passing across other samples (e.g. 2 Chr 5:13 `לְ
-הֹדוֹת` "to give thanks" rendering as a plain verb clause `藉利未人頌讚耶和華的`) is
-consistent with the NT doc's general "no infinitive-marking word" finding: Hebrew's
-infinitive construct renders as a plain Chinese verb, primary alone. Needs its own
-dedicated spot-check before treating this as confirmed rather than inherited by
-analogy from the general pattern.
+**Independently re-verified**, correcting the earlier "inherited by analogy" status.
+A 35-verse random sample drawn from WLCM's full population of infinitive construct
+(`morph[2]=c`, 6,606 tokens) and infinitive absolute (`morph[2]=a`, 882 tokens) tokens
+was read directly against CUV. The picture is more differentiated than the inherited
+NT-based assumption: infinitive absolute has a real marking strategy (it is NOT simply
+a bare verb), and infinitive construct splits into several distinct functional
+sub-cases rather than one uniform "plain verb" outcome.
+
+### Infinitive absolute (paired with a finite verb of the same root) — a modal/intensifying adverb, confirmed 4/4 in sample
+Contrary to the inherited assumption, this is not unmarked. The emphatic/cognate pairing
+consistently renders with a Chinese modal or intensifying adverb (`必`/`必要`/`總要`/
+`大大`) placed before the finite verb — secondary to the finite verb, not a separate
+lexical item of its own.
+  Isa 61:10 `שׂוֹשׂ אָשִׂישׂ` ("I will greatly rejoice") → CUV `我因耶和華大大歡喜`: `大大` secondary to the finite verb, marking the infinitive-absolute intensification
+  Gen 18:18 `הָיוֹ יִהְיֶה` ("he will surely become") → CUV `必要成為`: `必要` secondary
+  Exod 23:4 `הָשֵׁב תְּשִׁיבֶנּוּ` ("you shall surely return it") → CUV `總要牽回來`: `總要` secondary
+  2 Kgs 8:10 `חָיֹה תִחְיֶה` / `מוֹת יָמוּת` ("he will surely live" / "he will surely die") → CUV `必能好` / `必要死`: `必`-family secondary in both
+
+### Infinitive construct — splits by function, not one uniform pattern
+- **Quotative `לֵאמֹר` ("saying") after a verb of speech** — near-categorical: renders
+  as plain `說`, the redundant "saying" absorbed into the ordinary speech verb, no
+  separate marking. Confirmed in 5+ of the sample's instances (2 Chr 33:30, Jer 26:3,
+  Ezek 24:13, 1 Sam 9:4, Gen 38:21). Primary alone to the infinitive.
+- **Purpose (לְ + infinitive construct, "in order to X")** — real variation: sometimes
+  an explicit purpose marker `為`/`為要` is supplied (secondary, framing the verb),
+  sometimes the bare verb alone carries the purpose sense with no marker at all. Prov
+  17:23 `לְהַטּוֹת` ("to pervert") → CUV `為要顛倒判斷`: `為要` secondary. Esth 9:24
+  `לְאַבְּדָם` ("to destroy them") → CUV `為要殺盡滅絕他們`: `為要` secondary. Isa 20:6
+  `נִצַּלְנוּ` purpose-of-escape → CUV `為脫離亞述王逃往求救的`: `為` secondary. Contrast
+  Prov 6:30 `לְמַלֵּא נַפְשׁוֹ` ("to satisfy his hunger") → CUV `充飢`: no separate
+  marker, the purpose sense absorbed into the bare compound verb alone.
+- **Temporal (preposition + infinitive construct, "when/after X")** — THREE coexisting
+  strategies, not just the single `的時候` pattern documented elsewhere in this doc: 2
+  Sam 17:21 `אַחֲרֵי לֶכְתָּם` ("after they had gone") → CUV `他們走後`: `後` secondary.
+  1 Sam 4:18 `כְּהַזְכִּירוֹ` ("as he mentioned") → CUV `他一提...就`: the `一...就`
+  ("as soon as...then") immediate-sequence construction, a third strategy alongside
+  `的時候` and `後`. Job 31:13 `בְּרִבָם` ("when they contended") → CUV `...的時候`:
+  confirming the `的時候` pattern already documented elsewhere in this doc extends to
+  infinitive-construct temporal clauses too, not just prepositional phrases.
+- **Lexicalized noun bypass** — some infinitive constructs have fossilized into a plain
+  noun, parallel to the PARTICIPIAL CONSTRUCTIONS section's `לַקֹּנֶה` → `買主` finding.
+  1 Kgs 8:39 `שִׁבְתְּךָ` ("your dwelling") → CUV `你的居所`: `居所` a plain noun, no
+  infinitive-marking needed. Ezra 8:1 `הִתְיַחְשָׂם` ("their genealogy") → CUV
+  `他們的家譜`: same pattern.
+- **Otherwise (direct object / embedded complement infinitives with no separate
+  marking)** — the original baseline case still holds for the remainder: plain Chinese
+  verb, primary alone, no separate infinitive-marking word. This remains the correct
+  default when none of the above four more specific patterns applies.
+
+**Revised guidance**: do not apply one uniform "infinitive construct → plain verb, no
+marker" rule. Check function first — quotative `לֵאמֹר` is near-always `說` with
+nothing else; purpose sometimes gets `為`/`為要`, sometimes doesn't; temporal gets one
+of three distinct markers depending on the specific preposition/construction; some
+infinitives are lexicalized nouns; only the residual case defaults to a bare marker-free
+verb. Infinitive absolute is NOT unmarked — expect a modal/intensifying adverb
+(`必`/`必要`/`總要`/`大大`) secondary to the paired finite verb.
 
 ---
 
@@ -350,12 +432,23 @@ data" as meaningless for negation — the true correspondence rate is close to u
 
 ## Open questions for the next review pass
 
-- **Infinitival constructions** — not independently re-verified at the same depth as
-  the rest of this document; the "plain verb, no marker" claim is inherited by analogy
-  from the NT pattern and general knowledge, not freshly spot-checked here.
-- **`受`/`得`/`蒙` receive-construction rate in OT specifically** — not observed at all
-  in the 20-verse passive sample (versus one clear NT instance); unclear whether this
-  reflects a genuine OT/NT difference or just sample variance at this size.
+- **Infinitival constructions — resolved, independently re-verified.** A 35-verse
+  sample overturned the inherited "plain verb, no marker" assumption for infinitive
+  absolute (real modal/intensifying adverb marking, `必`/`必要`/`總要`/`大大`) and split
+  infinitive construct into distinct functional sub-cases (quotative `לֵאמֹר`→`說`
+  near-categorical; purpose sometimes `為`/`為要`-marked, sometimes bare; temporal has
+  three coexisting strategies `的時候`/`後`/`一...就`; some lexicalized as plain nouns).
+  See INFINITIVAL CONSTRUCTIONS above. Remaining gap: 35 verses is not a full-corpus
+  count, and the relative proportion of each infinitive-construct sub-case (how often
+  purpose gets an explicit marker vs. not, for instance) wasn't tallied precisely.
+- **`受`/`得`/`蒙` receive-construction rate in OT — resolved, and the finding
+  reversed.** A full-corpus check (4,100 verses with a niphal/pual/hophal verb) plus a
+  35-verse hand-resample found ~20% of all OT passive-tagged verses use receive-
+  construction in CUV — genuinely HIGHER than NT's ~9-11%, not lower or absent as the
+  20-verse sample's "zero instances" suggested. That original finding was simply sample
+  variance from too small a sample size, not a real OT/NT typological difference. See
+  PASSIVE VOICE above for the full corrected picture (unmarked ~67%, `被` 12.5%,
+  receive-construction ~20%, `為...所` 0.7%).
 - **The true headless-substantive-participle question carried over from the retracted
   draft** — now largely moot, since this rebuild found substantive participles DO take
   的 regularly regardless of whether a head noun is present or bare-nominalized; the
