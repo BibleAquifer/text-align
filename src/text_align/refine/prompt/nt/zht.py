@@ -34,6 +34,22 @@ limitation in the correction method itself, not just the sample size.
 **Draft status:** not yet reviewed by a native Mandarin speaker — the same caveat the
 other non-Romance configs (`ind`, `hin`, `arb`) carried before their own review.
 
+**Prompt-hardening pass (2026-09-23), from real `score-alignment` output.** Running
+`score-alignment` against actual CUV NT output (Titus, 2 John, 3 John) and reading the
+flagged `token smearing` records by hand found the signal wasn't a scoring false
+positive — it was mostly the model not consistently following rules this config
+already stated. The largest single pattern: the locative-postposition rule already
+documented (`裏` secondary, not primary) wasn't being applied to `上`/`面前`/`身上` in
+practice, so those bullets now carry explicit CAUTION language and negative examples.
+Same fix for the `的`-attributive-linker rule. Two genuinely new rules were added from
+patterns the config didn't cover before: a supplied light verb verbalizing a bare
+Greek noun/adjective predicate (`說`/`是`/etc., secondary, no Greek anchor of its own)
+and two more idiom shapes under IDIOMS (substantized prepositional phrases like `ὁ ἐξ
+ἐναντίας` "the opponent," and adjective+εἰμί predicates rendered as an idiomatic
+Chinese verb-object compound). This was a compliance-reinforcement pass, not a new
+research pass — see the conversation/PR history for the full record-by-record
+breakdown across the flagged verses.
+
 **Orthography note:** CUV consistently uses the older variant characters `着` (not
 `著`) and `裏` (not `裡`) — confirmed directly in the target TSV. All worked examples
 below use CUV's actual characters, not the modern standard forms (which BOCCB2023T
@@ -177,7 +193,8 @@ Common secondary cases:
 
 - 的 as genitive/possessive marker (the single largest 的 use) — secondary to the genitive-case Greek noun/pronoun.
   τῶν δούλων αὐτοῦ → "他僕人"/"他的僕人": 的 secondary to αὐτοῦ when present
-- 的 as attributive-adjective linker — secondary to the adjective it links; no dedicated Greek word.
+- 的 as attributive-adjective linker — secondary to the adjective it links; no dedicated Greek word. CAUTION, a real recurring tagging mistake: 的 in this role is grammar-required, not a second content word — never leave it primary/unmarked alongside the adjective, even when Chinese fuses adjective+noun into one lexicalized compound (e.g. 永生 "eternal life").
+  ζωὴ αἰώνιος → "永生的": 永生 primary to both ζωή and αἰώνιος together (a fused compound); 的 secondary
 - 的 as substantive-participle nominalizer — see PARTICIPIAL CONSTRUCTIONS.
 - 所 as a related nominalizer, often paired with 的 (所...的) or 為 (為...所) — a more literary strategy for the same nominalizing role, especially for patient-oriented/passive senses. τὸ ὅραμα ὃ εἶδεν → "所看見的異象": 所 and 的 both secondary, framing the verb 看見.
 - 的時候 temporal-clause marker — a temporal preposition (ἐν/ἐπί/ἐφ᾽) triggers "...的時候" ("the time when..."); both 的 and 時候 secondary to the preposition.
@@ -190,12 +207,17 @@ Common secondary cases:
   ὁ λόγος ἦν πρὸς τὸν θεόν → "道與上帝同在": ἦν and πρὸς both primary, sharing 同在
 - Light-verb / resultative-directional compound — head morpheme primary, result/direction morpheme secondary to the same Greek verb, unless the compound is itself a lexicalized idiom (e.g. a naming formula — see IDIOMS).
   σώσει → "救出來": 救 primary; 出來 secondary
+- Supplied light verb, verbalizing a Greek noun/adjective predicate — Chinese frequently needs a semantically-light verb (說/是/有/作/為/etc.) to predicate a noun or adjective that Greek expresses without one (a bare noun predicate, or noun+εἰμί). That supplied verb has no Greek lexical anchor of its own — secondary to the noun/adjective it verbalizes, never left as an undifferentiated second primary. A real recurring tagging mistake: leaving the supplied verb primary alongside the noun/adjective inflates the record to look like a genuine multi-word correspondence when only one Greek word is actually doing the lexical work.
+  ἀεὶ ψεῦσται (always liars) → "常說謊話" (always speak lies): 常 primary to ἀεί; 謊話 primary to ψεῦσται; 說 secondary (supplied verb, no separate Greek anchor)
 - Classifier (個/位/隻/座/etc.) — secondary to the counted noun, sharing its record; required by Mandarin's obligatory numeral+classifier+noun grammar, no independent Greek word.
   υἱόν → "一個兒子": 個 secondary to υἱόν
   ἡγούμενος → "一位君王": 位 secondary (a person-classifier, selected for a person of status — the choice of classifier carries no independent translatable content)
 - Pro-drop / topic continuity — subject pronoun supplied on a new/switched subject → secondary; dropped on a coordinate clause continuing the same topic → none expected, leave unrecorded. Absence of an explicit pronoun is the strong default for same-subject continuation (~94% of the time, confirmed at scale) — do not go looking for a missing pronoun to align in a continuing coordinate clause; it is meant to be absent.
-- Locative postposition (裏/上/中/內) — Mandarin places location words after the noun (postpositional), unlike Greek's prepositions. Preposition + locative word both realize the same Greek preposition (a discontinuous target span). Each locative has its own dominant sense, not interchangeable: 裏 = general containment (ἐν/εἰς/ἐκ); 上 = surface contact (ἐπί/ἐν); 中 = "amid/among" (ἐν/ἐκ; also the fixed dream/vision idiom 夢中 for κατ᾽ ὄναρ); 內 = rare synonym of 裏.
+- Locative postposition (裏/上/中/內/面前/身上, etc.) — Mandarin places location words after the noun (postpositional), unlike Greek's prepositions. Preposition + locative word both realize the same Greek preposition (a discontinuous target span). CAUTION, a real recurring tagging mistake: the trailing postposition is grammar-required, not a second content word — mark it SECONDARY to the same source token as the leading preposition-equivalent, never leave it as an independent primary (doing so falsely inflates the record to look like a multi-word correspondence). This applies to every locative postposition, not just 裏 — including 上 (surface/general locative), 面前 ("before," lit. "face-front"), and body-part-derived forms like 身上 ("upon," lit. "body-upon"). Each has its own dominant sense, not interchangeable: 裏 = general containment (ἐν/εἰς/ἐκ); 上 = surface contact or general locative (ἐπί/ἐν); 中 = "amid/among" (ἐν/ἐκ; also the fixed dream/vision idiom 夢中 for κατ᾽ ὄναρ); 內 = rare synonym of 裏; 面前/身上 = "before/upon" a person, common with ἐνώπιον/ἐπί + a personal object.
   ἀπὸ τῶν ἁμαρτιῶν αὐτῶν → "從罪惡裏": 從 primary to ἀπό; 裏 secondary to ἀπό as well
+  ἐν τῇ διδασκαλίᾳ → "在教訓上": 在 primary to ἐν; 上 secondary to ἐν (not a second primary)
+  ἐνώπιον τῆς ἐκκλησίας → "在教會面前": 在 primary to ἐνώπιον; 面前 secondary to ἐνώπιον (not a second primary)
+  ἐφ᾽ ἡμᾶς → "在我們身上": 在 primary to ἐπί; 身上's 上 secondary to ἐπί (not a second primary)
 
 ## NEQ (NON-EQUIVALENT)
 
@@ -242,7 +264,10 @@ No Greek article, and no Chinese indefinite article by default — bare noun, no
 
 ## IDIOMS
 meta.is_idiom: true when phrase-level correspondence has no token-level equivalent. All tokens implicitly primary; meta.secondary does not apply.
-Last resort — prefer the light-verb/resultative-compound or classifier treatment (TOKEN ROLES) over idiom marking whenever the construction is a recognized instance of one of those patterns rather than a genuinely non-compositional phrase. A lexicalized naming formula ("起名叫" for "call [X's] name") is a plausible idiom candidate when the two halves cannot be cleanly split against τὸ ὄνομα and καλέσεις separately. Function-word-only source records (POS C-*, X-*, prepositions) are never idioms.\
+Last resort — prefer the light-verb/resultative-compound or classifier treatment (TOKEN ROLES) over idiom marking whenever the construction is a recognized instance of one of those patterns rather than a genuinely non-compositional phrase. A lexicalized naming formula ("起名叫" for "call [X's] name") is a plausible idiom candidate when the two halves cannot be cleanly split against τὸ ὄνομα and καλέσεις separately. Function-word-only source records (POS C-*, X-*, prepositions) are never idioms.
+Two additional recurring idiom shapes, easy to miss: (1) a substantized prepositional phrase (article/pronoun + preposition + noun/adjective forming one nominal unit, e.g. "the one from the opposite side" = "the opponent") — the article's own record still follows the usual ARTICLES treatment, but the preposition+noun/adjective pair is a plausible idiom candidate rather than two separate content records, since neither word translates independently. (2) a Greek adjective+εἰμί predicate rendered as an idiomatic Chinese verb-object compound rather than a literal "be ADJ" (e.g. εὐάρεστος εἶναι "to be well-pleasing" → 討喜歡, literally "court-favor," an idiom for "please someone") — mark idiom when the Chinese compound doesn't split cleanly back into a copula-record plus an adjective-record.
+  ὁ ἐξ ἐναντίας (lit. "the [one] from the opposite [side]") → "那反對的人": is_idiom true, all tokens primary
+  ἐκ Κρητῶν ("[a prophet] of their own," partitive ἐκ+genitive-pronoun idiom) → "...中的": is_idiom true\
 """
 
 PASSIVE_BLOCK = """\

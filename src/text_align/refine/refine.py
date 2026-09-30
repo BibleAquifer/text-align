@@ -725,11 +725,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--max-api-retries", type=int, default=4,
                    help="Retry attempts on transient API errors (429/503) with "
                         "exponential backoff — 2s, 4s, 8s, … (default: 4)")
-    p.add_argument("--temperature", type=float, default=1,
+    p.add_argument("--temperature", type=float, default=0.2,
                    help="Sampling temperature sent explicitly to the provider "
-                        "(default: 1).  Fixing this value ensures sync and async "
-                        "batch runs use identical generation parameters.  "
-                        "Not applied to OpenAI reasoning models.")
+                        "(default: 0.2 — alignment is a structured-extraction task "
+                        "with explicit rules to follow, not creative generation, so "
+                        "low temperature improves rule-following).  Fixing this value "
+                        "ensures sync and async batch runs use identical generation "
+                        "parameters.  Not applied to OpenAI reasoning models.")
     p.add_argument("--max-output-tokens", type=int, default=4000,
                    help="Hard cap on response tokens (default: 32000).  Matches "
                         "the Anthropic budget and gives thinking models headroom "
