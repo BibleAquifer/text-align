@@ -95,8 +95,10 @@ max_retries: 2
 # with exponential backoff. Increase for unreliable providers.
 max_api_retries: 4
 
-# Sampling temperature. Default 1; not applied to OpenAI reasoning models.
-temperature: 1
+# Sampling temperature. Default 0.2 — alignment is a structured-extraction task
+# with explicit rules to follow, not creative generation, so low temperature
+# improves rule-following; not applied to OpenAI reasoning models.
+temperature: 0.2
 
 # Token budget per LLM call. Default 4000 — sufficient for alignment output on any
 # single verse or small batch. For Anthropic extended thinking on the retry pass,

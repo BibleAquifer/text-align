@@ -31,6 +31,11 @@ reasoning_effort: low
 #llm_model: gloo-deepseek-v4-pro
 llm_model: gloo-google-gemini-3.7-flash # cheap through Dec 31 2026, then doubles
 
+# Matches the project-wide default (0.2, see CLAUDE.md) — set explicitly here as a
+# record of why: to make the model follow explicit prompt rules (e.g. article-never-
+# NEQ, locative-postposition-secondary) more consistently.
+temperature: 0.2
+
 # Ollama (local)
 #llm_provider: ollama
 #llm_model: qwen3.6:35b

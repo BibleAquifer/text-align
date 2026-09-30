@@ -26,8 +26,8 @@ max_output_tokens: 32000
 
 # Gloo
 llm_provider: gloo
-reasoning_effort: high
-llm_model: gloo-deepseek-v4-pro
+reasoning_effort: low
+llm_model: gloo-google-gemini-3.7-flash # cheap through Dec 31 2026, then doubles
 
 # Ollama (local)
 #llm_provider: ollama
