@@ -555,6 +555,7 @@ def score_chapter_file(
     target_verses: Any | None = None,
     record_details: list | None = None,
     acai_src_ids: set[str] | None = None,
+    proper_noun_src_ids: set[str] | None = None,
 ) -> list[VerseScore]:
     """Score all verses in a chapter JSON file.
 
@@ -568,6 +569,12 @@ def score_chapter_file(
         acai_src_ids:      Corpus-wide set of source token IDs tagged with an
                            ACAI entity (from build_word_entity_map()), or None
                            to skip the ACAI-unaligned check.
+        proper_noun_src_ids: Corpus-wide set of source token IDs tagged as an
+                           ACAI person/place explicit instance (people+places
+                           only, pronominals excluded regardless of the
+                           acai_src_ids types/pronominal settings above), or
+                           None to skip. Excludes these from the semantic-
+                           similarity check (see semantic.apply_semantic_scores).
     """
     data = load_alignment_json(chapter_json_path)
     groups = data.get("groups", [])
@@ -676,6 +683,7 @@ def score_chapter_file(
             config.semantic_threshold,
             chapter_id=chapter_id,
             record_details=record_details,
+            proper_noun_src_ids=proper_noun_src_ids,
         )
         apply_smear_delta_scores(
             verse_scores,

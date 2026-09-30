@@ -336,6 +336,7 @@ def main() -> None:
         target_verses = process_usfm_tsv(args.target_tsv_dir, args.target_edition)
 
     acai_src_ids: set[str] | None = None
+    proper_noun_src_ids: set[str] | None = None
     if args.acai_data_dir is not None:
         print(f"  Loading ACAI entities ({args.acai_data_dir}) ...", file=sys.stderr)
         acai_entities = load_acai_entities(
@@ -344,6 +345,16 @@ def main() -> None:
         )
         acai_src_ids = set(build_word_entity_map(acai_entities).keys())
         print(f"  ACAI-tagged source tokens: {len(acai_src_ids)}", file=sys.stderr)
+
+        # Always-on, independent of --acai-types/--include-acai-pronominals: proper
+        # names (people/places, explicit instances only) are excluded from the
+        # semantic-similarity check — a transliterated name never embeds close to its
+        # English gloss regardless of alignment correctness. See semantic.py.
+        name_entities = load_acai_entities(
+            args.acai_data_dir, ["people", "places"], args.corpus,
+            include_pronominals=False,
+        )
+        proper_noun_src_ids = set(build_word_entity_map(name_entities).keys())
 
     print("  Cleaning alignment files ...", file=sys.stderr)
     files_changed, dropped, repaired = run_clean_pass(chapter_files, source_verses, target_verses)
@@ -374,6 +385,7 @@ def main() -> None:
             target_verses=target_verses,
             record_details=semantic_details,
             acai_src_ids=acai_src_ids,
+            proper_noun_src_ids=proper_noun_src_ids,
         )
         all_scores.extend(verse_scores)
         all_coverage_flagged.update(

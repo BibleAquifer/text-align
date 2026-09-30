@@ -121,6 +121,7 @@ def apply_semantic_scores(
     threshold: float,
     chapter_id: str = "",
     record_details: list | None = None,
+    proper_noun_src_ids: set[str] | None = None,
 ) -> None:
     """Score alignment records by semantic similarity and update VerseScore objects.
 
@@ -133,6 +134,13 @@ def apply_semantic_scores(
 
     Increments semantic_low_sim_count on any verse where at least one record falls
     below threshold, and sets needs_retry=True on those verses.
+
+    proper_noun_src_ids, when provided (ACAI people/places explicit-instance token
+    IDs), excludes records whose primary source includes a tagged proper name from
+    the check entirely. A transliterated name (e.g. Δημήτριος → 低米丟) never embeds
+    close to its English gloss regardless of alignment correctness — the mismatch is
+    about transliteration, not a translation error — so including these systematically
+    inflates the low-similarity flag rate without signaling anything real.
 
     Prints a one-line summary to stderr showing pair count, similarity stats, and
     flagged record count (useful for threshold calibration).
@@ -158,10 +166,14 @@ def apply_semantic_scores(
             secondary_src = set(sec.get("source", []))
             secondary_tgt = set(sec.get("target", []))
 
+            primary_src_ids = [sid for sid in src_ids if sid not in secondary_src]
+            if proper_noun_src_ids and any(sid in proper_noun_src_ids for sid in primary_src_ids):
+                continue
+
             primary_src_tokens = [
                 src_by_id[sid]
-                for sid in src_ids
-                if sid not in secondary_src and sid in src_by_id
+                for sid in primary_src_ids
+                if sid in src_by_id
             ]
             if not any(t.pos in _CONTENT_POS for t in primary_src_tokens):
                 continue

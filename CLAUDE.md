@@ -197,8 +197,16 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   76% figure (which likely mixed introduction and continuation populations together).
   See `docs/alignment-principles-nt.zht.md`'s per-section notes for exact methodology,
   and its ARTICLES section for an honestly-flagged limitation in that construction's
-  correction method itself. **Draft — not yet reviewed by a native Mandarin speaker.**
-  Simplified Chinese (zhs) is a fully separate config (not derived from this one) and
+  correction method itself. **Prompt-hardening pass (2026-09-23)**, from reading
+  `score-alignment` output on real CUV refine-alignment runs (Titus, 2-3 John): the
+  `token smearing` signal was mostly catching genuine rule-compliance gaps, not
+  scoring false positives — the locative-postposition and `的`-attributive-linker
+  rules were already documented but not consistently applied to `上`/`面前`/`身上`
+  forms, now called out with explicit CAUTION language; two new rules added (a
+  supplied light verb verbalizing a bare noun/adjective predicate, and two more idiom
+  shapes for substantized prepositional phrases and adjective+εἰμί idioms). **Draft —
+  not yet reviewed by a native Mandarin speaker.** Simplified Chinese (zhs) is a
+  fully separate config (not derived from this one) and
   will get its own doc/code once real Simplified target data is available — see
   `docs/alignment-principles-nt.zht.md`.
 - `nt/hau.py` — Hausa (Chadic, Afroasiatic). Built entirely from raw text +
@@ -427,7 +435,7 @@ compressed. Approximate token budget (all blocks assembled):
 | NT ind | ~5,234 |
 | NT hin | ~8,095 |
 | NT arb | ~15,958 |
-| NT zht | ~7,310 |
+| NT zht | ~8,284 |
 | NT hau | ~11,663 |
 | NT swh | ~7,925 |
 | OT eng | ~3,031 |
@@ -738,9 +746,23 @@ Batch API infrastructure may apply different defaults than the sync path
 degradation on the async path. Fix: `LLMClient` now always sends `temperature`
 and `max_output_tokens` explicitly on every call — both sync and async.
 
-Defaults: `temperature=1`, `max_output_tokens=4000`. Temperature is not sent for
+Defaults: `temperature=0.2`, `max_output_tokens=4000`. Temperature is not sent for
 OpenAI reasoning models (it is fixed by the API). Overridable via `--temperature` and
 `--max-output-tokens` CLI flags (also settable in YAML config files).
+
+**Temperature default lowered from 1 to 0.2 (2026-09-23).** Alignment is a
+structured-extraction task with explicit rules to follow (never-NEQ articles,
+secondary-vs-primary marking conventions, etc.), not creative generation — there's
+little upside to high temperature, and a `zht`/CUV comparison run at temperature=1
+showed real rule violations (an article incorrectly marked NEQ; a documented
+locative-postposition-secondary rule not applied despite an explicit worked example in
+the prompt) that a lower temperature is expected to reduce. This changes behavior for
+every config that doesn't explicitly set `temperature` in its own YAML — currently only
+`CUV.yaml` and `example.yaml` set it explicitly; every other language config now
+silently inherits 0.2 instead of 1 on its next run. If a config was tuned/reviewed
+under the old default=1 behavior, its next run may look different — check `needs_retry`
+rates via `score-alignment` after the first post-change run rather than assuming
+identical output.
 
 **`max_output_tokens` guidance by corpus and provider:**
 
