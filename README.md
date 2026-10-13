@@ -75,6 +75,8 @@ retry-alignment --config MYBIBLE --corpus nt
 
 You can loop: score → retry → score → retry until quality is satisfactory, or accept first-pass results for low-priority sections.
 
+To spot-check a chapter for substantive errors (wrong links, unjustified NEQs), use the `review-alignment` Claude Code skill — see [Review](#review) below.
+
 ### Step 5 — Visualize
 
 `render-alignment` generates per-chapter HTML files showing the alignment in a Text Alignment layout so you can browse and review the results:
@@ -102,7 +104,7 @@ Both files are **included in this repository** under `data/sources/`. You do not
 
 ## Supported target languages
 
-Both testaments (NT/Greek and OT/Hebrew) support the same set of target-language prompt configs, selected by ISO 639-3 code (`target_language` in the config YAML):
+Target-language prompt configs are selected by ISO 639-3 code (`target_language` in the config YAML). Most languages cover both testaments (NT/Greek and OT/Hebrew); Hausa and Swahili are NT-only:
 
 | Code | Language | NT (Greek) | OT (Hebrew) |
 |------|----------|:----------:|:------------:|
@@ -113,6 +115,9 @@ Both testaments (NT/Greek and OT/Hebrew) support the same set of target-language
 | `ind` | Indonesian | ✅ | ✅ |
 | `hin` | Hindi | ✅ | ✅ |
 | `arb` | Arabic (native-speaker reviewed, NT and OT) | ✅ | ✅ |
+| `zht` | Traditional Chinese (Mandarin; draft, not yet native-speaker reviewed) | ✅ | ✅ |
+| `hau` | Hausa (draft, not yet native-speaker reviewed) | ✅ | — |
+| `swh` | Swahili (draft, not yet native-speaker reviewed) | ✅ | — |
 
 An unrecognized `target_language` code falls back to the English (`eng`) prompt config automatically. See `src/text_align/refine/prompt/nt/` and `src/text_align/refine/prompt/ot/` to add a new language.
 
@@ -190,6 +195,8 @@ Copy `configs/example.yaml` as a starting point — it documents every key with 
 ```
 src/text_align/
 ├── __init__.py          # ROOT, DATAPATH, SourceidEnum, normalize_strongs, …
+├── config.py            # YAML config loading and path derivation (--config)
+├── languages.py         # RTL_LANGUAGES registry (shared by render and compare)
 ├── strongs.py           # Strong's number normalisation
 ├── stopwords.py         # Shared stopword loaders (stopwordsiso + NLTK)
 ├── burrito/             # Scripture Burrito data model
@@ -215,7 +222,7 @@ src/text_align/
 │   └── acai.py          # acai-align CLI
 ├── refine/              # LLM-assisted alignment refinement
 │   ├── source.py        # Source token loader
-│   ├── prompt/          # Language-aware prompt assembly
+│   ├── prompt/          # Language-aware prompt assembly (*.prose.py = older, more verbose prompt editions kept for reference; not imported)
 │   │   ├── common.py    #   LanguagePromptConfig dataclass, shared assembly functions
 │   │   ├── nt/          #   NT (Greek) language configs
 │   │   │   ├── core.py  #     Registry, phenomenon detection, NT prompt assembly
@@ -225,7 +232,10 @@ src/text_align/
 │   │   │   ├── fra.py   #     French (auto-registered)
 │   │   │   ├── ind.py   #     Indonesian (auto-registered)
 │   │   │   ├── hin.py   #     Hindi (auto-registered)
-│   │   │   └── arb.py   #     Arabic (auto-registered; native-speaker reviewed, "very good")
+│   │   │   ├── arb.py   #     Arabic (auto-registered; native-speaker reviewed, "very good")
+│   │   │   ├── zht.py   #     Traditional Chinese (auto-registered; draft)
+│   │   │   ├── hau.py   #     Hausa (auto-registered; draft)
+│   │   │   └── swh.py   #     Swahili (auto-registered; draft)
 │   │   ├── ot/          #   OT (Hebrew) language configs
 │   │   │   ├── core.py  #     Registry, phenomenon detection, OT prompt assembly
 │   │   │   ├── eng.py   #     English (auto-registered)
@@ -234,7 +244,8 @@ src/text_align/
 │   │   │   ├── fra.py   #     French (auto-registered)
 │   │   │   ├── ind.py   #     Indonesian (auto-registered)
 │   │   │   ├── hin.py   #     Hindi (auto-registered)
-│   │   │   └── arb.py   #     Arabic (auto-registered; native-speaker reviewed)
+│   │   │   ├── arb.py   #     Arabic (auto-registered; native-speaker reviewed)
+│   │   │   └── zht.py   #     Traditional Chinese (auto-registered; draft)
 │   │   └── __init__.py  #   Public API re-export
 │   ├── llm.py           # Provider-agnostic LLM call layer (OpenAI / Anthropic / Google / OpenRouter / Gloo / Ollama)
 │   ├── async_batch.py   # Provider batch-API helpers (Google, OpenAI, Anthropic)
@@ -249,8 +260,25 @@ src/text_align/
 │   ├── clean.py         # Core cleaning logic (CleanResult, clean_chapter_file, run_clean_pass)
 │   ├── clean_cli.py     # clean-alignments CLI
 │   └── score_alignments.py  # score-alignment CLI
+├── compare/             # compare-alignment CLI (vs. Biblica's reference alignment)
+│   ├── biblica.py       # Loads the reference alignment via AlignmentsReader
+│   ├── links.py         # Record → source×target link cross-product
+│   ├── metrics.py       # Per-verse and aggregate precision / recall / F1
+│   ├── compare_html.py  # Side-by-side HTML diff
+│   └── compare_cli.py   # compare-alignment CLI
 └── render/
     └── html.py          # render-alignment CLI
+
+scripts/                 # Helper scripts (not installed entry points)
+├── dump_chapter.py      # Read-only chapter dump for review (used by the review-alignment skill)
+├── nt_chapters.py       # NT chapter matrix / status for GHA
+├── ot_chapters.py       # OT chapter matrix / status for GHA
+├── alignment_summary.py # GHA step summary
+├── copy-to-gha.py       # Stage data into the repo for a GHA run
+└── copy-from-gha.py     # Copy GHA results back out
+
+.claude/skills/
+└── review-alignment/    # Claude Code skill: semantic chapter review
 ```
 
 ## Recommended workflow
@@ -706,6 +734,23 @@ render-alignment \
   [--r2l | --no-r2l]  # right-to-left layout; auto-detected from --alignment-lang (arb, apd, fas, heb, arc) when omitted
 ```
 
+### Review
+
+#### `review-alignment` (Claude Code skill) and `scripts/dump_chapter.py`
+
+A model-assisted semantic review of one generated chapter, complementing `score-alignment`'s mechanical signals. It reports only links a Greek/Hebrew-literate reviewer would call wrong or indefensible — not deviations from prompt wording. It is triage, not a substitute for native-speaker review. Read-only; it never edits data, configs, or prompts.
+
+In Claude Code, from the repo root, ask e.g. "review Titus 2 in CUV" (skill: `.claude/skills/review-alignment/`). The skill uses `scripts/dump_chapter.py`, which can also be run directly:
+
+```bash
+# Per-verse source/target streams, records (* = secondary), NEQ and unaligned tokens
+poetry run python scripts/dump_chapter.py --config CUV --corpus nt --chapter 56002 [--verses 1-5]
+
+# The language's prompt, for reference
+poetry run python scripts/dump_chapter.py --config CUV --corpus nt --prompt
+poetry run python scripts/dump_chapter.py --config CUV --corpus nt --prompt-block PASSIVE
+```
+
 ### Comparison
 
 #### `compare-alignment`
@@ -814,6 +859,8 @@ See [docs/alignment-principles-nt.md](docs/alignment-principles-nt.md) (NT/Greek
 - Grammatical construction cases (§9): finite verbs, participials, infinitivals, adjectives/adverbs, pronouns, prepositions, conjunctions/particles, discourse restructuring
 - Mounce Reverse Interlinear guidelines reference cases
 - Automated → LLM sharpening workflow
+
+Language-specific refinements live alongside these as `docs/alignment-principles-{nt,ot}.<iso>.md` (e.g. `.fra`, `.ind`, `.hin`, `.arb`, `.zht`, `.hau`, `.swh`); the matching `refine/prompt/{nt,ot}/<iso>.py` config is distilled from them.
 
 ## Contributing
 

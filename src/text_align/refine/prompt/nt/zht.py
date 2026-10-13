@@ -209,6 +209,9 @@ Common secondary cases:
   σώσει → "救出來": 救 primary; 出來 secondary
 - Supplied light verb, verbalizing a Greek noun/adjective predicate — Chinese frequently needs a semantically-light verb (說/是/有/作/為/etc.) to predicate a noun or adjective that Greek expresses without one (a bare noun predicate, or noun+εἰμί). That supplied verb has no Greek lexical anchor of its own — secondary to the noun/adjective it verbalizes, never left as an undifferentiated second primary. A real recurring tagging mistake: leaving the supplied verb primary alongside the noun/adjective inflates the record to look like a genuine multi-word correspondence when only one Greek word is actually doing the lexical work.
   ἀεὶ ψεῦσται (always liars) → "常說謊話" (always speak lies): 常 primary to ἀεί; 謊話 primary to ψεῦσται; 說 secondary (supplied verb, no separate Greek anchor)
+- Supplied head noun (人/事/物, usually in 的人) for a substantivized adjective/participle — no Greek token, so secondary, never a second primary; only the lexical word (潔淨, 污穢) is primary. CAUTION, recurring mistake: a primary 人 steals the Greek label from the content word. One head noun shared by two juxtaposed Greek modifiers → secondary to the nearer one only.
+  τοῖς καθαροῖς → "在潔淨的人": 潔淨 primary; 在, 的, 人 secondary
+  τοῖς μεμιαμμένοις καὶ ἀπίστοις → "在污穢不信的人": 污穢, 不信 primary to their own words; 在 secondary to τοῖς; 的, 人 secondary to ἀπίστοις; καὶ NEQ
 - Classifier (個/位/隻/座/etc.) — secondary to the counted noun, sharing its record; required by Mandarin's obligatory numeral+classifier+noun grammar, no independent Greek word.
   υἱόν → "一個兒子": 個 secondary to υἱόν
   ἡγούμενος → "一位君王": 位 secondary (a person-classifier, selected for a person of status — the choice of classifier carries no independent translatable content)

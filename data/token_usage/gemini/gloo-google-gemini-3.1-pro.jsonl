@@ -99,3 +99,7 @@
 {"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 8995, "completion_tokens": 9241}
 {"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 8495, "completion_tokens": 12949}
 {"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 11927, "completion_tokens": 10459}
+{"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 7898, "completion_tokens": 10675}
+{"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 6611, "completion_tokens": 9514}
+{"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 9065, "completion_tokens": 6657}
+{"model": "gloo-google-gemini-3.1-pro", "prompt_tokens": 6144, "completion_tokens": 10372}
