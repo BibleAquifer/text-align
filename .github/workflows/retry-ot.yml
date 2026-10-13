@@ -69,7 +69,9 @@ jobs:
         run: |
           LANG=$(poetry run python -c "
           from text_align.config import load_config
-          print(load_config('${{ inputs.config }}').get('target_language', 'eng'))
+          cfg = load_config('${{ inputs.config }}')
+          # alignments-<lang> dirs are named by biblica_language (cmn for zht/zhs)
+          print(cfg.get('biblica_language') or cfg.get('target_language', 'eng'))
           ")
           echo "lang=$LANG" >> "$GITHUB_OUTPUT"
       - name: Build chapter matrix
