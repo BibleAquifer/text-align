@@ -204,7 +204,9 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   rules were already documented but not consistently applied to `上`/`面前`/`身上`
   forms, now called out with explicit CAUTION language; two new rules added (a
   supplied light verb verbalizing a bare noun/adjective predicate, and two more idiom
-  shapes for substantized prepositional phrases and adjective+εἰμί idioms). **Draft —
+  shapes for substantized prepositional phrases and adjective+εἰμί idioms), and a supplied head noun (人/事/物, usually in 的人) for
+  a substantivized adjective/participle is now secondary, not a second primary (2026-10-12, from
+  Titus 1:15, where a primary 人 became the render anchor and took the Greek label). **Draft —
   not yet reviewed by a native Mandarin speaker.** Simplified Chinese (zhs) is a
   fully separate config (not derived from this one) and
   will get its own doc/code once real Simplified target data is available — see
@@ -1312,6 +1314,25 @@ sides draw from the same `SBLGNT.tsv`/`WLCM.tsv` macula tokenization by construc
 agreement) rather than an extension of `render/html.py`'s `write_verse` — that
 function's idiom/multi-primary cell-merging logic is tuned for a single alignment
 source and isn't a good graft point for a second, independently-tokenized one.
+
+## Reviewing alignments (`.claude/skills/review-alignment/`, `scripts/dump_chapter.py`)
+
+`review-alignment` is a project Claude Code skill: semantic review of one generated chapter.
+The bar is **defensible, not prompt-exact** — report only wrong/indefensible links, unjustified
+NEQs, or unaligned content words; no prompt-convention nitpicks, no visualization issues.
+Brevity matters: verdict first, one sentence per issue.
+
+- `scripts/dump_chapter.py --config C --corpus nt|ot --chapter BBCCC [--verses N-M]` is the
+  read-only data source (records with `*` secondary marks, NEQ, unaligned tokens).
+  `--prompt` / `--prompt-block TAG` print the language's prompt blocks.
+- The skill reads prompt content at runtime — never copy prompt text into the skill, so it
+  can't drift from `refine/prompt/`.
+- The reviewer is the same model family as the aligner (correlated blind spots): treat results
+  as triage; native-speaker and Greek/Hebrew review remain the gate.
+- OT: records are keyed by target verse, so "unaligned source" can be incomplete under
+  versification differences; the OT path of the script is untested.
+- Never edit generated chapter JSON or viz data to fix a finding — change the prompt
+  (`refine/prompt/`) and re-run.
 
 ## Testing
 
