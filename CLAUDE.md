@@ -682,7 +682,7 @@ it just covers one chapter.
 ## refine-alignment range filtering
 
 New args narrow which verses are processed. All are mutually exclusive with
-each other and with `--verse` / `--verse-range`.
+each other and with `--verse` / `--verse-range` / `--verse-list`.
 
 | Arg | Format | Example |
 |-----|--------|---------|
@@ -690,6 +690,18 @@ each other and with `--verse` / `--verse-range`.
 | `--book-range BB BB` | inclusive book range | `--book-range 41 44` |
 | `--chapter BBCCC` | 5-digit chapter | `--chapter 41003` |
 | `--chapter-range BBCCC BBCCC` | inclusive chapter range | `--chapter-range 41001 41016` |
+| `--chapter-list BBCCC,BBCCC,...` | comma-separated chapters | `--chapter-list 41003,41007,62002` |
+| `--verse-list BBCCCVVV,...` | comma-separated verses (refine-alignment only; verse-level) | `--verse-list 41004003,41004010` |
+
+`--chapter-list` is also available on `retry-alignment`, `score-alignment`,
+`clean-alignments`, and `compare-alignment`. `--verse-list` is available on
+`refine-alignment` and `compare-alignment` (verse-level filtering via
+`_filter_verse_ids`) and, as a force-retry list, on `retry-alignment`;
+`score-alignment` and `clean-alignments` deliberately omit it because they
+operate on whole chapter files and cannot constrain to verses. Parsing is
+shared via `_parse_id_list` in `refine/util.py` (also accepts a YAML list);
+chapter-file filtering for retry/score/clean/compare is `_filter_chapter_files`
+in `refine/retry.py`.
 
 Filtering uses string-prefix comparison on 8-char `BBCCCVVV` verse IDs
 (`vid[:2]` = book, `vid[:5]` = chapter); no extra biblelib imports needed.

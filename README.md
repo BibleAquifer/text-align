@@ -389,10 +389,12 @@ Range filtering — all mutually exclusive:
 |------|--------|---------|
 | `--verse BCV` | 8-digit BBCCCVVV | `--verse 41004003` |
 | `--verse-range START END` | BCV pair | `--verse-range 41004001 41004020` |
+| `--verse-list VIDS` | comma-separated BBCCCVVV | `--verse-list 41004003,41004010` |
 | `--book BB` | 2-digit book number | `--book 41` |
 | `--book-range START END` | book pair | `--book-range 41 44` |
 | `--chapter BBCCC` | 5-digit chapter | `--chapter 41003` |
 | `--chapter-range START END` | chapter pair | `--chapter-range 41001 41016` |
+| `--chapter-list BBCCC,...` | comma-separated 5-digit chapters | `--chapter-list 41003,41007,62002` |
 
 Candidate source types (default: all — ACAI, SIM-MIGRATED, DIFF-MIGRATED, MERGED, FASTALIGN, REVISED):
 - `ACAI` — entity alignments from `acai-align`
@@ -546,7 +548,7 @@ clean-alignments \
   [--config OENGB]
 ```
 
-Range filtering (`--book`, `--book-range`, `--chapter`, `--chapter-range`) works the same as the other tools.
+Range filtering (`--book`, `--book-range`, `--chapter`, `--chapter-range`, `--chapter-list`) works the same as the other tools. `--verse-list` is not supported here: this tool operates on whole chapter files and cannot constrain to individual verses.
 
 #### `score-alignment`
 
@@ -689,6 +691,7 @@ Range and verse filtering:
 | `--book-range START END` | `--book-range 65 66` | Inclusive book range |
 | `--chapter BBCCC` | `--chapter 66007` | Single chapter |
 | `--chapter-range START END` | `--chapter-range 66001 66022` | Inclusive chapter range |
+| `--chapter-list BBCCC,...` | `--chapter-list 66001,66007,66022` | Comma-separated chapters; score filtering still applies |
 | `--verse BBCCCVVV` | `--verse 41004003` | Force-retry one verse regardless of score |
 | `--verse-range START END` | `--verse-range 41004001 41004020` | Force-retry a verse range regardless of score |
 | `--verse-list VIDS` | `--verse-list 62002002,62003010` | Comma-separated verse IDs to force-retry |
@@ -771,11 +774,11 @@ compare-alignment \
   [--output compare.tsv] \                              # default: output/<target-edition>/compare_YYYY-MM-DD.tsv
   [--html-output [FILE]] \                              # opt-in; bare flag lands next to --output, same date-stamped basename
   [--r2l | --no-r2l] \                                  # HTML diff's target-language columns; auto-detected from --target-language (arb, apd, fas, heb, arc) when omitted; the src-text column is separately RTL whenever --corpus ot
-  [--verse BCV | --verse-range START END | --book BB | --book-range START END | --chapter BBCCC | --chapter-range START END] \
+  [--verse BCV | --verse-range START END | --verse-list VIDS | --book BB | --book-range START END | --chapter BBCCC | --chapter-range START END | --chapter-list BBCCC,...] \
   [--config IRVHin]
 ```
 
-Range filters are mutually exclusive and narrow comparison scope on **both** sides (ours and Biblica's) — `--book`/`--book-range`/`--chapter`/`--chapter-range` also limit which of our chapter files get loaded in the first place; `--verse`/`--verse-range` filter at verse granularity after loading, since Biblica's reference is always one whole-testament file.
+Range filters are mutually exclusive and narrow comparison scope on **both** sides (ours and Biblica's) — `--book`/`--book-range`/`--chapter`/`--chapter-range`/`--chapter-list` also limit which of our chapter files get loaded in the first place; `--verse`/`--verse-range`/`--verse-list` filter at verse granularity after loading, since Biblica's reference is always one whole-testament file.
 
 **What's being compared.** Each verse produces two sets of `(source_id, target_id)` links: ours (both primary and secondary source ids count — Biblica's format has no such distinction to compare against) and Biblica's (translated into our target-token-id space; see below). Comparison scope is the **intersection** of verses both sources actually cover — Biblica's file isn't assumed to span a whole testament or the same material we've aligned, and vice versa.
 
