@@ -26,7 +26,7 @@ from text_align.migrate.tsv import process_usfm_tsv
 from .llm import LLMClient
 from .prompt import build_batch_message, build_system_prompt, detect_phenomena, infer_testament
 from .source import collect_source_verse_range, load_source_verses
-from .util import _CORPUS_ID
+from .util import _CORPUS_ID, _parse_id_list
 
 
 ALIGNMENT_SOURCE_TYPES = ["ACAI", "SIM-MIGRATED", "DIFF-MIGRATED", "MERGED", "FASTALIGN", "REVISED"]
@@ -203,8 +203,8 @@ def _write_chapter_file(
 def _filter_verse_ids(verse_ids: list[str], args: argparse.Namespace) -> list[str]:
     """Return the subset of verse_ids matching the active range filter on args.
 
-    Checks (in order): --verse, --verse-range, --book, --book-range,
-    --chapter, --chapter-range.  When no filter is active, returns verse_ids
+    Checks (in order): --verse, --verse-range, --verse-list, --book, --book-range,
+    --chapter, --chapter-range, --chapter-list.  When no filter is active, returns verse_ids
     unchanged.
     """
     if getattr(args, "verse", None):
@@ -217,6 +217,13 @@ def _filter_verse_ids(verse_ids: list[str], args: argparse.Namespace) -> list[st
     if getattr(args, "verse_range", None):
         start, end = args.verse_range
         return [v for v in verse_ids if start <= v <= end]
+
+    if getattr(args, "verse_list", None):
+        wanted = _parse_id_list(args.verse_list, 8)
+        result = [v for v in verse_ids if v in wanted]
+        for vid in sorted(wanted - set(result)):
+            print(f"Verse {vid} not found in verse set — skipping.")
+        return result
 
     if getattr(args, "book", None):
         book = str(args.book).zfill(2)
@@ -235,6 +242,10 @@ def _filter_verse_ids(verse_ids: list[str], args: argparse.Namespace) -> list[st
         start = str(args.chapter_range[0]).zfill(5)
         end = str(args.chapter_range[1]).zfill(5)
         return [v for v in verse_ids if start <= v[:5] <= end]
+
+    if getattr(args, "chapter_list", None):
+        wanted = _parse_id_list(args.chapter_list, 5)
+        return [v for v in verse_ids if v[:5] in wanted]
 
     return verse_ids
 
@@ -757,6 +768,9 @@ def parse_args() -> argparse.Namespace:
                              help="Process a single verse BCV for testing, e.g. 41004003")
     range_group.add_argument("--verse-range", default=None, nargs=2, metavar=("START", "END"),
                              help="Process a BCV range, e.g. --verse-range 41004001 41004020")
+    range_group.add_argument("--verse-list", default=None, metavar="VIDS",
+                             help="Process a comma-separated list of verses, "
+                                  "e.g. --verse-list 41004003,41004010")
     range_group.add_argument("--book", default=None, metavar="BB",
                              help="Process a single book, e.g. --book 41 (Mark)")
     range_group.add_argument("--book-range", default=None, nargs=2, metavar=("START", "END"),
@@ -765,6 +779,9 @@ def parse_args() -> argparse.Namespace:
                              help="Process a single chapter, e.g. --chapter 41003 (Mark 3)")
     range_group.add_argument("--chapter-range", default=None, nargs=2, metavar=("START", "END"),
                              help="Process a range of chapters, e.g. --chapter-range 41001 41016")
+    range_group.add_argument("--chapter-list", default=None, metavar="BBCCCS",
+                             help="Process a comma-separated list of chapters, "
+                                  "e.g. --chapter-list 41003,41007,62002")
 
     p.set_defaults(**config_defaults)
     args = p.parse_args()
@@ -800,6 +817,8 @@ def main() -> None:
         print(f"  Filter:    verse {args.verse}")
     elif args.verse_range:
         print(f"  Filter:    verse range {args.verse_range[0]}–{args.verse_range[1]}")
+    elif args.verse_list:
+        print(f"  Filter:    verse list ({len(_parse_id_list(args.verse_list, 8))} verse(s))")
     elif args.book:
         print(f"  Filter:    book {args.book}")
     elif args.book_range:
@@ -808,6 +827,8 @@ def main() -> None:
         print(f"  Filter:    chapter {args.chapter}")
     elif args.chapter_range:
         print(f"  Filter:    chapter range {args.chapter_range[0]}–{args.chapter_range[1]}")
+    elif args.chapter_list:
+        print(f"  Filter:    chapter list ({len(_parse_id_list(args.chapter_list, 5))} chapter(s))")
 
     llm_client = LLMClient(
         provider=args.llm_provider,

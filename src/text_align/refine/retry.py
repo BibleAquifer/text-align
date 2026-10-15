@@ -16,7 +16,7 @@ from .llm import LLMClient
 from .prompt import build_batch_message, build_system_prompt, detect_phenomena, infer_testament
 from .refine import build_output_alignment
 from .source import collect_source_verse_range
-from .util import _chapter_id_from_path, _CORPUS_TESTAMENT
+from .util import _chapter_id_from_path, _CORPUS_TESTAMENT, _parse_id_list
 
 
 def discover_chapter_files(alignment_dir: Path, corpus_id: str) -> list[Path]:
@@ -321,7 +321,8 @@ def _filter_chapter_files(
     """Filter chapter files by the active range arg on args.
 
     Handles: --verse, --verse-range, --verse-list/--verse-list-file (via
-    forced_verse_set), --book, --book-range, --chapter, --chapter-range.
+    forced_verse_set, or args.verse_list when not supplied), --book, --book-range,
+    --chapter, --chapter-range, --chapter-list.
     Unknown args are read via getattr so this works for any args namespace.
     """
     verse = getattr(args, "verse", None)
@@ -330,8 +331,12 @@ def _filter_chapter_files(
     book_range = getattr(args, "book_range", None)
     chapter = getattr(args, "chapter", None)
     chapter_range = getattr(args, "chapter_range", None)
+    chapter_list = _parse_id_list(getattr(args, "chapter_list", None), 5)
+    if not forced_verse_set:
+        forced_verse_set = _parse_id_list(getattr(args, "verse_list", None), 8)
 
-    if not any([verse, verse_range, forced_verse_set, book, book_range, chapter, chapter_range]):
+    if not any([verse, verse_range, forced_verse_set, book, book_range, chapter,
+                chapter_range, chapter_list]):
         return chapter_files
 
     result = []
@@ -361,5 +366,8 @@ def _filter_chapter_files(
         elif chapter_range:
             start, end = str(chapter_range[0]).zfill(5), str(chapter_range[1]).zfill(5)
             if start <= cid <= end:
+                result.append(f)
+        elif chapter_list:
+            if cid in chapter_list:
                 result.append(f)
     return result
