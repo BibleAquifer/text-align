@@ -138,6 +138,9 @@ def parse_args() -> argparse.Namespace:
                              help="Limit to a single chapter, e.g. --chapter 66007")
     range_group.add_argument("--chapter-range", default=None, nargs=2, metavar=("START", "END"),
                              help="Limit to a chapter range, e.g. --chapter-range 66001 66022")
+    range_group.add_argument("--chapter-list", default=None, metavar="BBCCC,...",
+                             help="Limit to a comma-separated list of chapters, "
+                                  "e.g. --chapter-list 66001,66007,66022")
 
     p.add_argument("--retry-failed", action="store_true", default=False,
                    help="Retry verses with no alignment records in --alignment-dir "

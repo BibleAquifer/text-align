@@ -105,6 +105,12 @@ def parse_args() -> argparse.Namespace:
     range_group.add_argument("--chapter", default=None, metavar="BBCCC")
     range_group.add_argument("--chapter-range", default=None, nargs=2,
                              metavar=("START", "END"))
+    range_group.add_argument("--chapter-list", default=None, metavar="BBCCC,...",
+                             help="Compare a comma-separated list of chapters, "
+                                  "e.g. --chapter-list 66001,66007")
+    range_group.add_argument("--verse-list", default=None, metavar="VIDS",
+                             help="Compare a comma-separated list of verses, "
+                                  "e.g. --verse-list 41004003,41004010")
 
     p.set_defaults(**config_defaults)
     args = p.parse_args()

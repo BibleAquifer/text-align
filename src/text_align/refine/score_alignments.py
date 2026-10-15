@@ -134,6 +134,8 @@ def parse_args() -> argparse.Namespace:
     range_group.add_argument("--chapter", default=None, metavar="BBCCC")
     range_group.add_argument("--chapter-range", default=None, nargs=2,
                              metavar=("START", "END"))
+    range_group.add_argument("--chapter-list", default=None, metavar="BBCCC,...",
+                             help="Comma-separated chapters, e.g. --chapter-list 66001,66007")
 
     p.set_defaults(**config_defaults)
     args = p.parse_args()
