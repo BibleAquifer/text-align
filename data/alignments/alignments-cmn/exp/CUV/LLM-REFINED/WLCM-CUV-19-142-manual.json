@@ -1,0 +1,3 @@
+{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-google-gemini-3.7-flash", "reasoning_effort": "low"}, "nonEquivalent": {"target": ["19142001001", "19142001002", "19142001003", "19142001004", "19142001006", "19142001007", "19142001008", "19142002001", "19142002002", "19142002003", "19142002004", "19142002005", "19142002006", "19142002007", "19142002008", "19142002010", "19142002011", "19142002012", "19142002013"]}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
+{"scheme": "BCVWP", "docid": "CUV"}], "roles": ["source", "target"], 
+"records": []}]}

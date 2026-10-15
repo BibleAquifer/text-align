@@ -1,0 +1,5 @@
+{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-google-gemini-3.7-flash", "reasoning_effort": "low"}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
+{"scheme": "BCVWP", "docid": "CUV"}], "roles": ["source", "target"], 
+"records": [{"source": ["190670070051"], "target": ["19067007001"]},
+{"source": ["190670070041"], "target": ["19067007002", "19067007003"], "meta": {"secondary": {"target": ["19067007002"]}}},
+{"source": ["190670070042"], "target": ["19067007004"]}]}]}

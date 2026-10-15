@@ -1,0 +1,5 @@
+{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-google-gemini-3.7-flash", "reasoning_effort": "low"}, "nonEquivalent": {"source": ["190030080071"], "target": ["19003002001", "19003002002", "19003002003", "19003002004", "19003002005", "19003002007", "19003002008", "19003002009", "19003002010", "19003002011", "19003002012", "19003002013", "19003002016"]}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
+{"scheme": "BCVWP", "docid": "CUV"}], "roles": ["source", "target"], 
+"records": [{"source": ["190030040021"], "target": ["19003004007"]},
+{"source": ["190030050031"], "target": ["19003005008"]},
+{"source": ["190030080021"], "target": ["19003008003"]}]}]}
