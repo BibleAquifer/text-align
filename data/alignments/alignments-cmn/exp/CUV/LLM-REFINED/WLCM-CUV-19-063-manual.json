@@ -1,0 +1,13 @@
+{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-google-gemini-3.7-flash", "reasoning_effort": "low"}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
+{"scheme": "BCVWP", "docid": "CUV"}], "roles": ["source", "target"], 
+"records": [{"source": ["190630060052"], "target": ["19063005014", "19063005015"], "meta": {"secondary": {"target": ["19063005015"]}}},
+{"source": ["190630060051"], "target": ["19063005016"]},
+{"source": ["190630060011"], "target": ["19063005017"]},
+{"source": ["190630060041"], "target": ["19063005018", "19063005019"], "meta": {"secondary": {"target": ["19063005019"]}}},
+{"source": ["190630060021"], "target": ["19063005020"]},
+{"source": ["190630060032"], "target": ["19063005021"]},
+{"source": ["190630060092"], "target": ["19063005023"]},
+{"source": ["190630060061"], "target": ["19063005024"]},
+{"source": ["190630060062"], "target": ["19063005026", "19063005028"], "meta": {"secondary": {"target": ["19063005026"]}}},
+{"source": ["190630060071"], "target": ["19063005027"]},
+{"source": ["190630060081"], "target": ["19063005025", "19063005029", "19063005030"], "meta": {"secondary": {"target": ["19063005025", "19063005030"]}}}]}]}
