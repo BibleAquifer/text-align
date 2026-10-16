@@ -1,0 +1,4 @@
+{"format": "alignment", "version": "0.4", "groups": [{"type": "translation", "meta": {"creator": "text-align", "conformsTo": "0.4", "llm": {"provider": "gloo", "model": "gloo-google-gemini-3.7-flash", "reasoning_effort": "low"}, "nonEquivalent": {"source": ["230090030021", "230090030052", "230090100031", "230090100072", "230090120062", "230090160082", "230090160102"], "target": ["23009008001", "23009008002", "23009008003", "23009008004", "23009008005", "23009008006", "23009008007", "23009008009", "23009008010", "23009008011", "23009008012"]}}, "documents": [{"scheme": "BCVWP", "docid": "WLCM"},
+{"scheme": "BCVWP", "docid": "CUV"}], "roles": ["source", "target"], 
+"records": [{"source": ["230090140052"], "target": ["23009014010"]},
+{"source": ["230090140102"], "target": ["23009014012"]}]}]}
