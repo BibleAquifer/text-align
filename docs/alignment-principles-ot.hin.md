@@ -476,11 +476,26 @@ land/mountain/river + name.** Alignment: the Hindi head word (देश/पर�
 to the Hebrew construct noun, the name primary to its Hebrew name token, and there is
 **no** का/की/के to mark — do not supply or look for one. Where Hindi does use के
 ("एदोम के देश में"), the usual secondary-के rule applies.
-Caveats: Hindi names located by a co-occurrence heuristic, not alignment; "next token"
-classification is blunt (the "NAME+other" bucket includes unrelated following words
-for the relational heads, so their का/की/के shares are lower bounds); IRVHin only — OHCV
-not checked, so this may be partly IRVHin's own style (OHCV/GLT cross-check is the
-natural next step).
+**Cross-check (OHCV, full OT, same method; `ot` verses joined to WLCM):** the geographic
+apposition pattern **holds in a second, independent translation** — so it is general
+Hindi, not an IRVHin quirk:
+
+| Head | IRVHin apposition | OHCV apposition |
+|---|---|---|
+| אֶרֶץ ("land"), n≈370 | 78% | 73% |
+| הַר ("mountain"), n≈64 | 76% | 86% |
+| נָהָר/נַחַל ("river"), n≈18 | 72% | 68% |
+
+Relational heads also match (का/की/के: בֵּן 94% vs 98%, מֶלֶךְ 95% vs 90%, בַּיִת 90% vs
+79%). The one real divergence is the mixed class: מִדְבָּר ("wilderness") takes के in
+82% of OHCV vs 51% of IRVHin, and עִיר ("city") 77% vs 54% — so for wilderness/city
+the choice is translation-dependent, check the verse. GLT (partial OT) has too few
+geographic pairs to say anything (2 land, 4 mountain; the 4 mountain cases all take के —
+too small to count against the pattern).
+Caveats: Hindi names located by a co-occurrence heuristic, not alignment; the "next
+token" classification is blunt (the "other" bucket includes unrelated following words,
+so का/की/के shares for relational heads are lower bounds); the heads' Hindi word list
+(देश/भूमि/प्रदेश/क्षेत्र/राज्य; पर्वत/पहाड़; नदी/महानद) is hand-chosen.
 
 ---
 
@@ -1129,10 +1144,10 @@ native-speaker review itself. What remains:
   strategy). The "before" (עַד אֲשֶׁר לֹא) question is also checked (n = 11; no
   Hindi negator in "before" clauses) — only the idiom-grouping recommendation awaits a
   native speaker.
-- **Resolved:** IRVHin does use bare noun-noun apposition for geographic head + place
-  name (land 77%, mountain ~76%, river ~72%) — see CONSTRUCT CHAINS. Still open: whether
-  OHCV/GLT do the same (general Hindi vs IRVHin style), and whether it extends to
-  person-name chains in any register (not seen in the relational-head classes).
+- **Resolved:** geographic head + place name renders as bare apposition in both IRVHin
+  and OHCV (land ~73-78%, mountain ~76-86%, river ~68-72%) — see CONSTRUCT CHAINS.
+  Still open: whether it extends to person-name chains in any register (not seen in the
+  relational-head classes), and the wilderness/city split between translations.
 - **Passive-voice Strategy 7 (active-voice conversion)** remains genuinely rare —
   confirmed marginal, not upgraded, after a 30-instance targeted follow-up search found
   no additional clear examples beyond Lev 5:23.
