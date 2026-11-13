@@ -261,7 +261,12 @@ Hebrew pronominal suffixes are separate word-part tokens (pos=suffix). Hindi pos
 - Reflexive अपना/अपने/अपनी when the possessor is coreferential with the clause's subject: substitute the reflexive for the ordinary third-person possessive that the suffix's own person/number would otherwise predict. Still primary 1:1 to the suffix word-part — the reflexive/non-reflexive choice is a Hindi lexical detail, not a change in which Hebrew token is the correspondent. CONFIRMED well beyond one example: the "gathered to his people" death formula (אֶל עַמָּיו) and the "hardened his heart" idiom (אֶת־לִבּוֹ) both consistently take अपने; a true verb-suffix (object fused directly onto a verb) is CONFIRMED 18/18 clean → अपने को/अपने लिये (Lev 21:4 הֵחַלּוֹ "profane himself" → "वह अपने को...अशुद्ध न करे"); a suffix on a preposition with no intervening noun is real (अपने/अपनी) but is frequently instead absorbed into a Hindi vector verb (ले) with no separate reflexive word at all (Gen 3:7 "लंगोट बना लिये," no reflexive trace) — check for vector-verb absorption before assuming a separate word is required. Caution: WLCM's "self" gloss on a suffix is not always a reliable coreference signal by itself — verify the actual clause subject.
   בְּצַלְמוֹ "in his own image" (referent = subject of the clause's verb) → "अपने स्वरूप में", NOT "उसके स्वरूप में": source=[צֶלֶם], target=["स्वरूप"] — primary 1:1; source=[sufPart], target=["अपने"] — primary 1:1.
 
-- Intensive/agentive reflexive आप (ही) — a distinct strategy from अपना's possessive/objective reflexive, for the "by/of one's own agency" sense: "परमेश्वर...आप ही करेगा" ("he himself will provide"); "मैं अपनी ही यह शपथ खाता हूँ" ("I swear by myself," stacking अपनी + ही). Primary 1:1 to the coreferential pronoun/suffix, parallel treatment to the possessive reflexive above.
+- Intensive/agentive आप (ही) — productive (~175 IRVHin occurrences), distinct from अपना's possessive/objective reflexive. Four cases:
+  (1) intensifier on an explicit Hebrew independent pronoun (אֲנִי/אַתָּה/הוּא…): "मैं आप ... करूँगा" — Hindi pronoun and आप both primary to that one Hebrew pronoun (1:N).
+  (2) supplied emphasis with no Hebrew trigger: "परमेश्वर आप जानता है" (Gen 3:5), "वह आप चुन लेगा" (Num 16:5) — आप is a supplied function word: SECONDARY to the noun/verb it intensifies, not NEQ, not a second primary.
+  (3) Hebrew-internal reflexive: לוֹ "for himself" → "आप ही करेगा" (Gen 22:8); לְבַדּוֹ → "आप अकेला" (Gen 32:25); "मैं अपनी ही यह शपथ खाता हूँ" (अपनी + ही) — primary to the suffix/word carrying "self".
+  (4) fixed "आप से आप" ("of itself"): סָפִיחַ → "आप से आप उगें" (Lev 25:5, 2 Kgs 19:29); the whole phrase is primary N:1 to that Hebrew token.
+  Do not treat आप as the formal "you" without checking context.
 
 - Object suffix on verb: suffix → Hindi object pronoun (मुझे/तुझे/उसे/हमें/तुम्हें/उन्हें), or अपने को when coreferential with the clause subject (see above), or a DOM-को-marked noun phrase, primary 1:1.
   שְׁמָרֵנוּ "he kept us" → source=[shamarPart], target=["रखा"] — primary 1:1; source=[nuPart], target=["हमें"] — primary 1:1.
@@ -295,7 +300,8 @@ A contiguous exception is also attested (फिर कभी न मारूँ
 CONFIRMED (257 clausal עַד occurrences; 92% of IRVHin जब तक clauses carry it, 77%+ in OHCV — general Hindi strategy): Hindi "जब तक X न हो" ("until X happens") has a न/नहीं with NO Hebrew source correspondent when the עַד clause itself has no negation — NEQ target, not aligned to any Hebrew particle.
   עַד אֲשֶׁר תָּשׁוּב חֲמַת אָחִיךָ → "जब तक तेरे भाई का क्रोध न उतरे": न → NEQ target.
   עַד אֲשֶׁר נָשׁוּב אֲלֵיכֶם → "जब तक हम तुम्हारे पास फिर न आएँ": न → NEQ target.
-If the Hebrew clause has a genuine negative (לֹא), align the Hindi negator to it as usual; if one sentence has both an idiomatic न and a genuine לֹא→नहीं/न, only the latter is aligned. Not every עַד clause takes जब तक...न: plain "तक", "यहाँ तक कि" (עַד כִּי), or positive "as long as" clauses carry no extra negator.\
+If the Hebrew clause has a genuine negative (לֹא), align the Hindi negator to it as usual; if one sentence has both an idiomatic न and a genuine לֹא→नहीं/न, only the latter is aligned. "Before" — עַד אֲשֶׁר לֹא / עַד לֹא (Eccl 12:1-2, Prov 8:26): Hindi "इससे पहले कि X ..." has NO negator; do not invent one. Group עַד אֲשֶׁר לֹא as one lexicalized "before" unit (N:1 idiom) → "पहले कि". A result clause with a real negation ("एक छोटा सा पत्थर भी न रह जाएगा", עַד אֲשֶׁר לֹא נִמְצָא, 2 Sam 17:13) aligns the negator to לֹא as usual.
+Not every עַד clause takes जब तक...न: plain "तक", "यहाँ तक कि" (עַד כִּי), or positive "as long as" clauses carry no extra negator.\
 """
 
 PARTICIPLE_BLOCK = """\

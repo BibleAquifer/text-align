@@ -533,11 +533,33 @@ pattern differs from OT Indonesian.
     light/vector-verb absorption pattern documented in LIGHT AND VECTOR VERBS, applied
     to a reflexive Hebrew idiom). Check for vector-verb absorption before assuming a
     separate reflexive word is required.
-  - **New strategy, not previously documented anywhere: आप (ही)**, an intensive/
-    agentive reflexive for the "by/of one's own agency" sense, distinct from अपना's
-    possessive/objective reflexive. Gen 22:8: "परमेश्वर...आप ही करेगा" ("he himself will
-    provide"); Gen 22:16: "मैं अपनी ही यह शपथ खाता हूँ" ("I swear by myself" — अपनी ही,
-    stacking the possessive reflexive with the intensive particle ही).
+  - **आप (ही) — intensive/agentive reflexive; CONFIRMED PRODUCTIVE, not a narrow idiom
+    (and the earlier "primary 1:1 to the coreferential suffix" rule only fits part of it).**
+    Corpus check, IRVHin `ot_IRVHin.tsv` joined to WLCM by verse: 175 standalone-आप
+    occurrences (117 bare आप, 58 आप ही) in 162 verses — far above the two Genesis 22
+    instances first found. OHCV could not be used as a cross-check: its standalone आप is
+    mostly the formal/honorific "you" (1,225 verses), which swamps the reflexive use.
+    Verse-level proxy: 96 of the 175 (55%) fall in verses containing an explicit Hebrew
+    independent personal pronoun (הוּא/אֲנִי/אַתָּה/אָנֹכִי/…) vs. an 18% baseline across
+    all verses, so आप is strongly enriched around Hebrew independent pronouns, but 79
+    (45%) have none in the verse. Hand-read of 25 of those 79 shows three patterns:
+    - **Intensifier on an explicit Hebrew pronoun** — "मैं आप पृथ्वी पर जल-प्रलय करके"
+      (Gen 6:17 אֲנִי...), "तू आप ही अपने मन में उस" (1 Kgs 2:44 אַתָּה): Hindi
+      pronoun and आप both render the one Hebrew pronoun → both primary to it (1:N).
+    - **Supplied emphasis with no Hebrew trigger** — Gen 3:5 "परमेश्वर आप जानता है", Num
+      16:5 "जिसको वह आप चुन लेगा", Deut 2:12 "आप बस गए": Hebrew has only the verb
+      or noun subject. आप is a supplied function word → **secondary** to the noun/verb
+      it intensifies, not NEQ and not a second primary.
+    - **Hebrew-internal reflexive** — Gen 22:8 God "will see **for himself**" (לוֹ) →
+      "आप ही करेगा"; Gen 32:25 "याकूब आप अकेला रह गया" (לְבַדּוֹ); Gen 22:16
+      "अपनी ही" — primary to the suffix/word that carries the "self" sense.
+    - **Fixed "आप से आप" ("of itself")** — Lev 25:5 / 2 Kgs 19:29 / Isa 37:30 "आप से आप
+      उगें" (סָפִיחַ "self-sown"), Deut 23:11 "रात्रि को आप से आप हुआ करती" (מִקְרֵה לָיְלָה),
+      Lev 22:8 "आप से मरा हो" (נְבֵלָה): the "self" is lexical in the Hebrew noun (or
+      absent), so the whole "आप से आप"/"आप से" phrase attaches to that Hebrew token (N:1
+      primary), not to a suffix.
+    Caveat: pattern-level, verse-joined; not token alignment. The percentages are
+    proximity, not alignment fact.
   - **Methodological caution**: WLCM's "self" gloss on a suffix is not always a
     reliable coreference signal by itself — Gen 8:9's אֵלָיו is glossed "himself" but
     the referent is Noah, not the dove (the clause's grammatical subject), and IRVHin
@@ -784,6 +806,28 @@ Examples: Gen 27:44 עַד אֲשֶׁר תָּשׁוּב חֲמַת אָחִיך
 in detail), the Hindi negator aligns primary to that Hebrew
 negative as usual. If both an idiomatic न and a genuine לֹא→नहीं/न occur in one
 sentence, only the latter is aligned.
+
+### עַד אֲשֶׁר לֹא / עַד לֹא / עַד בְּלִי ("before", "until no more") — checked, n = 11
+The earlier estimate of ~3 instances was low: 11 WLCM occurrences of עַד followed
+directly by לֹא/בְּלִי (or אֲשֶׁר לֹא). They split by function, not by Hebrew form:
+- **"Before" (Eccl 12:1, 12:2, 12:6 עַד אֲשֶׁר לֹא; Prov 8:26 עַד לֹא):** both IRVHin and
+  OHCV render it with a **positive** clause and **no Hindi negator**: "इससे पहले कि
+  सूर्य…अंधेरे हो जाएँ" (Eccl 12:2, both editions), "इससे पहले कि विपत्ति के दिन…आएँ" (12:1).
+  The Hebrew לֹא therefore has no negator counterpart in Hindi — **do not invent one**.
+  Recommended: treat עַד אֲשֶׁר לֹא as a single lexicalized "before" unit (N:1 idiom) →
+  "पहले कि"; the לֹא is part of that idiom, not an independent negation.
+- **Result "until none remained" (2 Sam 17:13 עַד אֲשֶׁר לֹא נִמְצָא; 1 Kgs 17:17 עַד
+  אֲשֶׁר לֹא נוֹתְרָה):** 2 Sam 17:13 keeps a real negator in both editions ("उसका एक छोटा
+  सा पत्थर भी **न** रह जाएगा" IRVHin; "बाकी **न** रह जाए" OHCV) — align it to לֹא as usual.
+  1 Kgs 17:17 is restructured by both ("साँस लेना बन्द हो गया") with no separate negator.
+  Isa 47:7 עַד לֹא שַׂמְתְּ → "विचार **न** किया" (negator present).
+- **Eccl 12:6:** IRVHin restructures ("उस समय…") while OHCV keeps "इससे पहले कि" — so even
+  the "before" cases are not uniform across editions.
+- **עַד בְּלִי ("until no more", Ps 72:7, Mal 3:10):** Ps 72:7 → positive "जब तक चन्द्रमा
+  बना रहेगा" in both editions (no negator; בְּלִי absorbed). Mal 3:10 not verified here —
+  check before assuming either pattern.
+Not corpus-decidable at n = 11; a native speaker should confirm the "पहले कि" idiom
+treatment.
 
 ---
 
@@ -1055,8 +1099,9 @@ native-speaker review itself. What remains:
 
 - **Resolved:** the जब तक...न false-friend trap does recur for Hebrew עַד — see the
   NEGATION section (92% of IRVHin जब तक clauses, 77%+ of OHCV's; general Hindi
-  strategy). Still unconfirmed: whether Hebrew `עַד לֹא`/`עַד אֲשֶׁר לֹא` ("before")
-  has a distinct Hindi pattern (only ~3 corpus instances, not studied).
+  strategy). The "before" (עַד אֲשֶׁר לֹא) question is also checked (n = 11; no
+  Hindi negator in "before" clauses) — only the idiom-grouping recommendation awaits a
+  native speaker.
 - **Fine-grained, not corpus-decidable**: does IRVHin's construct-chain rendering ever
   use bare noun-noun juxtaposition (the Indonesian strategy) instead of का/की/के? Not
   observed in any sample so far (21-instance corpus-scale check, plus the 2,384-
@@ -1065,10 +1110,10 @@ native-speaker review itself. What remains:
 - **Passive-voice Strategy 7 (active-voice conversion)** remains genuinely rare —
   confirmed marginal, not upgraded, after a 30-instance targeted follow-up search found
   no additional clear examples beyond Lev 5:23.
-- **A new item from this pass**: is आप (ही) — the newly documented intensive/agentive
-  reflexive strategy — productive beyond the two Genesis 22 instances found, or a
-  narrower idiom than अपना/अपने's possessive reflexive? Worth a dedicated look if this
-  document is extended further.
+- **Resolved:** आप (ही) is productive (175 IRVHin occurrences; four patterns documented
+  in PRONOMINAL SUFFIXES). Remaining: no second Hindi OT to cross-check it against
+  (OHCV's आप is overwhelmingly the honorific "you"); a native speaker should confirm the
+  "supplied emphasis → secondary" treatment.
 - This document has not been reviewed by a native Hindi speaker, matching the NT
   document's draft status — the one check no amount of corpus analysis substitutes
   for, especially now that this document has moved from mostly-hypothesis to
