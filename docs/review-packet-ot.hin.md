@@ -129,7 +129,7 @@ Edition: Indian Revised Version (IRVHin). Source: Hebrew OT (WLCM). Draft guidel
 
 ## 7. Genitive का/की/के and construct chains
 
-**Claim.** every Hebrew construct chain is rendered with का/की/के agreeing with the possessed noun; bare noun-noun juxtaposition (as in Indonesian) was never found.
+**Claim.** Relational/human construct chains are rendered with का/की/के agreeing with the possessed noun (≈90–96% for בֵּן, מֶלֶךְ, בַּיִת). BUT a geographic head + place name is usually bare apposition with no postposition: אֶרֶץ+name → "मिस्र देश" (77%; never "मिस्र का देश"), הַר+name → "सीनै पर्वत" (~76%), נָהָר+name → "यरदन नदी".
 
 **Verses**
 
@@ -137,7 +137,20 @@ Edition: Indian Revised Version (IRVHin). Source: Hebrew OT (WLCM). Draft guidel
   - Hebrew: וַ יְהִי אַחֲרֵי מוֹת מֹשֶׁה עֶבֶד יְהוָה וַ יֹּאמֶר יְהוָה אֶל יְהוֹשֻׁעַ בִּן נוּן מְשָׁרֵת מֹשֶׁה לֵ אמֹר
   - IRVHin: यहोवा के दास मूसा की मृत्यु के बाद यहोवा ने उसके सेवक यहोशू से जो नून का पुत्र था कहा,
 
-**Question.** Does Hindi ever drop का/की/के in a genitive (compounds, titles, set phrases)? If so, in what registers?
+- **Gen 13:10** (אֶרֶץ מִצְרַיִם → "मिस्र देश")
+  - Hebrew: וַ יִּשָּׂא לוֹט אֶת עֵינָי ו וַ יַּרְא אֶת כָּל כִּכַּר הַ יַּרְדֵּן כִּי כֻלָּ הּ מַשְׁקֶה לִ פְנֵי שַׁחֵת יְהוָה אֶת סְדֹם וְ אֶת עֲמֹרָה כְּ גַן יְהוָה כְּ אֶרֶץ מִצְרַיִם בֹּאֲ כָה צֹעַר
+  - IRVHin: तब लूत ने आँख उठाकर, यरदन नदी के पास वाली सारी तराई को देखा कि वह सब सिंची हुई है। जब तक यहोवा ने सदोम और गमोरा को नाश न किया था, तब तक सोअर के मार्ग तक वह तराई यहोवा की वाटिका, और मिस्र देश के समान उपजाऊ थी।
+- **Gen 13:12** (אֶרֶץ כְּנַעַן → "कनान देश")
+  - Hebrew: אַבְרָם יָשַׁב בְּ אֶרֶץ כְּנָעַן וְ לוֹט יָשַׁב בְּ עָרֵי הַ כִּכָּר וַ יֶּאֱהַל עַד סְדֹם
+  - IRVHin: अब्राम तो कनान देश में रहा, पर लूत उस तराई के नगरों में रहने लगा; और अपना तम्बू सदोम के निकट खड़ा किया।
+- **Exod 19:11** (הַר סִינַי → "सीनै पर्वत")
+  - Hebrew: וְ הָיוּ נְכֹנִים לַ יּוֹם הַ שְּׁלִישִׁי כִּי בַּ יּוֹם הַ שְּׁלִישִׁי יֵרֵד יְהוָה לְ עֵינֵי כָל הָ עָם עַל הַר סִינָי
+  - IRVHin: और वे तीसरे दिन तक तैयार हो जाएँ; क्योंकि तीसरे दिन यहोवा सब लोगों के देखते सीनै पर्वत पर उतर आएगा।
+- **2 Kgs 19:31** (הַר צִיּוֹן → "सिय्योन पर्वत")
+  - Hebrew: כִּי מִ ירוּשָׁלִַם תֵּצֵא שְׁאֵרִית וּ פְלֵיטָה מֵ הַר צִיּוֹן קִנְאַת יְהוָה צְבָאוֹת תַּעֲשֶׂה זֹּאת
+  - IRVHin: क्योंकि यरूशलेम में से बचे हुए और सिय्योन पर्वत के भागे हुए लोग निकलेंगे। यहोवा यह काम अपनी जलन के कारण करेगा।
+
+**Question.** Is "मिस्र देश" / "सीनै पर्वत" (no का) the normal, natural form, and "मिस्र का देश" unnatural or merely rarer? Where else does Hindi use apposition instead of का/की/के (titles, compounds, person names)?
 
 
 ## 8. Purpose infinitive: को vs के लिये

@@ -44,8 +44,9 @@ Source files (to be created): `src/text_align/refine/prompt/ot/hin.py`,
   inflects for the gender/number/case of the *possessed* noun, not the possessor.
   Real Hebrew construct chains (עֶבֶד יְהוָה "servant of the LORD" → यहोवा के दास; בִּן
   נוּן "son of Nun" → नून का पुत्र) render with का/की/के agreeing with the possessed
-  noun, exactly as hypothesized, with no bare noun-noun juxtaposition counter-example
-  found in a moderate sample (see CONSTRUCT CHAINS AND GENITIVE POSTPOSITION). **New
+  noun, exactly as hypothesized for relational/human heads — but see CONSTRUCT CHAINS
+  AND GENITIVE POSTPOSITION for a large geographic-head exception (head noun + place
+  name renders as bare apposition, "मिस्र देश"). **New
   refinement**: के (not का) is used when the possessed noun is mid-chain, followed by
   an appositive name/title (नून **के** पुत्र यहोशू, "Joshua son of Nun") — confirmed
   2-translation (Joshua 1:1 and Ruth 1:1 independently show the same pattern).
@@ -367,7 +368,8 @@ the Hebrew construct relationship instead of Greek's genitive case.
 **CONFIRMED at corpus scale.** 56,980 construct-state nouns identified in WLCM
 (`morph` ending in construct-state marker); a 21-instance sample across Genesis, Exodus,
 Joshua, 1 Samuel, Psalms, Proverbs, and Isaiah showed का/की/के consistently marking the
-relationship in every instance (पिता के चेहरे, वेदी के सींगों, अभिषेक का तेल, प्रजा का
+relationship in every instance of that sample (which did not include place-name chains —
+see the apposition exception below) (पिता के चेहरे, वेदी के सींगों, अभिषेक का तेल, प्रजा का
 वर्ष, etc.) — no counter-example found. The two original Joshua 1:1 examples:
 
 - עֶבֶד יְהוָה "servant of the LORD" → "यहोवा **के** दास": के agrees with masculine दास
@@ -451,9 +453,34 @@ the relationship, so no extra word is needed even when the article marks the who
 as definite. **HYPOTHESIS** — not directly isolated, though consistent with the
 confirmed Branch B default.
 
-**Still needs checking:** whether IRVHin ever uses bare noun-noun juxtaposition (parallel
-to Indonesian's construct-chain strategy) instead of का/की/के for any construct chains —
-not observed in the 21-instance corpus-scale sample either (tentative, not exhaustive).
+### Exception — geographic head + place name renders as bare apposition (CONFIRMED)
+The earlier "no counter-example" finding was an artifact of sampling common-noun chains.
+A corpus-wide check (WLCM `Nc…c` construct noun immediately followed by an `Np` proper
+name: 10,693 pairs; Hindi name token located by verse co-occurrence for 142 of 156 names
+with ≥8 pairs; then the token after it classified) shows two clearly different classes:
+- **Relational/human heads → का/की/के (≈90–96%):** בֵּן 460/486 (95%), מֶלֶךְ 429/449 (96%),
+  בַּיִת 307/339 (91%), plus דָּבָר/נְאֻם/בְּנֵי/יָד/עֵינַיִם/שֵׁם/צֶאֱצָאִים. The existing
+  का/की/के-secondary rule stands for these.
+- **Geographic heads + place name → bare juxtaposition (apposition), not का/की/के:**
+  - אֶרֶץ ("land"): 281 of 363 (77%) have **देश** directly after the name ("मिस्र देश"
+    219 occurrences vs "मिस्र का देश" 0; "कनान देश" 65 vs 0; "यहूदा देश" 36); only 48 take
+    का/की/के.
+  - הַר ("mountain"): 44 पर्वत + 4 पहाड़ of 63 (≈76%) ("सीनै पर्वत" 18 vs 0; "सिय्योन
+    पर्वत" 20 vs 0); 12 take के.
+  - נָהָר/נַחַל ("river/wadi"): नदी/महानद after the name in 13 of 18 ("यरदन नदी" 20 vs
+    "यरदन का नदी" 0; "फरात महानद" 10).
+  - מִדְבָּר ("wilderness") is mixed: के 15, "X नामक" 9, bare जंगल 4. עִיר ("city") is
+    mixed (के 10 of 22), as is עַם ("people", 50/50). Check the specific verse.
+So **bare noun-noun apposition IS a real Hindi strategy here — a large, regular one for
+land/mountain/river + name.** Alignment: the Hindi head word (देश/पर्वत/नदी) is primary
+to the Hebrew construct noun, the name primary to its Hebrew name token, and there is
+**no** का/की/के to mark — do not supply or look for one. Where Hindi does use के
+("एदोम के देश में"), the usual secondary-के rule applies.
+Caveats: Hindi names located by a co-occurrence heuristic, not alignment; "next token"
+classification is blunt (the "NAME+other" bucket includes unrelated following words
+for the relational heads, so their का/की/के shares are lower bounds); IRVHin only — OHCV
+not checked, so this may be partly IRVHin's own style (OHCV/GLT cross-check is the
+natural next step).
 
 ---
 
@@ -1102,11 +1129,10 @@ native-speaker review itself. What remains:
   strategy). The "before" (עַד אֲשֶׁר לֹא) question is also checked (n = 11; no
   Hindi negator in "before" clauses) — only the idiom-grouping recommendation awaits a
   native speaker.
-- **Fine-grained, not corpus-decidable**: does IRVHin's construct-chain rendering ever
-  use bare noun-noun juxtaposition (the Indonesian strategy) instead of का/की/के? Not
-  observed in any sample so far (21-instance corpus-scale check, plus the 2,384-
-  instance 3+-link search) — tentative, not exhaustive; a native speaker may know of a
-  register or genre where it occurs.
+- **Resolved:** IRVHin does use bare noun-noun apposition for geographic head + place
+  name (land 77%, mountain ~76%, river ~72%) — see CONSTRUCT CHAINS. Still open: whether
+  OHCV/GLT do the same (general Hindi vs IRVHin style), and whether it extends to
+  person-name chains in any register (not seen in the relational-head classes).
 - **Passive-voice Strategy 7 (active-voice conversion)** remains genuinely rare —
   confirmed marginal, not upgraded, after a 30-instance targeted follow-up search found
   no additional clear examples beyond Lev 5:23.
