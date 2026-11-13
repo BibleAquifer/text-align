@@ -44,8 +44,9 @@ Source files (to be created): `src/text_align/refine/prompt/ot/hin.py`,
   inflects for the gender/number/case of the *possessed* noun, not the possessor.
   Real Hebrew construct chains (עֶבֶד יְהוָה "servant of the LORD" → यहोवा के दास; בִּן
   נוּן "son of Nun" → नून का पुत्र) render with का/की/के agreeing with the possessed
-  noun, exactly as hypothesized, with no bare noun-noun juxtaposition counter-example
-  found in a moderate sample (see CONSTRUCT CHAINS AND GENITIVE POSTPOSITION). **New
+  noun, exactly as hypothesized for relational/human heads — but see CONSTRUCT CHAINS
+  AND GENITIVE POSTPOSITION for a large geographic-head exception (head noun + place
+  name renders as bare apposition, "मिस्र देश"). **New
   refinement**: के (not का) is used when the possessed noun is mid-chain, followed by
   an appositive name/title (नून **के** पुत्र यहोशू, "Joshua son of Nun") — confirmed
   2-translation (Joshua 1:1 and Ruth 1:1 independently show the same pattern).
@@ -367,7 +368,8 @@ the Hebrew construct relationship instead of Greek's genitive case.
 **CONFIRMED at corpus scale.** 56,980 construct-state nouns identified in WLCM
 (`morph` ending in construct-state marker); a 21-instance sample across Genesis, Exodus,
 Joshua, 1 Samuel, Psalms, Proverbs, and Isaiah showed का/की/के consistently marking the
-relationship in every instance (पिता के चेहरे, वेदी के सींगों, अभिषेक का तेल, प्रजा का
+relationship in every instance of that sample (which did not include place-name chains —
+see the apposition exception below) (पिता के चेहरे, वेदी के सींगों, अभिषेक का तेल, प्रजा का
 वर्ष, etc.) — no counter-example found. The two original Joshua 1:1 examples:
 
 - עֶבֶד יְהוָה "servant of the LORD" → "यहोवा **के** दास": के agrees with masculine दास
@@ -451,9 +453,49 @@ the relationship, so no extra word is needed even when the article marks the who
 as definite. **HYPOTHESIS** — not directly isolated, though consistent with the
 confirmed Branch B default.
 
-**Still needs checking:** whether IRVHin ever uses bare noun-noun juxtaposition (parallel
-to Indonesian's construct-chain strategy) instead of का/की/के for any construct chains —
-not observed in the 21-instance corpus-scale sample either (tentative, not exhaustive).
+### Exception — geographic head + place name renders as bare apposition (CONFIRMED)
+The earlier "no counter-example" finding was an artifact of sampling common-noun chains.
+A corpus-wide check (WLCM `Nc…c` construct noun immediately followed by an `Np` proper
+name: 10,693 pairs; Hindi name token located by verse co-occurrence for 142 of 156 names
+with ≥8 pairs; then the token after it classified) shows two clearly different classes:
+- **Relational/human heads → का/की/के (≈90–96%):** בֵּן 460/486 (95%), מֶלֶךְ 429/449 (96%),
+  בַּיִת 307/339 (91%), plus דָּבָר/נְאֻם/בְּנֵי/יָד/עֵינַיִם/שֵׁם/צֶאֱצָאִים. The existing
+  का/की/के-secondary rule stands for these.
+- **Geographic heads + place name → bare juxtaposition (apposition), not का/की/के:**
+  - אֶרֶץ ("land"): 281 of 363 (77%) have **देश** directly after the name ("मिस्र देश"
+    219 occurrences vs "मिस्र का देश" 0; "कनान देश" 65 vs 0; "यहूदा देश" 36); only 48 take
+    का/की/के.
+  - הַר ("mountain"): 44 पर्वत + 4 पहाड़ of 63 (≈76%) ("सीनै पर्वत" 18 vs 0; "सिय्योन
+    पर्वत" 20 vs 0); 12 take के.
+  - נָהָר/נַחַל ("river/wadi"): नदी/महानद after the name in 13 of 18 ("यरदन नदी" 20 vs
+    "यरदन का नदी" 0; "फरात महानद" 10).
+  - מִדְבָּר ("wilderness") is mixed: के 15, "X नामक" 9, bare जंगल 4. עִיר ("city") is
+    mixed (के 10 of 22), as is עַם ("people", 50/50). Check the specific verse.
+So **bare noun-noun apposition IS a real Hindi strategy here — a large, regular one for
+land/mountain/river + name.** Alignment: the Hindi head word (देश/पर्वत/नदी) is primary
+to the Hebrew construct noun, the name primary to its Hebrew name token, and there is
+**no** का/की/के to mark — do not supply or look for one. Where Hindi does use के
+("एदोम के देश में"), the usual secondary-के rule applies.
+**Cross-check (OHCV, full OT, same method; `ot` verses joined to WLCM):** the geographic
+apposition pattern **holds in a second, independent translation** — so it is general
+Hindi, not an IRVHin quirk:
+
+| Head | IRVHin apposition | OHCV apposition |
+|---|---|---|
+| אֶרֶץ ("land"), n≈370 | 78% | 73% |
+| הַר ("mountain"), n≈64 | 76% | 86% |
+| נָהָר/נַחַל ("river"), n≈18 | 72% | 68% |
+
+Relational heads also match (का/की/के: בֵּן 94% vs 98%, מֶלֶךְ 95% vs 90%, בַּיִת 90% vs
+79%). The one real divergence is the mixed class: מִדְבָּר ("wilderness") takes के in
+82% of OHCV vs 51% of IRVHin, and עִיר ("city") 77% vs 54% — so for wilderness/city
+the choice is translation-dependent, check the verse. GLT (partial OT) has too few
+geographic pairs to say anything (2 land, 4 mountain; the 4 mountain cases all take के —
+too small to count against the pattern).
+Caveats: Hindi names located by a co-occurrence heuristic, not alignment; the "next
+token" classification is blunt (the "other" bucket includes unrelated following words,
+so का/की/के shares for relational heads are lower bounds); the heads' Hindi word list
+(देश/भूमि/प्रदेश/क्षेत्र/राज्य; पर्वत/पहाड़; नदी/महानद) is hand-chosen.
 
 ---
 
@@ -533,11 +575,33 @@ pattern differs from OT Indonesian.
     light/vector-verb absorption pattern documented in LIGHT AND VECTOR VERBS, applied
     to a reflexive Hebrew idiom). Check for vector-verb absorption before assuming a
     separate reflexive word is required.
-  - **New strategy, not previously documented anywhere: आप (ही)**, an intensive/
-    agentive reflexive for the "by/of one's own agency" sense, distinct from अपना's
-    possessive/objective reflexive. Gen 22:8: "परमेश्वर...आप ही करेगा" ("he himself will
-    provide"); Gen 22:16: "मैं अपनी ही यह शपथ खाता हूँ" ("I swear by myself" — अपनी ही,
-    stacking the possessive reflexive with the intensive particle ही).
+  - **आप (ही) — intensive/agentive reflexive; CONFIRMED PRODUCTIVE, not a narrow idiom
+    (and the earlier "primary 1:1 to the coreferential suffix" rule only fits part of it).**
+    Corpus check, IRVHin `ot_IRVHin.tsv` joined to WLCM by verse: 175 standalone-आप
+    occurrences (117 bare आप, 58 आप ही) in 162 verses — far above the two Genesis 22
+    instances first found. OHCV could not be used as a cross-check: its standalone आप is
+    mostly the formal/honorific "you" (1,225 verses), which swamps the reflexive use.
+    Verse-level proxy: 96 of the 175 (55%) fall in verses containing an explicit Hebrew
+    independent personal pronoun (הוּא/אֲנִי/אַתָּה/אָנֹכִי/…) vs. an 18% baseline across
+    all verses, so आप is strongly enriched around Hebrew independent pronouns, but 79
+    (45%) have none in the verse. Hand-read of 25 of those 79 shows three patterns:
+    - **Intensifier on an explicit Hebrew pronoun** — "मैं आप पृथ्वी पर जल-प्रलय करके"
+      (Gen 6:17 אֲנִי...), "तू आप ही अपने मन में उस" (1 Kgs 2:44 אַתָּה): Hindi
+      pronoun and आप both render the one Hebrew pronoun → both primary to it (1:N).
+    - **Supplied emphasis with no Hebrew trigger** — Gen 3:5 "परमेश्वर आप जानता है", Num
+      16:5 "जिसको वह आप चुन लेगा", Deut 2:12 "आप बस गए": Hebrew has only the verb
+      or noun subject. आप is a supplied function word → **secondary** to the noun/verb
+      it intensifies, not NEQ and not a second primary.
+    - **Hebrew-internal reflexive** — Gen 22:8 God "will see **for himself**" (לוֹ) →
+      "आप ही करेगा"; Gen 32:25 "याकूब आप अकेला रह गया" (לְבַדּוֹ); Gen 22:16
+      "अपनी ही" — primary to the suffix/word that carries the "self" sense.
+    - **Fixed "आप से आप" ("of itself")** — Lev 25:5 / 2 Kgs 19:29 / Isa 37:30 "आप से आप
+      उगें" (סָפִיחַ "self-sown"), Deut 23:11 "रात्रि को आप से आप हुआ करती" (מִקְרֵה לָיְלָה),
+      Lev 22:8 "आप से मरा हो" (נְבֵלָה): the "self" is lexical in the Hebrew noun (or
+      absent), so the whole "आप से आप"/"आप से" phrase attaches to that Hebrew token (N:1
+      primary), not to a suffix.
+    Caveat: pattern-level, verse-joined; not token alignment. The percentages are
+    proximity, not alignment fact.
   - **Methodological caution**: WLCM's "self" gloss on a suffix is not always a
     reliable coreference signal by itself — Gen 8:9's אֵלָיו is glossed "himself" but
     the referent is Noah, not the dove (the clause's grammatical subject), and IRVHin
@@ -748,13 +812,64 @@ as a real alternative to फिर, not previously documented. The original 4 ci
 Both words are primary to their respective Hebrew tokens (לֹא → नहीं/न, עוֹד → फिर)
 regardless of adjacency in the Hindi text.
 
-**False-friend trap — जब तक...न ("until...not"):** confirmed in the NT document (78
-IRVHin verses) as having no Greek source correspondent when the ἕως/ἄχρι clause carries
-no negative particle of its own. Hebrew has a directly parallel construction (עַד
-"until" + negated clause, base document §13.1) — this trap is expected to recur
-identically in the OT: the न in जब तक...न would be NEQ target when the Hebrew עַד clause
-itself carries no negation. **HYPOTHESIS** — not checked against an actual OT "until"
-construction in this pass.
+**False-friend trap — जब तक...न ("until...not") — CONFIRMED at corpus scale for Hebrew
+עַד.** Hindi expresses a temporal "until X happens" as "जब तक X **न** हो" (literally "as
+long as X does not happen"). The negator has **no Hebrew source correspondent** when the
+עַד clause carries no negation of its own — it is a target-grammar requirement of the
+"until" frame, so it is **NEQ target**, not aligned to any Hebrew particle.
+
+Corpus check (WLCM joined to `ot_IRVHin.tsv` by verse; 257 clausal עַד occurrences —
+עַד + infinitive construct 115, + finite/other verb 87, + אֲשֶׁר/כִּי/אִם/לֹא 55):
+- **IRVHin:** 130 (51%) use जब तक; **119 of those 130 (92%)** carry a न inside the
+  clause, and none of the 119 has a Hebrew negative in the עַד clause (a first-pass
+  detector that appeared to find 13 was counting אֶל "to" as a negator; the one stray לֹא,
+  Josh 10:13, belongs to a different clause).
+- **OHCV (cross-check):** 117 (46%) use जब तक; 90 of those (77%) carry a bare न — and
+  this is a floor, because OHCV frequently puts नहीं in the same slot (Exod 10:26
+  "जब तक हम अपनी जगह **नहीं** पहुंच जाते"; Num 32:18; Josh 7:13), which the bare-न count
+  misses. So the trap is a **general Hindi strategy for Hebrew "until"**, not an IRVHin
+  calque — unlike the NT's Matt 5:18, where OHCV sidestepped it by restructuring.
+  GLT (partial OT, only 15 comparable occurrences): 9 जब तक, 6 with न — consistent but
+  too small to add weight.
+- The remaining ~half of clausal עַד uses other renderings: plain तक noun phrases
+  ("पार होने तक", Deut 2:14/2:29), यहाँ तक कि for עַד כִּי (Gen 26:13, 41:49), or a
+  restructured clause. A few जब तक clauses are positive "as long as" (Gen 38:11,
+  Num 6:5) with no negator.
+- Caveat: a pattern-level, verse-joined heuristic, not token alignment; the clause is
+  cut at the first punctuation mark.
+
+Examples: Gen 27:44 עַד אֲשֶׁר תָּשׁוּב חֲמַת אָחִיךָ → "जब तक तेरे भाई का क्रोध **न**
+उतरे" (न NEQ target); Exod 24:14 עַד אֲשֶׁר נָשׁוּב אֲלֵיכֶם → "जब तक हम तुम्हारे पास फिर
+**न** आएँ" (न NEQ target); Josh 10:13 → "जब तक उस जाति के लोगों ने अपने शत्रुओं से बदला
+**न** लिया" (न NEQ target).
+
+**Do not conflate with a genuine Hebrew negative.** When the Hebrew itself negates
+(e.g. an עַד לֹא / עַד אֲשֶׁר לֹא clause — rare, only ~3 corpus instances, not studied
+in detail), the Hindi negator aligns primary to that Hebrew
+negative as usual. If both an idiomatic न and a genuine לֹא→नहीं/न occur in one
+sentence, only the latter is aligned.
+
+### עַד אֲשֶׁר לֹא / עַד לֹא / עַד בְּלִי ("before", "until no more") — checked, n = 11
+The earlier estimate of ~3 instances was low: 11 WLCM occurrences of עַד followed
+directly by לֹא/בְּלִי (or אֲשֶׁר לֹא). They split by function, not by Hebrew form:
+- **"Before" (Eccl 12:1, 12:2, 12:6 עַד אֲשֶׁר לֹא; Prov 8:26 עַד לֹא):** both IRVHin and
+  OHCV render it with a **positive** clause and **no Hindi negator**: "इससे पहले कि
+  सूर्य…अंधेरे हो जाएँ" (Eccl 12:2, both editions), "इससे पहले कि विपत्ति के दिन…आएँ" (12:1).
+  The Hebrew לֹא therefore has no negator counterpart in Hindi — **do not invent one**.
+  Recommended: treat עַד אֲשֶׁר לֹא as a single lexicalized "before" unit (N:1 idiom) →
+  "पहले कि"; the לֹא is part of that idiom, not an independent negation.
+- **Result "until none remained" (2 Sam 17:13 עַד אֲשֶׁר לֹא נִמְצָא; 1 Kgs 17:17 עַד
+  אֲשֶׁר לֹא נוֹתְרָה):** 2 Sam 17:13 keeps a real negator in both editions ("उसका एक छोटा
+  सा पत्थर भी **न** रह जाएगा" IRVHin; "बाकी **न** रह जाए" OHCV) — align it to לֹא as usual.
+  1 Kgs 17:17 is restructured by both ("साँस लेना बन्द हो गया") with no separate negator.
+  Isa 47:7 עַד לֹא שַׂמְתְּ → "विचार **न** किया" (negator present).
+- **Eccl 12:6:** IRVHin restructures ("उस समय…") while OHCV keeps "इससे पहले कि" — so even
+  the "before" cases are not uniform across editions.
+- **עַד בְּלִי ("until no more", Ps 72:7, Mal 3:10):** Ps 72:7 → positive "जब तक चन्द्रमा
+  बना रहेगा" in both editions (no negator; בְּלִי absorbed). Mal 3:10 not verified here —
+  check before assuming either pattern.
+Not corpus-decidable at n = 11; a native speaker should confirm the "पहले कि" idiom
+treatment.
 
 ---
 
@@ -1024,21 +1139,22 @@ Every item from the original open-questions list has now been investigated (most
 resolved; a few produced a genuine correction rather than a confirmation) except
 native-speaker review itself. What remains:
 
-- **Genuinely unresolved, not investigated further**: does the जब तक...न false-friend
-  trap (confirmed in the NT document) recur identically for Hebrew עַד ("until")
-  constructions? Not checked in any pass.
-- **Fine-grained, not corpus-decidable**: does IRVHin's construct-chain rendering ever
-  use bare noun-noun juxtaposition (the Indonesian strategy) instead of का/की/के? Not
-  observed in any sample so far (21-instance corpus-scale check, plus the 2,384-
-  instance 3+-link search) — tentative, not exhaustive; a native speaker may know of a
-  register or genre where it occurs.
+- **Resolved:** the जब तक...न false-friend trap does recur for Hebrew עַד — see the
+  NEGATION section (92% of IRVHin जब तक clauses, 77%+ of OHCV's; general Hindi
+  strategy). The "before" (עַד אֲשֶׁר לֹא) question is also checked (n = 11; no
+  Hindi negator in "before" clauses) — only the idiom-grouping recommendation awaits a
+  native speaker.
+- **Resolved:** geographic head + place name renders as bare apposition in both IRVHin
+  and OHCV (land ~73-78%, mountain ~76-86%, river ~68-72%) — see CONSTRUCT CHAINS.
+  Still open: whether it extends to person-name chains in any register (not seen in the
+  relational-head classes), and the wilderness/city split between translations.
 - **Passive-voice Strategy 7 (active-voice conversion)** remains genuinely rare —
   confirmed marginal, not upgraded, after a 30-instance targeted follow-up search found
   no additional clear examples beyond Lev 5:23.
-- **A new item from this pass**: is आप (ही) — the newly documented intensive/agentive
-  reflexive strategy — productive beyond the two Genesis 22 instances found, or a
-  narrower idiom than अपना/अपने's possessive reflexive? Worth a dedicated look if this
-  document is extended further.
+- **Resolved:** आप (ही) is productive (175 IRVHin occurrences; four patterns documented
+  in PRONOMINAL SUFFIXES). Remaining: no second Hindi OT to cross-check it against
+  (OHCV's आप is overwhelmingly the honorific "you"); a native speaker should confirm the
+  "supplied emphasis → secondary" treatment.
 - This document has not been reviewed by a native Hindi speaker, matching the NT
   document's draft status — the one check no amount of corpus analysis substitutes
   for, especially now that this document has moved from mostly-hypothesis to
