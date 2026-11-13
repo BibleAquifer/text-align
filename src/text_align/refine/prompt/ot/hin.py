@@ -292,7 +292,10 @@ CONFIRMED at corpus scale: ~82% discontinuous in a fresh 25-verse sample (231 co
 A contiguous exception is also attested (फिर कभी न मारूँगा, all clustered) — contiguity is a real minority option, not to be assumed absent. Both words are primary to their respective Hebrew tokens (לֹא → नहीं/न, עוֹד → फिर) regardless of adjacency.
 
 ### False-friend trap — जब तक...न ("until...not")
-By analogy with the NT config's confirmed finding: Hindi's "जब तक X न हो" ("until X happens") carries a न with NO Hebrew source correspondent when the Hebrew עַד ("until") clause itself carries no negation — NEQ target, not aligned to any Hebrew particle. Not yet directly confirmed for an OT עַד construction.\
+CONFIRMED (257 clausal עַד occurrences; 92% of IRVHin जब तक clauses carry it, 77%+ in OHCV — general Hindi strategy): Hindi "जब तक X न हो" ("until X happens") has a न/नहीं with NO Hebrew source correspondent when the עַד clause itself has no negation — NEQ target, not aligned to any Hebrew particle.
+  עַד אֲשֶׁר תָּשׁוּב חֲמַת אָחִיךָ → "जब तक तेरे भाई का क्रोध न उतरे": न → NEQ target.
+  עַד אֲשֶׁר נָשׁוּב אֲלֵיכֶם → "जब तक हम तुम्हारे पास फिर न आएँ": न → NEQ target.
+If the Hebrew clause has a genuine negative (לֹא), align the Hindi negator to it as usual; if one sentence has both an idiomatic न and a genuine לֹא→नहीं/न, only the latter is aligned. Not every עַד clause takes जब तक...न: plain "तक", "यहाँ तक कि" (עַד כִּי), or positive "as long as" clauses carry no extra negator.\
 """
 
 PARTICIPLE_BLOCK = """\

@@ -748,13 +748,42 @@ as a real alternative to फिर, not previously documented. The original 4 ci
 Both words are primary to their respective Hebrew tokens (לֹא → नहीं/न, עוֹד → फिर)
 regardless of adjacency in the Hindi text.
 
-**False-friend trap — जब तक...न ("until...not"):** confirmed in the NT document (78
-IRVHin verses) as having no Greek source correspondent when the ἕως/ἄχρι clause carries
-no negative particle of its own. Hebrew has a directly parallel construction (עַד
-"until" + negated clause, base document §13.1) — this trap is expected to recur
-identically in the OT: the न in जब तक...न would be NEQ target when the Hebrew עַד clause
-itself carries no negation. **HYPOTHESIS** — not checked against an actual OT "until"
-construction in this pass.
+**False-friend trap — जब तक...न ("until...not") — CONFIRMED at corpus scale for Hebrew
+עַד.** Hindi expresses a temporal "until X happens" as "जब तक X **न** हो" (literally "as
+long as X does not happen"). The negator has **no Hebrew source correspondent** when the
+עַד clause carries no negation of its own — it is a target-grammar requirement of the
+"until" frame, so it is **NEQ target**, not aligned to any Hebrew particle.
+
+Corpus check (WLCM joined to `ot_IRVHin.tsv` by verse; 257 clausal עַד occurrences —
+עַד + infinitive construct 115, + finite/other verb 87, + אֲשֶׁר/כִּי/אִם/לֹא 55):
+- **IRVHin:** 130 (51%) use जब तक; **119 of those 130 (92%)** carry a न inside the
+  clause, and none of the 119 has a Hebrew negative in the עַד clause (a first-pass
+  detector that appeared to find 13 was counting אֶל "to" as a negator; the one stray לֹא,
+  Josh 10:13, belongs to a different clause).
+- **OHCV (cross-check):** 117 (46%) use जब तक; 90 of those (77%) carry a bare न — and
+  this is a floor, because OHCV frequently puts नहीं in the same slot (Exod 10:26
+  "जब तक हम अपनी जगह **नहीं** पहुंच जाते"; Num 32:18; Josh 7:13), which the bare-न count
+  misses. So the trap is a **general Hindi strategy for Hebrew "until"**, not an IRVHin
+  calque — unlike the NT's Matt 5:18, where OHCV sidestepped it by restructuring.
+  GLT (partial OT, only 15 comparable occurrences): 9 जब तक, 6 with न — consistent but
+  too small to add weight.
+- The remaining ~half of clausal עַד uses other renderings: plain तक noun phrases
+  ("पार होने तक", Deut 2:14/2:29), यहाँ तक कि for עַד כִּי (Gen 26:13, 41:49), or a
+  restructured clause. A few जब तक clauses are positive "as long as" (Gen 38:11,
+  Num 6:5) with no negator.
+- Caveat: a pattern-level, verse-joined heuristic, not token alignment; the clause is
+  cut at the first punctuation mark.
+
+Examples: Gen 27:44 עַד אֲשֶׁר תָּשׁוּב חֲמַת אָחִיךָ → "जब तक तेरे भाई का क्रोध **न**
+उतरे" (न NEQ target); Exod 24:14 עַד אֲשֶׁר נָשׁוּב אֲלֵיכֶם → "जब तक हम तुम्हारे पास फिर
+**न** आएँ" (न NEQ target); Josh 10:13 → "जब तक उस जाति के लोगों ने अपने शत्रुओं से बदला
+**न** लिया" (न NEQ target).
+
+**Do not conflate with a genuine Hebrew negative.** When the Hebrew itself negates
+(e.g. an עַד לֹא / עַד אֲשֶׁר לֹא clause — rare, only ~3 corpus instances, not studied
+in detail), the Hindi negator aligns primary to that Hebrew
+negative as usual. If both an idiomatic न and a genuine לֹא→नहीं/न occur in one
+sentence, only the latter is aligned.
 
 ---
 
@@ -1024,9 +1053,10 @@ Every item from the original open-questions list has now been investigated (most
 resolved; a few produced a genuine correction rather than a confirmation) except
 native-speaker review itself. What remains:
 
-- **Genuinely unresolved, not investigated further**: does the जब तक...न false-friend
-  trap (confirmed in the NT document) recur identically for Hebrew עַד ("until")
-  constructions? Not checked in any pass.
+- **Resolved:** the जब तक...न false-friend trap does recur for Hebrew עַד — see the
+  NEGATION section (92% of IRVHin जब तक clauses, 77%+ of OHCV's; general Hindi
+  strategy). Still unconfirmed: whether Hebrew `עַד לֹא`/`עַד אֲשֶׁר לֹא` ("before")
+  has a distinct Hindi pattern (only ~3 corpus instances, not studied).
 - **Fine-grained, not corpus-decidable**: does IRVHin's construct-chain rendering ever
   use bare noun-noun juxtaposition (the Indonesian strategy) instead of का/की/के? Not
   observed in any sample so far (21-instance corpus-scale check, plus the 2,384-
