@@ -1,9 +1,10 @@
 {
   "edition": "IRVHin",
   "chapter_id": "32004",
-  "passes": 1,
+  "passes": 2,
   "retried_verses": [
     "32004002",
+    "32004006",
     "32004008",
     "32004011"
   ]
