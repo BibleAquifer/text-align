@@ -728,3 +728,7 @@
 {"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 28641, "completion_tokens": 9252}
 {"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 11052, "completion_tokens": 30844}
 {"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 43680, "completion_tokens": 4859}
+{"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 11029, "completion_tokens": 5669}
+{"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 13431, "completion_tokens": 3930}
+{"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 9862, "completion_tokens": 1930}
+{"model": "gloo-google-gemini-3.7-flash", "prompt_tokens": 10673, "completion_tokens": 772}
