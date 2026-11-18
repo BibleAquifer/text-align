@@ -1,0 +1,10 @@
+{
+  "edition": "ONEN",
+  "chapter_id": "04008",
+  "passes": 1,
+  "retried_verses": [
+    "04008002",
+    "04008007",
+    "04008021"
+  ]
+}
