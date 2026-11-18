@@ -8,3 +8,4 @@ from . import ind as _ind  # noqa: F401
 from . import hin as _hin  # noqa: F401
 from . import arb as _arb  # noqa: F401
 from . import zht as _zht  # noqa: F401
+from . import swh as _swh  # noqa: F401

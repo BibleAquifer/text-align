@@ -415,6 +415,29 @@ The directory has two testament subdirectories (`nt/`, `ot/`) plus shared infras
   temporal has three coexisting strategies 的時候/後/一...就; some lexicalized as plain
   nouns). **Draft — not yet reviewed by a native Mandarin speaker.**
   Distilled from `docs/alignment-principles-ot.zht.md`.
+- `ot/swh.py` — OT Swahili (ONEN). **Draft — not yet run, not reviewed by a native
+  Swahili speaker.** Built from raw text + reasoning (no alignment data), then counted at
+  verse level (WLCM joined to ONEN/ONMM/SRUV06; regex proxies, not token-level alignment) —
+  see `docs/alignment-principles-ot.swh.md` for the evidence, counts and open questions.
+  **ONMM is a dialect revision of ONEN, not an independent check** (mean similarity 0.93);
+  SRUV06 is the only independent text and is consult-only. The OT prompt framework has only
+  four conditional blocks (PRONOMINAL_SUFFIX / NEGATION / PARTICIPLE / INFINITIVE), so
+  everything else lives in the always-on base block. Key rules: **one fused Swahili word =
+  ONE N:1 record** (a target token may sit in only one record per verse; `clean-alignments`
+  drops `DUPLICATETARGET`), with every Hebrew token that has its own morpheme primary —
+  e.g. waw + verb + object suffix + absorbed preposition → one primary record; articles
+  secondary (never NEQ); construct chains take the associative "-a" (secondary on the head
+  noun, ~96% of short verses; Aramaic `דִּי` is a real word, so primary); waw-consecutive is
+  fused `-ka-` (~75% of single-verb verses; law/prophets higher, poetry ~29%) with `-li-`
+  (~18%) and `-po-` (~3%) the main alternatives, waw NEQ when no morpheme carries it;
+  negators follow the NT precedent (primary, fused into the verb; the NT run located 98.7%
+  of Greek negators); relatives are infixed-first in the OT (≈56% vs `amba-` ≈20%, unlike
+  the NT); `hu-` is a gnomic TAM morpheme (~2,100 forms, over half in Proverbs/Psalms/Job);
+  Piel is often causative `-isha` (19%) and Hitpael takes `ji-` (41%); `Ee` before a
+  vocative goes in the vocative noun's record (NT precedent); divine names verified
+  exhaustively (`יהוה` → `Bwana`, `אֲדֹנָי יהוה` → `Bwana Mwenyezi`, `יהוה צְבָאוֹת` →
+  `Bwana Mwenye Nguvu Zote`). Two judgement calls awaiting native review: the waw as
+  primary in `-ka-`/`-po-`, and the preposition as primary when absorbed into the verb.
 - `__init__.py` — re-exports the public API and imports all language modules to trigger
   registration.
 
@@ -447,6 +470,7 @@ compressed. Approximate token budget (all blocks assembled):
 | OT ind | ~5,254 |
 | OT arb | ~7,187 |
 | OT zht | ~5,211 |
+| OT swh | ~6,442 |
 
 NT ind/hin/arb and all OT figures use `tiktoken` (cl100k_base) on the fully-assembled
 prompt (all conditional blocks included), matching `cost_estimate.py`'s counting method
@@ -484,7 +508,7 @@ intentionally left as headroom for a future pass rather than pushed further in o
 sitting, to keep the diff reviewable and the typo risk from hand-editing dense
 Hebrew/Arabic text low.
 
-Current languages: eng, por, spa, fra, ind, hin, arb, zht, hau (NT only), swh (NT only)
+Current languages: eng, por, spa, fra, ind, hin, arb, zht, hau (NT only), swh (NT + OT)
 (both NT arb and
 OT arb have been reviewed by a native Arabic speaker and confirmed "very good"; both NT
 and OT zht have been rebuilt from raw text + reasoning — see
@@ -495,11 +519,11 @@ examined and rejected on the same grounds as zht's retracted draft; NT swh was b
 from raw text + reasoning against ONEN (the primary/first-aligned edition), with
 ONEN's own existing alignment suspected sparse/statistical and not used, cross-checked
 against ONMM and the unlicensed-for-alignment-data SRUV06 (consult-only). Neither NT
-nor OT zht, nor NT hau, nor NT swh, has had native-speaker review; see
+nor OT zht, nor NT hau, nor NT/OT swh, has had native-speaker review; see
 `docs/alignment-principles-nt.arb.md`,
 `docs/alignment-principles-ot.arb.md`, `docs/alignment-principles-nt.zht.md`,
 `docs/alignment-principles-ot.zht.md`, `docs/alignment-principles-nt.hau.md`, and
-`docs/alignment-principles-nt.swh.md`).
+`docs/alignment-principles-nt.swh.md`, and `docs/alignment-principles-ot.swh.md`).
 Planned: Chinese Simplified, Gujarati, Nepali, Tok Pisin, Bislama, Lingala.
 
 ## LLM providers (`refine/llm.py`)
