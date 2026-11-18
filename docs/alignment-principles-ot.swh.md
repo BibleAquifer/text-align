@@ -150,8 +150,17 @@ and never used just because a grammaticalized target feature is marked some othe
   `alignment-principles-ot.md` §13.4). In Esth 9:8, ONEN also drops the `וְ` of each
   list item, so the waw is NEQ too.
 - The Hebrew article: **secondary to its noun**, not NEQ (see ARTICLES).
-- A Swahili word supplied with no Hebrew anchor (a supplied copula, a restructuring
-  connective such as `kwa hiyo`, `basi` with no waw behind it): NEQ.
+- **A supplied copula** in a verbless Hebrew clause (no verb, participle or `הָיָה`): **NEQ
+  target, always, and never secondary to the predicate.** This covers `ni`, the emphatic
+  `ndiye`/`ndio`, the locative `upo`/`yuko`/`iko`, and the past `ilikuwa`/`lilikuwa`. (The first
+  OT review, Pass 3, found the model NEQ'd the copula in Gen 1:2 and Ps 23:4 but marked
+  `ni` secondary to `טוֹב` in Gen 1:4; the rule is now stated once with three examples.)
+  When a Hebrew verb token IS present (`הָיָה`/`יְהִי`, or a participle), the Swahili word
+  rendering it is in that token's record, not NEQ. A repeated copy of the same auxiliary for
+  a second predicate of one Hebrew verb (`הָיְתָה תֹהוּ וָבֹהוּ` → `ilikuwa haina umbo, ilikuwa
+  tupu`) is secondary to the second predicate's record.
+- A Swahili word supplied with no Hebrew anchor (a restructuring connective such as
+  `kwa hiyo`, `basi` with no waw behind it): NEQ.
 - ONEN is dynamic, so a Hebrew content word that ONEN simply does not render is a real NEQ
   (the same call as any literal translation, just more frequent).
 

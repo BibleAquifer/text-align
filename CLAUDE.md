@@ -470,7 +470,7 @@ compressed. Approximate token budget (all blocks assembled):
 | OT ind | ~5,254 |
 | OT arb | ~7,187 |
 | OT zht | ~5,211 |
-| OT swh | ~6,064 |
+| OT swh | ~6,442 |
 
 NT ind/hin/arb and all OT figures use `tiktoken` (cl100k_base) on the fully-assembled
 prompt (all conditional blocks included), matching `cost_estimate.py`'s counting method

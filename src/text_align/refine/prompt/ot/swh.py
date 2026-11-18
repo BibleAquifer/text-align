@@ -126,7 +126,11 @@ Unrecorded = correspondence not determined (normal). NEQ records must not includ
 - Uncertain → leave unrecorded
 Hebrew direct object marker (אֶת/אֵת, pos=particle) → NEQ source in virtually all cases.
 Hebrew article → SECONDARY to its noun, not NEQ (see ARTICLES). Hebrew waw with no connective morpheme (plain -li-/-me-, asyndeton) → NEQ source.
-Supplied copula "ni" with no Hebrew verb token (verbless clause) → NEQ target.
+SUPPLIED COPULA — one rule, no exception for predicate adjectives. In a verbless Hebrew clause (no verb, no participle, no הָיָה) every copula ONEN supplies is NEQ target: "ni", the emphatic "ndiye"/"ndio", the locative "upo"/"yuko"/"iko", and the past "ilikuwa"/"lilikuwa"/"alikuwa". Never mark it secondary to the predicate.
+  כִּי טוֹב → "ya kuwa nuru ni njema": source=[טוֹב], target=["njema"] — primary; "ni" → NEQ target (not secondary to טוֹב)
+  חֹשֶׁךְ עַל פְּנֵי תְהוֹם → "Giza lilikuwa juu ya uso wa vilindi": "lilikuwa" → NEQ target
+  אַתָּה עִמָּדִי → "wewe upo pamoja nami": "upo" → NEQ target
+When a Hebrew verb token IS present (הָיָה/הָיְתָה/יְהִי, or a participle), the Swahili word rendering it belongs in THAT token's record and is not NEQ. A repeated copy of the same auxiliary for a second predicate of one Hebrew verb (הָיְתָה תֹהוּ וָבֹהוּ → "ilikuwa haina umbo, ilikuwa tupu") → secondary to the second predicate's record.
 Swahili words ONEN supplied with no Hebrew anchor (Kwa hiyo, hivyo, a connective with no waw behind it) → NEQ target.
 ONEN is a dynamic translation: a Hebrew content word it does not render is a real NEQ, but only when certain.
 
