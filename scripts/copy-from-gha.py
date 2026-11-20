@@ -43,6 +43,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO_ROOT / "src"))
 
 from text_align.config import CONFIGS_DIR, load_config
+from text_align.pipeline_sync import DEFAULT_PIPELINE_ROOT, sync_alignment_map
 
 _DEFAULT_SUFFIX = "LLM-REFINED"
 
@@ -58,6 +59,10 @@ def parse_args() -> argparse.Namespace:
                    help="Root of the Clear alignments repos (default: ~/git/Clear-Bible)")
     p.add_argument("--dry-run", action="store_true",
                    help="Print actions without copying files or patching YAML")
+    p.add_argument("--pipeline-root", default=DEFAULT_PIPELINE_ROOT, metavar="PATH",
+                   help=f"aquifer-pipeline checkout (default: {DEFAULT_PIPELINE_ROOT})")
+    p.add_argument("--skip-alignment-map", action="store_true",
+                   help="Don't update aquifer-pipeline's alignment-map TSV")
     return p.parse_args()
 
 
@@ -201,6 +206,24 @@ def main() -> None:
                 shutil.rmtree(d)
         else:
             print(f"  (not present: {d.relative_to(_REPO_ROOT)})")
+
+    # --- aquifer-pipeline alignment map (non-fatal: the copy above already succeeded) ---
+    print()
+    if args.skip_alignment_map:
+        print("  alignment map: skipped (--skip-alignment-map)")
+    else:
+        try:
+            action, msgs = sync_alignment_map(
+                config, Path(args.pipeline_root), clear_root, dry_run=args.dry_run
+            )
+            print(f"  alignment map ({args.pipeline_root}): {tag}{action}")
+            for m in msgs:
+                print(f"    {m}")
+            if action != "unchanged" and not args.dry_run:
+                print("    (edited in the working tree only -- review and commit in aquifer-pipeline yourself)")
+        except (LookupError, FileNotFoundError, ValueError) as e:
+            print(f"  warning: alignment map not updated: {e}")
+            print(f"           fix and run: python scripts/update-alignment-map.py --config {args.config}")
 
     print()
     if args.dry_run:

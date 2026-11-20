@@ -1165,6 +1165,30 @@ batch API (same three providers as `refine-alignment`). Job metadata carries
 `"job_type": "retry"`. `fetch-batch` detects this and calls `merge_verse_results`
 instead of writing fresh chapter files.
 
+## Onboarding a new alignment source (`scripts/split-token-tsv.py`, `scripts/update-alignment-map.py`)
+
+Logic lives in `text_align/pipeline_sync.py` (no git, no `aquifer_pipeline` import). Order:
+
+1. In `~/git/BN-Content/aquifer-pipeline`: add the resource to `pipeline.yaml` and run `create-bible`
+   (writes `output/{lang}/{ABBR}/token/token_{ABBR}.tsv`).
+2. `python scripts/split-token-tsv.py --config ABBR` — splits it into `ot_{ABBR}.tsv` / `nt_{ABBR}.tsv`
+   (books 01–39 / 40–66, header kept, line endings normalized to LF) under
+   `<clear-root>/alignments-<biblica_lang>/data/targets/{ABBR}/`. An NT-only Bible gets no OT file.
+   Idempotent: identical files untouched; differing files need `--force`.
+3. `copy-to-gha.py` → GHA run → `git pull` → `copy-from-gha.py`.
+4. `copy-from-gha.py` then calls `update-alignment-map.py` (also runnable standalone; `--skip-alignment-map`
+   to opt out). It edits `aquifer-pipeline/data/tsv/alignment-map-2025-12-08.tsv` **in the working tree only**
+   — review and commit there yourself. Non-fatal if it fails.
+
+Alignment-map rules: `aquifer_bible` is looked up in `pipeline.yaml` by `type: bible` + `abbreviation ==
+target_edition` (language disambiguates). New rows get `alignment_path = exp/{ABBR}/LLM-REFINED`;
+`alignment_repo` uses `biblica_language`. On an existing row every column is reconciled except
+`alignment_path`, which is changed only if the current path doesn't exist in the Clear repo — a legacy
+path that exists (e.g. `data/alignments/ONEN`, Biblica's v0.3 alignment, which the pipeline also loads) is
+left alone. The pipeline hard-codes `exp/{abbr}/LLM-REFINED` for our v0.4 files, so a config with a
+different `alignment_suffix` is warned about. Rows with the wrong field count (a missing tab) are refused,
+not rewritten.
+
 ## GHA transitory data workflow (`scripts/copy-to-gha.py`, `scripts/copy-from-gha.py`)
 
 Alignment runs on GHA need only the translation TSV for a specific config — not the full
