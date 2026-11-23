@@ -164,7 +164,7 @@ def main() -> None:
         if not args.dry_run:
             dest_dir.mkdir(parents=True, exist_ok=True)
         for f in cand:
-            print(f"  {tag}copy  {f.name}  ({f.stat().st_size / 1e6:.1f} MB)")
+            print(f"  {tag}copy  {f.name}  ({f.stat().st_size / 1e3:.1f} KB)")
             if not args.dry_run:
                 shutil.copy2(f, dest_dir / f.name)
     if not sources:
