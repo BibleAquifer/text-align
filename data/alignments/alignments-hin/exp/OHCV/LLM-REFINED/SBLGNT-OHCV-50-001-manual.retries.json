@@ -1,0 +1,10 @@
+{
+  "edition": "OHCV",
+  "chapter_id": "50001",
+  "passes": 1,
+  "retried_verses": [
+    "50001001",
+    "50001014",
+    "50001023"
+  ]
+}
