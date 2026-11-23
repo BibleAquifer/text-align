@@ -2,7 +2,7 @@
 #
 # Invoke any tool with:  --config BOKKPB
 
-alignments_root: ./data/alignments
+alignments_root: ~/git/Clear-Bible
 
 # ---------------------------------------------------------------------------
 # Identity
