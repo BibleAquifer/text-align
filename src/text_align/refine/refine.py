@@ -49,13 +49,21 @@ def load_candidate_records(path: Path) -> dict[str, list[dict]]:
 
     Handles both flat (``alignment["records"]``) and SB 0.4 grouped
     (``alignment["groups"][*]["records"]``) formats transparently.
+
+    Each record keeps ``source`` and ``target``, plus ``meta`` when present
+    (e.g. ``meta.secondary`` from SB 0.4 input).  Group-level
+    ``meta.nonEquivalent`` ids are attached to their verse as one extra record
+    with ``meta.rel == "NEQ"`` (source and/or target ids), the same convention
+    used for NEQ records elsewhere in refine.
     """
     data = load_alignment_json(path)
     if "records" in data:
         raw_records = data["records"]
+        groups: list[dict] = []
     elif "groups" in data:
+        groups = data.get("groups", [])
         raw_records = []
-        for group in data.get("groups", []):
+        for group in groups:
             raw_records.extend(group.get("records", []))
     else:
         return {}
@@ -66,10 +74,21 @@ def load_candidate_records(path: Path) -> dict[str, list[dict]]:
         if not src_ids:
             continue
         verse_id = BCVWPID(src_ids[0]).to_bcvid
-        verses.setdefault(verse_id, []).append({
-            "source": src_ids,
-            "target": rec.get("target") or [],
-        })
+        entry: dict = {"source": src_ids, "target": rec.get("target") or []}
+        if rec.get("meta"):
+            entry["meta"] = rec["meta"]
+        verses.setdefault(verse_id, []).append(entry)
+
+    neq_by_verse: dict[str, dict[str, list[str]]] = {}
+    for group in groups:
+        neq = group.get("meta", {}).get("nonEquivalent") or {}
+        for side in ("source", "target"):
+            for tid in neq.get(side) or []:
+                neq_by_verse.setdefault(BCVWPID(tid).to_bcvid, {"source": [], "target": []})[side].append(tid)
+    for verse_id, neq in neq_by_verse.items():
+        verses.setdefault(verse_id, []).append(
+            {"source": neq["source"], "target": neq["target"], "meta": {"rel": "NEQ"}}
+        )
     return verses
 
 
