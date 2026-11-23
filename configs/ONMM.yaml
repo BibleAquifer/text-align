@@ -16,9 +16,9 @@ target_edition_name: Biblica® Open Kiswahili Contemporary Scriptures 2024
 source_edition: ONEN
 source_language: swh
 
-alignment_sources: []
+alignment_sources: ["DIFF-MIGRATED"]
 alignment_suffix: LLM-REFINED
-from-scratch: true
+from-scratch: false
 
 # smaller chunks?
 batch-size: 4
