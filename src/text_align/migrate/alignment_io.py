@@ -66,6 +66,59 @@ def write_alignment_json(alignment: dict[str, Any], path: Path) -> None:
     path.write_text(json_string, encoding="utf-8")
 
 
+def write_chapter_alignments(
+    alignments: dict[str, Any],
+    output_dir: Path,
+    corpus: str,
+    edition: str,
+) -> tuple[int, int]:
+    """Write an SB 0.4 alignment dict as one ``{corpus}-{edition}-BB-CCC-manual.json`` per chapter.
+
+    Matches the ``refine-alignment`` output layout.  A record belongs to the chapter
+    of its first *target* token (as in refine, which keys output by target verse);
+    ``meta.nonEquivalent`` source ids go to the chapter of their own id and target
+    ids to the chapter of theirs.  Existing chapter files for the same
+    corpus/edition in *output_dir* are removed first so stale chapters don't linger.
+
+    Returns ``(chapter_file_count, record_count)``.
+    """
+    group = alignments["groups"][0]
+    by_chapter: dict[str, dict[str, Any]] = {}
+
+    def bucket(chapter: str) -> dict[str, Any]:
+        return by_chapter.setdefault(
+            chapter, {"records": [], "neq": {"source": [], "target": []}}
+        )
+
+    for rec in group["records"]:
+        bucket(rec["target"][0][:5])["records"].append(rec)
+    neq = group.get("meta", {}).get("nonEquivalent", {})
+    for side in ("source", "target"):
+        for tid in neq.get(side, []):
+            bucket(tid[:5])["neq"][side].append(tid)
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for stale in output_dir.glob(f"{corpus}-{edition}-??-???-manual.json"):
+        stale.unlink()
+
+    base_meta = {k: v for k, v in group.get("meta", {}).items() if k != "nonEquivalent"}
+    for chapter, data in sorted(by_chapter.items()):
+        meta = dict(base_meta)
+        if data["neq"]["source"] or data["neq"]["target"]:
+            meta["nonEquivalent"] = data["neq"]
+        chapter_alignment = {
+            "format": alignments["format"],
+            "version": alignments["version"],
+            "groups": [{**{k: v for k, v in group.items() if k not in ("meta", "records")},
+                        "meta": meta, "records": data["records"]}],
+        }
+        write_alignment_json(
+            chapter_alignment,
+            output_dir / f"{corpus}-{edition}-{chapter[:2]}-{chapter[2:]}-manual.json",
+        )
+    return len(by_chapter), len(group["records"])
+
+
 def create_new_alignments(
     alignments: dict[str, Any],
     remap_target_ids: dict[str, str],

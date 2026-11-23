@@ -92,6 +92,37 @@ def load_candidate_records(path: Path) -> dict[str, list[dict]]:
     return verses
 
 
+def load_candidates(
+    src_dir: Path,
+    corpus_id: str,
+    edition: str,
+    chapters: set[str] | None = None,
+) -> tuple[dict[str, list[dict]], str] | None:
+    """Load candidate records for one source type, preferring SB 0.4 chapter files.
+
+    Reads ``{corpus_id}-{edition}-BB-CCC-manual.json`` files from *src_dir*, only
+    those whose 5-char ``BBCCC`` key is in *chapters* (all when ``None``).  If there
+    are no chapter files, falls back to the single ``{corpus_id}-{edition}-manual.json``.
+    Returns ``(records_by_verse, description)`` or ``None`` when nothing is found.
+    """
+    paths = sorted(src_dir.glob(f"{corpus_id}-{edition}-??-???-manual.json")) if src_dir.is_dir() else []
+    if paths:
+        verses: dict[str, list[dict]] = {}
+        used = 0
+        for path in paths:
+            parts = path.stem.split("-")
+            if chapters is not None and f"{parts[-3]}{parts[-2]}" not in chapters:
+                continue
+            used += 1
+            for vid, recs in load_candidate_records(path).items():
+                verses.setdefault(vid, []).extend(recs)
+        return verses, f"{used} of {len(paths)} chapter files in {src_dir}"
+    single = src_dir / f"{corpus_id}-{edition}-manual.json"
+    if single.exists():
+        return load_candidate_records(single), str(single)
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Output building
 # ---------------------------------------------------------------------------
@@ -305,13 +336,17 @@ def process_corpus(
     # Load candidate alignments for each requested source type
     candidates_by_type: dict[str, dict[str, list[dict]]] = {}
     if not from_scratch:
+        # Only load the chapters this run will actually process.
+        wanted_chapters: set[str] | None = None
+        if args is not None:
+            wanted_chapters = {v[:5] for v in _filter_verse_ids(sorted(target_verses), args)}
         for src_type in alignment_sources:
-            path = exp_dir / src_type / f"{corpus_id}-{target_edition}-manual.json"
-            if path.exists():
-                print(f"Loading candidates: {path.name}")
-                candidates_by_type[src_type] = load_candidate_records(path)
+            loaded = load_candidates(exp_dir / src_type, corpus_id, target_edition, wanted_chapters)
+            if loaded is not None:
+                candidates_by_type[src_type], desc = loaded
+                print(f"Loading candidates [{src_type}]: {desc}")
             else:
-                print(f"Candidate file not found, skipping: {path}")
+                print(f"Candidate files not found, skipping: {exp_dir / src_type}")
 
         if not candidates_by_type:
             print("No candidate files found — aligning from scratch.")

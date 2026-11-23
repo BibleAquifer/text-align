@@ -13,7 +13,7 @@ from pathlib import Path
 from . import diff_match_patch as dmp_module
 
 from text_align.config import load_config_from_args, require
-from .alignment_io import create_new_alignments, load_source_alignment, write_alignment_json
+from .alignment_io import create_new_alignments, load_source_alignment, write_chapter_alignments
 from .tsv import dump_verse_text, process_usfm_tsv
 
 
@@ -151,9 +151,10 @@ def main() -> None:
         new_alignments = create_new_alignments(
             src_alignments, remap, corpus, args.target_edition, creator=args.creator
         )
-        out_path = args.output_dir / f"{corpus}-{args.target_edition}-manual.json"
-        write_alignment_json(new_alignments, out_path)
-        print(f"  → {out_path}  ({len(new_alignments['groups'][0]['records'])} records)")
+        n_files, n_records = write_chapter_alignments(
+            new_alignments, args.output_dir, corpus, args.target_edition
+        )
+        print(f"  → {args.output_dir}  ({n_files} chapter files, {n_records} records)")
 
 
 if __name__ == "__main__":

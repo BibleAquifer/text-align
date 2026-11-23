@@ -44,3 +44,24 @@ def test_block_marks_secondary_neq_and_no_candidate(tmp_path):
     assert "source: [4]" in tail and "target: [3]" in tail
     no_cand = build_batch_message([("40001001", src, tgt, {})], "swh")[0]
     assert "CANDIDATE" not in no_cand
+
+
+def test_load_candidates_selects_chapters_and_falls_back_to_single_file(tmp_path):
+    from text_align.refine.refine import load_candidates
+
+    def chapter(name, src, tgt):
+        (tmp_path / name).write_text(json.dumps({"groups": [{"meta": {}, "records": [
+            {"source": [src], "target": [tgt]}]}]}))
+
+    chapter("SBLGNT-ONMM-40-001-manual.json", "400010010011", "40001001001")
+    chapter("SBLGNT-ONMM-40-002-manual.json", "400020010011", "40002001001")
+    recs, desc = load_candidates(tmp_path, "SBLGNT", "ONMM", {"40002"})
+    assert list(recs) == ["40002001"] and "1 of 2" in desc
+    assert len(load_candidates(tmp_path, "SBLGNT", "ONMM", None)[0]) == 2
+    assert load_candidates(tmp_path / "missing", "SBLGNT", "ONMM") is None
+
+    single = tmp_path / "single"
+    single.mkdir()
+    (single / "SBLGNT-ONMM-manual.json").write_text(json.dumps({"records": [
+        {"source": ["n40001001001"], "target": ["40001001001"]}]}))
+    assert len(load_candidates(single, "SBLGNT", "ONMM", {"40001"})[0]) == 1

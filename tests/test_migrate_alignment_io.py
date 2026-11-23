@@ -62,3 +62,27 @@ def test_create_new_alignments_v03_drops_meta():
     out = create_new_alignments(src, {"t1": "u1"}, "SBLGNT", "ONMM")
     assert out["groups"][0]["records"] == [{"source": ["n1"], "target": ["u1"]}]
     assert "nonEquivalent" not in out["groups"][0]["meta"]
+
+
+def test_write_chapter_alignments_splits_by_target_chapter_and_replaces_stale(tmp_path):
+    from text_align.migrate.alignment_io import write_chapter_alignments
+
+    stale = tmp_path / "SBLGNT-ONMM-40-099-manual.json"
+    stale.write_text("{}")
+    alignments = {"format": "alignment", "version": "0.4", "groups": [{
+        "type": "translation", "documents": [], "roles": ["source", "target"],
+        "meta": {"conformsTo": "0.4", "creator": "x",
+                 "nonEquivalent": {"source": ["40002001002"], "target": ["40001001009"]}},
+        "records": [
+            {"source": ["40001001001"], "target": ["40001001001"]},
+            {"source": ["40001001002"], "target": ["40002001001"],
+             "meta": {"secondary": {"source": ["40001001002"]}}},
+        ]}]}
+    assert write_chapter_alignments(alignments, tmp_path, "SBLGNT", "ONMM") == (2, 2)
+    assert not stale.exists()
+    ch1 = json.loads((tmp_path / "SBLGNT-ONMM-40-001-manual.json").read_text())["groups"][0]
+    ch2 = json.loads((tmp_path / "SBLGNT-ONMM-40-002-manual.json").read_text())["groups"][0]
+    assert [r["target"] for r in ch1["records"]] == [["40001001001"]]
+    assert ch1["meta"]["nonEquivalent"] == {"source": [], "target": ["40001001009"]}
+    assert ch2["records"][0]["meta"] == {"secondary": {"source": ["40001001002"]}}
+    assert ch2["meta"]["nonEquivalent"] == {"source": ["40002001002"], "target": []}
