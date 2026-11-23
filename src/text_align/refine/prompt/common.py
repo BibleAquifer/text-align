@@ -220,23 +220,54 @@ def format_verse_block(
     if not candidates:
         return "\n".join(lines), source_map, target_map
 
-    lines.append("ALIGNMENT CANDIDATES:")
+    lines.append("ALIGNMENT CANDIDATES (suggestions from a related translation):")
+    covered_src: set[int] = set()
+    covered_tgt: set[int] = set()
     for source_type, records in candidates.items():
         lines.append(f"\n[{source_type}]")
         for rec in records:
-            src_nums = [
-                str(source_inv[sid])
-                for sid in rec.get("source", [])
-                if sid in source_inv
-            ]
-            tgt_nums = [
-                str(target_inv[tid])
-                for tid in rec.get("target", [])
-                if tid in target_inv
-            ]
-            lines.append(f"  source: [{' '.join(src_nums)}]  target: [{' '.join(tgt_nums)}]")
+            meta = rec.get("meta") or {}
+            is_neq = meta.get("rel") == "NEQ"
+            secondary = set((meta.get("secondary") or {}).get("source") or [])
+            src_nums = [source_inv[sid] for sid in rec.get("source", []) if sid in source_inv]
+            tgt_nums = [target_inv[tid] for tid in rec.get("target", []) if tid in target_inv]
+            covered_src.update(src_nums)
+            covered_tgt.update(tgt_nums)
+            if is_neq:
+                parts = []
+                if src_nums:
+                    parts.append(f"source: [{' '.join(map(str, src_nums))}]")
+                if tgt_nums:
+                    parts.append(f"target: [{' '.join(map(str, tgt_nums))}]")
+                if parts:
+                    lines.append("  NEQ  " + "  ".join(parts))
+                continue
+            src_txt = " ".join(
+                f"{source_inv[sid]}*" if sid in secondary else str(source_inv[sid])
+                for sid in rec.get("source", []) if sid in source_inv
+            )
+            lines.append(f"  source: [{src_txt}]  target: [{' '.join(map(str, tgt_nums))}]")
+
+    free_src = [n for n in range(1, len(source_tokens) + 1) if n not in covered_src]
+    free_tgt = [n for n in range(1, len(target_tokens) + 1) if n not in covered_tgt]
+    if free_src or free_tgt:
+        lines.append("\nNO CANDIDATE:")
+        if free_src:
+            lines.append(f"  source: [{' '.join(map(str, free_src))}]")
+        if free_tgt:
+            lines.append(f"  target: [{' '.join(map(str, free_tgt))}]")
 
     return "\n".join(lines), source_map, target_map
+
+
+CANDIDATE_INSTRUCTION = (
+    "NOTE ON ALIGNMENT CANDIDATES: where a verse lists candidates, they are suggestions "
+    "from a related translation. They may be wrong for this text and are not preferred "
+    "over your own judgment (* marks a secondary source token; NEQ marks tokens with no "
+    "equivalent). Check each against the target tokens, and keep, change or drop it as "
+    "the text requires. Concentrate on the NO CANDIDATE tokens: align them, and fit them "
+    "together with the rest of the verse so the whole verse reads as one coherent alignment."
+)
 
 
 def build_batch_message(
@@ -259,4 +290,7 @@ def build_batch_message(
         blocks.append(block)
         all_maps[vid] = (source_map, target_map)
 
-    return "\n\n".join(blocks), all_maps
+    message = "\n\n".join(blocks)
+    if any(cands for _, _, _, cands in verse_batch):
+        message = CANDIDATE_INSTRUCTION + "\n\n" + message
+    return message, all_maps

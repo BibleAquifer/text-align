@@ -13,7 +13,7 @@ from pathlib import Path
 from . import diff_match_patch as dmp_module
 
 from text_align.config import load_config_from_args, require
-from .alignment_io import create_new_alignments, load_alignment_json, write_alignment_json
+from .alignment_io import create_new_alignments, load_source_alignment, write_chapter_alignments
 from .tsv import dump_verse_text, process_usfm_tsv
 
 
@@ -104,6 +104,9 @@ def parse_args() -> argparse.Namespace:
                    help="Directory containing ot_<target>.tsv and nt_<target>.tsv")
     p.add_argument("--source-alignment-dir", default=None, type=Path,
                    help="Directory containing source alignment JSON files")
+    p.add_argument("--source-alignment-dir-v04", default=None, type=Path,
+                   help="Directory with SB 0.4 chapter files for the source edition "
+                        "(preferred over --source-alignment-dir when present)")
     p.add_argument("--output-dir", default=None, type=Path,
                    help="Directory to write migrated alignment JSON files")
     p.add_argument("--ot-corpus", default="WLCM",
@@ -136,18 +139,22 @@ def main() -> None:
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     for corpus in (args.ot_corpus, args.nt_corpus):
-        src_path = args.source_alignment_dir / f"{corpus}-{args.source_edition}-manual.json"
-        if not src_path.exists():
-            print(f"Source alignment not found, skipping: {src_path}")
+        loaded = load_source_alignment(
+            corpus, args.source_edition,
+            getattr(args, "source_alignment_dir_v04", None), args.source_alignment_dir,
+        )
+        if loaded is None:
+            print(f"Source alignment not found for {corpus}-{args.source_edition}, skipping")
             continue
-        print(f"Migrating {src_path.name} ...")
-        src_alignments = load_alignment_json(src_path)
+        src_alignments, source_desc = loaded
+        print(f"Migrating {corpus}-{args.source_edition} ({source_desc}) ...")
         new_alignments = create_new_alignments(
             src_alignments, remap, corpus, args.target_edition, creator=args.creator
         )
-        out_path = args.output_dir / f"{corpus}-{args.target_edition}-manual.json"
-        write_alignment_json(new_alignments, out_path)
-        print(f"  → {out_path}  ({len(new_alignments['groups'][0]['records'])} records)")
+        n_files, n_records = write_chapter_alignments(
+            new_alignments, args.output_dir, corpus, args.target_edition
+        )
+        print(f"  → {args.output_dir}  ({n_files} chapter files, {n_records} records)")
 
 
 if __name__ == "__main__":

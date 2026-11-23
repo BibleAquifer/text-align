@@ -6,7 +6,11 @@ Copies all TSV files for the target edition from the Clear alignments repo into
 config YAML so alignments_root points to ./data/alignments.
 
 If exp/<edition>/<alignment_suffix>/ exists in the Clear repo, its JSON files are
-also staged (enables incremental GHA runs). If viz/<edition>/ exists, it is staged too.
+also staged (enables incremental GHA runs). Each candidate source named in the config's
+alignment_sources (e.g. DIFF-MIGRATED, SIM-MIGRATED) is staged from exp/<edition>/<source>/
+the same way, unless the config sets from-scratch: true -- without them refine-alignment
+on GHA silently falls back to aligning from scratch. If viz/<edition>/ exists, it is
+staged too.
 
 The alignment_suffix is read from the config YAML; defaults to LLM-REFINED.
 
@@ -141,6 +145,32 @@ def main() -> None:
         print(f"  exp: {src_exp_dir} not found or empty -- skipping")
     print()
 
+    # --- Candidate sources named in alignment_sources (DIFF-MIGRATED, SIM-MIGRATED, ...) ---
+    from_scratch = config.get("from-scratch", config.get("from_scratch", False))
+    sources = [] if from_scratch else list(config.get("alignment_sources") or [])
+    missing_sources: list[str] = []
+    for source in sources:
+        src_dir = clear_root / f"alignments-{biblica_lang}" / "exp" / edition / source
+        dest_dir = staged_root / "exp" / edition / source
+        cand = sorted(src_dir.glob("*.json")) if src_dir.exists() else []
+        if not cand:
+            missing_sources.append(source)
+            print(f"  WARNING candidate source {source}: {src_dir} not found or empty --")
+            print(f"          GHA refine-alignment will fall back to aligning from scratch for it")
+            continue
+        print(f"  candidate source {source} ({len(cand)} files):")
+        print(f"    {src_dir}")
+        print(f"    -> {dest_dir}")
+        if not args.dry_run:
+            dest_dir.mkdir(parents=True, exist_ok=True)
+        for f in cand:
+            print(f"  {tag}copy  {f.name}  ({f.stat().st_size / 1e6:.1f} MB)")
+            if not args.dry_run:
+                shutil.copy2(f, dest_dir / f.name)
+    if not sources:
+        print("  candidate sources: none configured (from-scratch or empty alignment_sources)")
+    print()
+
     # --- Viz (optional) ---
     has_viz = src_viz_dir.exists() and any(src_viz_dir.iterdir())
     if has_viz:
@@ -164,6 +194,8 @@ def main() -> None:
         print("Dry run complete -- no files written.")
     else:
         print("Done.")
+        if missing_sources:
+            print(f"\n  WARNING: missing candidate source(s): {', '.join(missing_sources)}")
         print()
         print("Next steps:")
         print(f"  git add data/alignments/alignments-{lang}/")
