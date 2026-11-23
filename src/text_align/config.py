@@ -31,6 +31,9 @@ provided is derived automatically:
 
     source_tsv_dir       → <root>/alignments-<src_lang>/data/targets/<src_ed>
     source_alignment_dir → <root>/alignments-<src_lang>/data/alignments/<src_ed>
+                           (SB 0.3 fallback)
+    source_alignment_dir_v04 → <root>/alignments-<src_lang>/exp/<src_ed>/<alignment_suffix|LLM-REFINED>
+                           (SB 0.4 chapter files; preferred by the *-migrate tools)
     target_tsv_dir       → <root>/alignments-<biblica_lang>/data/targets/<trg_ed>
     targets_dir          → <root>/alignments-<biblica_lang>/data/targets/<trg_ed>
     lang_data_path       → <root>/alignments-<biblica_lang>/data
@@ -187,6 +190,8 @@ def derive_paths(
         src_repo = root / f"alignments-{src_lang}"
         result.setdefault("source_tsv_dir",       src_repo / "data" / "targets"   / src_ed)
         result.setdefault("source_alignment_dir",  src_repo / "data" / "alignments" / src_ed)
+        result.setdefault("source_alignment_dir_v04", src_repo / "exp" / src_ed
+                          / (config.get("alignment_suffix") or "LLM-REFINED"))
 
     if biblica_lang and trg_ed:
         trg_repo = root / f"alignments-{biblica_lang}"
